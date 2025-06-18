@@ -30,20 +30,25 @@
 <body>
   <div class="container">
     <header>
-      <div class="language-toggle">
-          <button onclick="setLanguage('en')">English</button>
-          <button onclick="setLanguage('cs')">Čeština</button>
-      </div>
       <div class="banner">
         <img src="/tools4friends_dark_Banner_2000x400.png" alt="Company Logo">
       </div>
     </header>
     <div class="line-break"></div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="tools.php">Tools</a>
-      <a href="contacts.html">Contacts</a>
-    </nav>
+
+<nav>
+  <div class="nav-left">
+    <a href="index.html">Home</a>
+    <a href="tools.php">Tools</a>
+    <a href="contacts.html">Contacts</a>
+  </div>
+
+  <div class="nav-right language-toggle">
+    <button onclick="setLanguage('en')">English</button>
+    <button onclick="setLanguage('cs')">Čeština</button>
+  </div>
+</nav>
+
     <main>
 
       <h1 data-en="Welcome to Tools 4 Friends" data-cs="Vítejte na Tools 4 Friends">Welcome to Tools 4 Friends</h1>
