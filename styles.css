@@ -1,0 +1,129 @@
+body {
+    font-family: "Libre Baskerville", serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #1F2D5A;
+    color: #fff;
+}
+
+nav a {
+    color: #fff;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+nav a:hover, nav a:focus {
+    background-color: #fff;
+    color: #1F2D5A;
+}
+
+.container {
+    border: 2px solid #1F2D5A;
+    margin: 5px 5px 5px 5px;
+    border-radius: 20px;
+    background-color: #fff;
+}
+
+h1, h2, h3 {
+    color: #1F2D5A;
+}
+
+footer {
+    text-align: center;
+    background-color: rgb(31, 45, 90);
+    color: #fff;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    border-bottom-left-radius: 17px;
+    border-bottom-right-radius: 17px;
+}
+
+.banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto; 
+    border-top-left-radius: 17px;
+    border-top-right-radius: 17px;
+}
+
+main {
+    margin: 20px;
+}
+
+#contact {
+    padding: 20px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 60px; /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+    margin-right: 10px; /* Space between image and text */
+    border-radius: 50%; /* Optional: make the image circular */
+}
+
+.page_title {
+  margin: 20px;  /* Adds margin outside the element */
+}
+
+.tool-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Optional: Adds space between blocks */
+}
+
+.tool-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; /* Ensures the availability button is at the bottom */
+  width: 30%;
+  min-height: 400px; /* Adjust based on your content */
+  border: 2px solid rgb(31, 45, 90);
+  border-radius: 10px;
+  padding: 20px 10px 10px 10px;
+  margin: 10px;
+  box-shadow: 10px 10px 20px rgba(31, 45, 90, 0.5);
+}
+
+.tool-block img {
+  height: 200px;
+  width: auto;
+}
+
+.tool-block h3 {
+  text-align: center;
+}
+
+.left-text {
+    text-align: left;
+}
+
+.tool-block .availability-button {
+  margin-top: auto; /* Pushes the button to the bottom */
+}
+
+.availability-button {
+    width: 200px;
+    height: 20px;
+    padding: 5px 20px 3px 20px;
+    background-color: #fff;
+    color: #1F2D5A;
+    border: 2px solid #1F2D5A;
+    border-radius: 5px;
+}
