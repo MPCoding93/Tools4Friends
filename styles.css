@@ -22,6 +22,43 @@ nav a {
     padding-right: 10px;
 }
 
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #1F2D5A;
+  color: #fff;
+}
+
+.nav-left a {
+  color: #fff;
+  margin-right: 10px;
+  text-decoration: none;
+}
+
+.nav-left a:hover,
+.nav-left a:focus {
+  background-color: #fff;
+  color: #1F2D5A;
+}
+
+.nav-right button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #fff;
+  color: #1F2D5A;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-right button:hover {
+  background-color: #ccc;
+}
+
+
 nav a:hover, nav a:focus {
     background-color: #fff;
     color: #1F2D5A;
