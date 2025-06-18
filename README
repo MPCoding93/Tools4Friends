@@ -1,0 +1,47 @@
+TABLE STRUCTURE:
+
+Users Table:
+userid - PRI, int
+username - varchar
+address - Varchar
+email - UNI, Varchar
+first_name - Varchar
+last_name - varchar
+password - blob
+phone - varchar
+
+Tools Table:
+tool_id - PRI, Int
+availability - tinyint
+brand - varchar
+description - text
+model - varchar
+name - varchar
+Picture - varchar
+power - varchar
+
+ToolCategories Table:
+category_id - PRI, int
+tool_id - PRI, int
+
+ToolAvailability Table:
+availability_id - PRI, int
+tool_id - MUL, int
+end_date - DateTime
+start_date - DateTime
+
+Order_Details Table:
+order_id - PRI, int
+tool_id - PRI, int
+tool_name - varchar
+
+Orders Table:
+order_date - DateTime
+order_from - DateTime
+order_till - DateTime
+order_id - PRI, int
+user_id - MUL, int
+
+Categories Table:
+category_id - PRI, int
+category_name - varchar
