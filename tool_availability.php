@@ -7,12 +7,20 @@ include 'db_connect.php';
 // Get tool ID
 $tool_id = isset($_GET['tool_id']) ? intval($_GET['tool_id']) : 0;
 
+
 // Fetch tool details
 $stmt = $conn->prepare("SELECT * FROM Tools WHERE tool_id = ?");
 $stmt->bind_param("i", $tool_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $tool = $result->fetch_assoc();
+
+if (!$tool) {
+    echo "<h2>Tool not found.</h2>";
+    exit;
+}
+?>
+
 
 // Fetch availability ranges using MySQLi
 $availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ? AND is_available = 0");
