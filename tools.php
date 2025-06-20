@@ -75,7 +75,7 @@
                             <p><strong>Brand:</strong> <?php echo $tool['brand']; ?></p>
                             <p><strong>Model:</strong> <?php echo $tool['model']; ?></p>
                             <p><strong>Technical Details:</strong> <?php echo $tool['technical_data']; ?></p>
-                            <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?></p>
+                            <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?>Kč</p>
                             <p><strong>Owner:</strong> <?php echo $tool['owner']; ?></p>
                         </div>
                         <div><a href="comingsoon.html" class="availability-button">Check Availability</a></div>
