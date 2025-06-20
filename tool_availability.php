@@ -14,7 +14,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $tool = $result->fetch_assoc();
 
-
 // Fetch availability ranges using MySQLi
 $availability_stmt = $conn->prepare("SELECT start_date, end_date FROM availability WHERE tool_id = ? AND is_available = 0");
 $availability_stmt->bind_param("i", $tool_id);
@@ -25,7 +24,7 @@ $unavailable_ranges = [];
 while ($row = $availability_result->fetch_assoc()) {
     $unavailable_ranges[] = $row;
 }
-
+?>
 
 <!DOCTYPE html>
 <html>
@@ -75,20 +74,18 @@ while ($row = $availability_result->fetch_assoc()) {
         <div class="line-break"></div>
 
         <nav>
-            
-
             <div class="nav-left">
-                <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
-                <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
+                <a href="index.html" data-en="Home" data-cs="Domů">Home</a> &nbsp;
+                <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a> &nbsp;
                 <a href="contacts.html" data-en="Contacts" data-cs="Kontakty">Contacts</a>
             </div>
 
-            
             <div class="nav-right language-toggle">
-                <button onclick="setLanguage('en')">English</button>    
-                <button onclick="setLanguage('cs')">Čeština</button>  
+                <button onclick="setLanguage('en')">English</button> &nbsp;&nbsp;&nbsp;
+                <button onclick="setLanguage('cs')">Čeština</button> &nbsp;
             </div>
         </nav>
+
         <main>
             <h1><?php echo htmlspecialchars($tool['name']); ?></h1>
             <p><strong>Description:</strong> <?php echo htmlspecialchars($tool['description']); ?></p>
@@ -98,12 +95,13 @@ while ($row = $availability_result->fetch_assoc()) {
             <p><strong>Deposit:</strong> $<?php echo htmlspecialchars($tool['deposit']); ?></p>
 
             <div class="calendar-nav">
-                <button onclick="changeMonth(-1)">&#8592; Previous</button>
+                <button onclick="changeMonth(-1)">← Previous</button>
                 <h2 id="calendar-month"></h2>
-                <button onclick="changeMonth(1)">Next &#8594;</button>
+                <button onclick="changeMonth(1)">Next →</button>
             </div>
             <div class="calendar" id="calendar"></div>
         </main>
+
         <script>
             const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
             let currentDate = new Date();
@@ -151,6 +149,7 @@ while ($row = $availability_result->fetch_assoc()) {
 
             renderCalendar(currentDate);
         </script>
+    </div>
 </body>
 
 </html>
