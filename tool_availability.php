@@ -4,17 +4,16 @@
 // Include database connection
 include 'db_connect.php';
 
-// Get tool ID from query parameter
+// Get tool ID
 $tool_id = isset($_GET['tool_id']) ? intval($_GET['tool_id']) : 0;
 
 // Fetch tool details
-$stmt = $pdo->prepare("SELECT * FROM Tools WHERE tool_id = ?");
-$stmt->execute([$tool_id]);
-$tool = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = $conn->prepare("SELECT * FROM Tools WHERE tool_id = ?");
+$stmt->bind_param("i", $tool_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$tool = $result->fetch_assoc();
 
-if (!$tool) {
-    die("Tool not found.");
-}
 
 // Fetch availability ranges
 $availability_stmt = $pdo->prepare("SELECT start_date, end_date FROM availability WHERE tool_id = ? AND is_available = 0");
