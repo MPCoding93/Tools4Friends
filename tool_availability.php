@@ -15,11 +15,17 @@ $result = $stmt->get_result();
 $tool = $result->fetch_assoc();
 
 
-// Fetch availability ranges
-$availability_stmt = $pdo->prepare("SELECT start_date, end_date FROM availability WHERE tool_id = ? AND is_available = 0");
-$availability_stmt->execute([$tool_id]);
-$unavailable_ranges = $availability_stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
+// Fetch availability ranges using MySQLi
+$availability_stmt = $conn->prepare("SELECT start_date, end_date FROM availability WHERE tool_id = ? AND is_available = 0");
+$availability_stmt->bind_param("i", $tool_id);
+$availability_stmt->execute();
+$availability_result = $availability_stmt->get_result();
+$unavailable_ranges = [];
+
+while ($row = $availability_result->fetch_assoc()) {
+    $unavailable_ranges[] = $row;
+}
+
 
 <!DOCTYPE html>
 <html>
