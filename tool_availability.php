@@ -15,7 +15,7 @@ $result = $stmt->get_result();
 $tool = $result->fetch_assoc();
 
 // Fetch availability ranges using MySQLi
-$availability_stmt = $conn->prepare("SELECT start_date, end_date FROM availability WHERE tool_id = ? AND is_available = 0");
+$availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ? AND is_available = 0");
 $availability_stmt->bind_param("i", $tool_id);
 $availability_stmt->execute();
 $availability_result = $availability_stmt->get_result();
