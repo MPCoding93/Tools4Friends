@@ -71,9 +71,10 @@
                         <img src="<?php echo $tool['picture']; ?>" alt="<?php echo $tool['name']; ?>">
                         <h3><?php echo $tool['name']; ?></h3>
                         <div class="left-text">
+                            <p><strong>Description:</strong> <?php echo $tool['description']; ?></p>
                             <p><strong>Brand:</strong> <?php echo $tool['brand']; ?></p>
                             <p><strong>Model:</strong> <?php echo $tool['model']; ?></p>
-                            <p><strong>Power:</strong> <?php echo $tool['power']; ?></p>
+                            <p><strong>Technical Details:</strong> <?php echo $tool['technical_data']; ?></p>
                             <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?></p>
                             <p><strong>Owner:</strong> <?php echo $tool['owner']; ?></p>
                         </div>
