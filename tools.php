@@ -77,18 +77,23 @@
                             <p><strong>Technical Details:</strong> <?php echo $tool['technical_data']; ?></p>
                             <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?>Kč</p>
                             <p><strong>Owner:</strong> <?php echo $tool['ownerID']; ?></p>
+
+                            div>
+                            <a href="tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>"
+                                class="availability-button">
+                                Check Availability
+                                </a>
                         </div>
-                        <div><a href="tool_availability.php" class="availability-button">Check Availability</a></div>
-                    </div>
-                <?php endforeach; ?>
+
+                    <?php endforeach; ?>
+                </div>
             </div>
-        </div>
-        <footer>
-            <p>&copy; <span id="year"></span> Tools4Friends</p>
-            <script>
-                document.getElementById('year').textContent = new Date().getFullYear();
-            </script>
-        </footer>
+            <footer>
+                <p>&copy; <span id="year"></span> Tools4Friends</p>
+                <script>
+                    document.getElementById('year').textContent = new Date().getFullYear();
+                </script>
+            </footer>
 
 </body>
 
