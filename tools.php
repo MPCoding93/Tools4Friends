@@ -1,36 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Borrowing tools from friends for friends">
-    <meta name="keywords" content="Tools for Friends, tools, naradi">
-    <meta name="author" content="MPCoding">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Borrowing tools from friends for friends"
+    />
+    <meta name="keywords" content="Tools for Friends, tools, naradi" />
+    <meta name="author" content="MPCoding" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon-dark.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      function setLanguage(lang) {
+        document.querySelectorAll("[data-en]").forEach((el) => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+    </script>
+
     <title>Tools4Friends</title>
+  </head>
 
-</head>
-
-<body>
+  <body>
     <div class="container">
-        <header>
-            <div class="banner">
-                <img src="/tools4friends_dark_Banner_2000x400.png" alt="Company Logo">
-            </div>
-        </header>
-        <div class="line-break"></div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="tools.php">Tools</a>
-            <a href="contacts.html">Contacts</a>
-        </nav>
+      <header>
+        <div class="banner">
+          <img
+            src="/tools4friends_dark_Banner_2000x400.png"
+            alt="Company Logo"
+          />
+        </div>
+      </header>
+      <div class="line-break"></div>
+
+      <nav>
+         
+
+        <div class="nav-left">
+            <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
+          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
+          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty"
+            >Contacts</a
+          >
+        </div>
+
+         
+        <div class="nav-right language-toggle">
+              <button onclick="setLanguage('en')">English</button>    
+          <button onclick="setLanguage('cs')">Čeština</button>  
+        </div>
+      </nav>
+
         <div class="content">
             <h1 class="page_title">Tools</h1>
             <nav class="category-nav">
