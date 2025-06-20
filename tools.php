@@ -78,7 +78,7 @@
                             <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?>Kč</p>
                             <p><strong>Owner:</strong> <?php echo $tool['ownerID']; ?></p>
                         </div>
-                        <div><a href="comingsoon.html" class="availability-button">Check Availability</a></div>
+                        <div><a href="tool_availability.html" class="availability-button">Check Availability</a></div>
                     </div>
                 <?php endforeach; ?>
             </div>
