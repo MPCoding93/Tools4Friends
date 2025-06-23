@@ -96,6 +96,7 @@
                             <p><strong>Model:</strong> <?php echo $tool['model']; ?></p>
                             <p><strong>Technical Details:</strong> <?php echo $tool['technical_data']; ?></p>
                             <p><strong>Deposit:</strong> <?php echo $tool['deposit']; ?>Kč</p>
+                            <p><strong>Manipulation Fee:</strong> <?php echo $tool['manipulation_fee']; ?>Kč</p>
                             <p><strong>Owner:</strong> <?php echo $tool['ownerID']; ?></p>
                         </div>
                         <div><a href="tool_availability.php" class="availability-button">Check Availability</a></div>
