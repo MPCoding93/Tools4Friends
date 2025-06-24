@@ -50,12 +50,12 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             </div>
         </header>
 
-       <div class="line-break"></div>
+        <div class="line-break"></div>
 
         <nav>
             <div class="nav-left">
                 <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">Home</a>&nbsp;
-                <a href="tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>&nbsp;
+               lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>&nbsp;
                 <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">Contacts</a>
             </div>
 
@@ -96,7 +96,7 @@ while ($tool_row = $tools_result->fetch_assoc()) {
                             <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong> <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
                         <div>
-                            <a href="<?php echo $tool['availability_link']; ?>" class="availability-button">
+                            <a href="tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>" class="availability-button">
                                 <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
                             </a>
                         </div>
