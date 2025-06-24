@@ -31,48 +31,39 @@ while ($tool_row = $tools_result->fetch_assoc()) {
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>">
 
- <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Borrowing tools from friends for friends"
-    />
+    <meta name="description" content="Borrowing tools from friends for friends" />
     <meta name="keywords" content="Tools for Friends, tools, naradi" />
     <meta name="author" content="MPCoding" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="/favicon-dark.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
-
-    <script>
-      function setLanguage(lang) {
-        document.querySelectorAll("[data-en]").forEach((el) => {
-          el.textContent = el.getAttribute(`data-${lang}`);
-        });
-      }
-    </script>
-
     <title>Tools4Friends</title>
-  </head>
+</head>
 
-  <body>
+<body>
     <div class="container">
-      <header>
-        <div class="banner">
-          <img
-            src="/tools4friends_dark_Banner_2000x400.png"
-            alt="Company Logo"
-          />
-        </div>
-      </header>
-      <div class="line-break"></div>
+        <header>
+            <div class="banner">
+                <img src="/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
+            </div>
+        </header>
 
-      <nav>
+       <div class="line-break"></div>
+
+        <nav>
+            <div class="nav-left">
+                <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">Home</a>&nbsp;
+                <a href="tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>&nbsp;
+                <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">Contacts</a>
+            </div>
+
+            <div class="nav-right language-toggle">
+                <button onclick="window.location.href='tools.php?lang=en'">English</button>&nbsp;&nbsp;&nbsp;
+                <button onclick="window.location.href='tools.php?lang=cs'">Čeština</button>&nbsp;
+            </div>
+        </nav>
 
         <div class="content">
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
