@@ -50,7 +50,7 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             </div>
         </header>
 
-       div class="line-break"></div>
+       <div class="line-break"></div>
 
         <nav>
             <div class="nav-left">
