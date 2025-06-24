@@ -1,5 +1,35 @@
+<?php
+// Include database connection
+include 'db_connect.php';
+
+// Get selected language from URL or default to English
+$lang = $_GET['lang'] ?? 'en';
+
+// Get selected category or default to 'vše'
+$selected_category = $_GET['category'] ?? 'vše';
+
+// Fetch categories
+$category_sql = "SELECT DISTINCT category_name FROM Categories";
+$category_result = $conn->query($category_sql);
+
+// Fetch tools based on selected category
+if ($selected_category === 'vše') {
+    $tools_sql = "SELECT * FROM Tools";
+} else {
+    $tools_sql = "SELECT Tools.* FROM Tools 
+                  JOIN ToolCategories ON Tools.tool_id = ToolCategories.tool_id 
+                  JOIN Categories ON ToolCategories.category_id = Categories.category_id 
+                  WHERE Categories.category_name = '$selected_category'";
+}
+$tools_result = $conn->query($tools_sql);
+$tools = [];
+while ($tool_row = $tools_result->fetch_assoc()) {
+    $tools[] = $tool_row;
+}
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
 
 <head>
     <meta charset="UTF-8" />
@@ -9,16 +39,6 @@
     <meta name="author" content="MPCoding" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="/favicon-dark.ico" />
-    https://fonts.googleapis.com
-    <link rel="preconnect" href=" <link
-        href="
-        https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap
-        function setLanguage(lang) { document.querySelectorAll("[data-en]").forEach((el)=> {
-    el.textContent = el.getAttribute(`data-${lang}`);
-    });
-    }
-    </script>
-
     <title>Tools4Friends</title>
 </head>
 
@@ -29,103 +49,69 @@
                 <img src="/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
             </div>
         </header>
-        <div class="line-break"></div>
+
+       div class="line-break"></div>
 
         <nav>
             <div class="nav-left">
-                <a href="index.html" data-en="Home" data-cs="Domů">Home</a> &nbsp;
-                <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a> &nbsp;
-                <a href="contacts.html" data-en="Contacts" data-cs="Kontakty">Contacts</a>
+                <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">Home</a>&nbsp;
+                <a href="tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>&nbsp;
+                <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">Contacts</a>
             </div>
 
             <div class="nav-right language-toggle">
-                <button onclick="setLanguage('en')">English</button> &nbsp;&nbsp;&nbsp;
-                <button onclick="setLanguage('cs')">Čeština</button> &nbsp;
+                <button onclick="window.location.href='tools.php?lang=en'">English</button>&nbsp;&nbsp;&nbsp;
+                <button onclick="window.location.href='tools.php?lang=cs'">Čeština</button>&nbsp;
             </div>
         </nav>
 
         <div class="content">
-            <h1 class="page_title" data-en="Tools" data-cs="Nářadí">Tools</h1>
+            <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
+
             <nav class="category-nav">
-                <?php
-                // Include database connection
-                include 'db_connect.php';
-
-                // Add "vše" category manually
-                //echo '<a href="tools.php?category=vše" data-en="All" data-cs="Vše">All</a>';
-                
-                $category_sql = "SELECT DISTINCT category_name FROM Categories";
-                $category_result = $conn->query($category_sql);
-                while ($category_row = $category_result->fetch_assoc()) {
-                    echo '<a href="tools.php?category=' . $category_row['category_name'] . '" data-en="' . $category_row['category_name'] . '" data-cs="' . $category_row['category_name'] . '">' . $category_row['category_name'] . '</a>';
-                }
-                ?>
+                <a href="tools.php?category=vše&lang=<?php echo $lang; ?>">
+                    <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
+                </a>
+                <?php while ($category_row = $category_result->fetch_assoc()): ?>
+                    <a href="tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>">
+                        <?php echo htmlspecialchars($category_row['category_name']); ?>
+                    </a>
+                <?php endwhile; ?>
             </nav>
-            <div class="tool-list">
-                <?php
-                // Fetch tools based on selected category
-                $selected_category = $_GET['category'] ?? 'vše';
-                if ($selected_category === 'vše') {
-                    $tools_sql = "SELECT * FROM Tools";
-                } else {
-                    $tools_sql = "SELECT Tools.* FROM Tools 
-                                      JOIN ToolCategories ON Tools.tool_id = ToolCategories.tool_id 
-                                      JOIN Categories ON ToolCategories.category_id = Categories.category_id 
-                                      WHERE Categories.category_name = '$selected_category'";
-                }
-                $tools_result = $conn->query($tools_sql);
-                $tools = [];
-                while ($tool_row = $tools_result->fetch_assoc()) {
-                    $tools[] = $tool_row;
-                }
 
-                foreach ($tools as $tool): ?>
+            <div class="tool-list">
+                <?php foreach ($tools as $tool): 
+                    $name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['name'];
+                    $description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
+                    $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
+                ?>
                     <div class="tool-block">
-                        <img src="<?php echo $tool['picture']; ?>" alt="<?php echo $tool['name']; ?>">
-                        <h3 data-en="<?php echo $tool['name']; ?>" data-cs="<?php echo $tool['name']; ?>">
-                            <?php echo $tool['name']; ?>
-                        </h3>
+                        <img src="<?php echo $tool['picture']; ?>" alt="<?php echo htmlspecialchars($name); ?>">
+                        <h3><?php echo htmlspecialchars($name); ?></h3>
                         <div class="left-text">
-                            <p><strong data-en="Description:" data-cs="Popis:">Description:</strong>
-                                <?php echo $tool['description']; ?></p>
-                            <p><strong data-en="Brand:" data-cs="Značka:">Brand:</strong> <?php echo $tool['brand']; ?></p>
-                            <p><strong data-en="Model:" data-cs="Model:">Model:</strong> <?php echo $tool['model']; ?></p>
-                            <p><strong data-en="Technical Details:" data-cs="Technické Detaily:">Technical Details:</strong>
-                                <?php echo $tool['technical_data']; ?></p>
-                            <!--
-                            <p><strong data-en="Deposit:" data-cs="Záloha:">Deposit:</strong> <?php echo $tool['deposit']; ?>Kč</p>
-                            <p><strong data-en="Manipulation Fee:" data-cs="Manipulační Poplatek:">Manipulation Fee:</strong> <?php echo $tool['manipulation_fee']; ?>Kč</p> 
-                            -->
-                            <p><strong data-en="Owner:" data-cs="Majitel:">Owner:</strong> <?php echo $tool['ownerID']; ?>
-                            </p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong> <?php echo htmlspecialchars($description); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong> <?php echo htmlspecialchars($tool['brand']); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong> <?php echo htmlspecialchars($tool['model']); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong> <?php echo htmlspecialchars($technical_data); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong> <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
-                        <div><a href="<?php echo $tool['availability_link']; ?>" class="availability-button"
-                                data-en="Check Availability" data-cs="Zkontrolovat Dostupnost">Check Availability</a></div>
+                        <div>
+                            <a href="<?php echo $tool['availability_link']; ?>" class="availability-button">
+                                <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
+                            </a>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
+
         <footer>
             <p>&copy; <span id="year"></span> Tools4Friends</p>
             <script>
                 document.getElementById('year').textContent = new Date().getFullYear();
             </script>
         </footer>
-
     </div>
-</body>
-
-</html>
-
-</div>
-<footer>
-    <p>&copy; <span id="year"></span> Tools4Friends</p>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
-</footer>
-
-</div>
 </body>
 
 </html>
