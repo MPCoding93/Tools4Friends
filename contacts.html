@@ -1,75 +1,87 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="Borrowing tools from friends for friends" name="description"/>
-<meta content="Tools for Friends, tools, naradi" name="keywords"/>
-<meta content="MPCoding" name="author"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Borrowing tools from friends for friends"
+    />
+    <meta name="keywords" content="Tools for Friends, tools, naradi" />
+    <meta name="author" content="MPCoding" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon-dark.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
 
-<link href="/favicon-dark.ico" rel="icon"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-
-<script>
+    <script>
       function setLanguage(lang) {
         document.querySelectorAll("[data-en]").forEach((el) => {
           el.textContent = el.getAttribute(`data-${lang}`);
         });
       }
     </script>
-<title>Tools4Friends</title>
-<link href="styles 1.css" rel="stylesheet"/></head>
-<body>
-<div class="container">
 
-<header>
-<div class="banner">
-<img alt="Company Logo" src="/tools4friends_dark_Banner_2000x400.png"/>
-</div>
-</header>
-<div class="line-break"></div>
+    <title>Tools4Friends</title>
+  </head>
 
-<div class="line-break"></div>
-<nav>
+  <body>
+    <div class="container">
+      <header>
+        <div class="banner">
+          <img
+            src="/tools4friends_dark_Banner_2000x400.png"
+            alt="Company Logo"
+          />
+        </div>
+      </header>
+      <div class="line-break"></div>
+
+      <nav>
          
 
         <div class="nav-left">
-            <a data-cs="Domů" data-en="Home" href="index.html">Home</a>  
-          <a data-cs="Nářadí" data-en="Tools" href="tools.php">Tools</a>  
-          <a data-cs="Kontakty" data-en="Contacts" href="contacts.html">Contacts</a>
-</div>
+            <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
+          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
+          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty"
+            >Contacts</a
+          >
+        </div>
 
          
         <div class="nav-right language-toggle">
               <button onclick="setLanguage('en')">English</button>    
           <button onclick="setLanguage('cs')">Čeština</button>  
         </div>
-</nav>
-<main id="contact-container">
-<div id="contact">
-<h1>How to reach us?</h1>
-<h2>Contact Details</h2>
-<div class="profile">
-<img alt="Michael Pauwels" class="profile-pic" src="/ProfilePicture.jpg"/>
-<h3>Michael Pauwels</h3>
-</div>
-<div class="profile">
-<img alt="Profile Picture" class="profile-pic" src="/NoProfilePicture.jpg"/>
-<h3>Pavel Eleder</h3>
-</div>
-<br/>
-<p><b>Email:</b> <a href="mailto:info@tools4friends.kvalitne.cz?subject=Info%20request">Contact Us</a></p>
-</div>
-</main>
+      </nav>
 
-<footer>
-<p>© <span id="year"></span> Tools4Friends</p>
-<script>
-            document.getElementById('year').textContent = new Date().getFullYear();
-        </script>
-</footer>
+            <main id="contact-container">
+                <div id="contact">
+                    <h1>How to reach us?</h1>
+                    <h2>Contact Details</h2>
+                    <div class="profile">
+                        <img src="/ProfilePicture.jpg" alt="Michael Pauwels" class="profile-pic">
+                        <h3>Michael Pauwels</h3>
+                    </div>
+                
+                    <div class="profile">
+                        <img src="/NoProfilePicture.jpg" alt="Profile Picture" class="profile-pic">
+                        <h3>Pavel Eleder</h3>
+                    </div>
+                    <br>
+                    <p><b>Email:</b> <a href="mailto:info@tools4friends.kvalitne.cz?subject=Info%20request">Contact Us</a></p>
+                </div>
 
-</div></body>
+            </main>
+            <footer>
+                <p>&copy; <span id="year"></span> Tools4Friends</p>
+                <script>
+                    document.getElementById('year').textContent = new Date().getFullYear();
+                </script>
+            </footer>
+</body>
 </html>
