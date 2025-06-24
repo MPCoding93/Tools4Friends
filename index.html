@@ -1,92 +1,131 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="Borrowing tools from friends for friends" name="description"/>
-<meta content="Tools for Friends, tools, naradi" name="keywords"/>
-<meta content="MPCoding" name="author"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Borrowing tools from friends for friends"
+    />
+    <meta name="keywords" content="Tools for Friends, tools, naradi" />
+    <meta name="author" content="MPCoding" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon-dark.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
 
-<link href="/favicon-dark.ico" rel="icon"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-
-<script>
+    <script>
       function setLanguage(lang) {
         document.querySelectorAll("[data-en]").forEach((el) => {
           el.textContent = el.getAttribute(`data-${lang}`);
         });
       }
     </script>
-<title>Tools4Friends</title>
-<link href="styles 1.css" rel="stylesheet"/></head>
-<body>
-<div class="container">
 
-<header>
-<div class="banner">
-<img alt="Company Logo" src="/tools4friends_dark_Banner_2000x400.png"/>
-</div>
-</header>
-<div class="line-break"></div>
+    <title>Tools4Friends</title>
+  </head>
 
-<div class="line-break"></div>
-<nav>
+  <body>
+    <div class="container">
+      <header>
+        <div class="banner">
+          <img
+            src="/tools4friends_dark_Banner_2000x400.png"
+            alt="Company Logo"
+          />
+        </div>
+      </header>
+      <div class="line-break"></div>
+
+      <nav>
          
 
         <div class="nav-left">
-            <a data-cs="Domů" data-en="Home" href="/">Home</a>  
-          <a data-cs="Nářadí" data-en="Tools" href="tools.php">Tools</a>  
-          <a data-cs="Kontakty" data-en="Contacts" href="contacts.html">Contacts</a>
-</div>
+            <a href="/" data-en="Home" data-cs="Domů">Home</a>  
+          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
+          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty"
+            >Contacts</a
+          >
+        </div>
 
          
         <div class="nav-right language-toggle">
               <button onclick="setLanguage('en')">English</button>    
           <button onclick="setLanguage('cs')">Čeština</button>  
         </div>
-</nav>
-<main>
-<h1 data-cs="Vítejte na Tools 4 Friends" data-en="Welcome to Tools 4 Friends">
+      </nav>
+
+      <main>
+        <h1
+          data-en="Welcome to Tools 4 Friends"
+          data-cs="Vítejte na Tools 4 Friends"
+        >
           Welcome to Tools 4 Friends
         </h1>
-<p data-cs="Tools 4 Friends je webová stránka, kde si přátelé mohou půjčovat nářadí." data-en="Tools 4 Friends is a website where friends can display their tools for lending them to their friends.">
+
+        <p
+          data-en="Tools 4 Friends is a website where friends can display their tools for lending them to their friends."
+          data-cs="Tools 4 Friends je webová stránka, kde si přátelé mohou půjčovat nářadí."
+        >
              Tools 4 Friends is a website where friends can display their tools
           for lending them to their friends.
         </p>
-<h2 data-cs="Jak to funguje?" data-en="How does it work?">
+
+        <h2 data-en="How does it work?" data-cs="Jak to funguje?">
           How does it work?
         </h2>
-<p data-cs="Každý z vás se může zaregistrovat a půjčovat nářadí." data-en="It is possible for each of you to sign up to lend tools.">
+
+        <p
+          data-en="It is possible for each of you to sign up to lend tools."
+          data-cs="Každý z vás se může zaregistrovat a půjčovat nářadí."
+        >
           It is possible for each of you to sign up to lend tools.
         </p>
-<p data-cs="Tato stránka není určena k výdělku, ale majitel nářadí může požadovat manipulační poplatek a zálohu." data-en="This page is not to make any money, however the owner of his tool may ask for a manipulation fee and deposit for his/her tool.">
+
+        <p
+          data-en="This page is not to make any money, however the owner of his tool may ask for a manipulation fee and deposit for his/her tool."
+          data-cs="Tato stránka není určena k výdělku, ale majitel nářadí může požadovat manipulační poplatek a zálohu."
+        >
           This page is not to make any money, however the owner of his tool may
           ask for a manipulation fee and deposit for his/her tool.
         </p>
-<p data-cs="Záloha bude vrácena, jakmile bude nářadí vráceno ve stejném stavu, v jakém bylo půjčeno." data-en="The deposit will be returned once the tool is back and in the same condition it was lend.">
+
+        <p
+          data-en="The deposit will be returned once the tool is back and in the same condition it was lend."
+          data-cs="Záloha bude vrácena, jakmile bude nářadí vráceno ve stejném stavu, v jakém bylo půjčeno."
+        >
           The deposit will be returned once the tool is back and in the same
           condition it was lend.
         </p>
-<p data-cs="Manipulační poplatek je vypočítán na základě odhadované životnosti nářadí, počtu jeho použití a měl by pokrýt opravy nebo nákup nového nářadí v případě poruchy." data-en="The manipulation fee is calculated on the estimated lifetime of the tool, the estimated times the tool will be used and should cover any repairs or buying of new tool if it broke down.">
+
+        <p
+          data-en="The manipulation fee is calculated on the estimated lifetime of the tool, the estimated times the tool will be used and should cover any repairs or buying of new tool if it broke down."
+          data-cs="Manipulační poplatek je vypočítán na základě odhadované životnosti nářadí, počtu jeho použití a měl by pokrýt opravy nebo nákup nového nářadí v případě poruchy."
+        >
           The manipulation fee is calculated on the estimated lifetime of the
           tool, the estimated times the tool will be used and should cover any
           repairs or buying of new tool if it broke down.
         </p>
-<p data-cs='Pro více informací nás prosím kontaktujte &lt;a href="contacts.html"&gt;zde&lt;/a&gt;' data-en='For more information please contact us &lt;a href="contacts.html"&gt;here&lt;/a&gt;'>
+
+        <p
+          data-en='For more information please contact us <a href="contacts.html">here</a>'
+          data-cs='Pro více informací nás prosím kontaktujte <a href="contacts.html">zde</a>'
+        >
           For more information please contact us
           <a href="contacts.html">here</a>
-</p>
-</main>
-
-<footer>
-<p>© <span id="year"></span> Tools4Friends</p>
-<script>
-            document.getElementById('year').textContent = new Date().getFullYear();
+        </p>
+      </main>
+      <footer>
+        <p>&copy; <span id="year"></span> Tools4Friends</p>
+        <script>
+          document.getElementById("year").textContent =
+            new Date().getFullYear();
         </script>
-</footer>
-
-</div>
-</body>
+      </footer>
+    </div>
+  </body>
 </html>
