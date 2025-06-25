@@ -14,10 +14,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 $tool = $result->fetch_assoc();
 
-if (!$tool) {
+if ($result->num_rows === 0) {
     echo "<h2>Tool not found.</h2>";
     exit;
 }
+$tool = $result->fetch_assoc();
 
 // Fetch availability ranges using MySQLi
 $availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ?");
