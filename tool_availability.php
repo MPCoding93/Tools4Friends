@@ -41,24 +41,6 @@ $unavailable_ranges[] = $row;
     <title><?php echo htmlspecialchars($tool['name']); ?> - Availability</title>
     <link href="styles.css" rel="stylesheet" />
     <style>
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .calendar-day {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-
         .unavailable {
             background-color: #f88;
         }
