@@ -20,7 +20,7 @@ if (!$tool) {
 }
 
 // Fetch availability ranges using MySQLi
-$availability_stmt = $conn->prepare("SELECT start_date, end_date FROM ToolAvailability WHERE tool_id = ?");
+$availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ?");
 $availability_stmt->bind_param("i", $tool_id);
 $availability_stmt->execute();
 $availability_result = $availability_stmt->get_result();
