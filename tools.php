@@ -8,8 +8,8 @@ $lang = $_GET['lang'] ?? 'en';
 // Get selected category or default to 'vše'
 $selected_category = $_GET['category'] ?? 'vše';
 
-// Fetch categories
-$category_sql = "SELECT DISTINCT category_name FROM Categories";
+// Fetch categories excluding 'vše' (All)
+$category_sql = "SELECT DISTINCT category_name FROM Categories WHERE category_name != 'vše'";
 $category_result = $conn->query($category_sql);
 
 // Fetch tools based on selected category - FIXED SQL INJECTION
