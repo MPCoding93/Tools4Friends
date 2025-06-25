@@ -167,34 +167,100 @@ main {
     left: 0;
     padding: 10px 0; /* Add some padding inside */
 }
+
+/* Add this section to your styles.css, perhaps near the .nav-left styles */
+
+/* Dropdown Button */
+.dropbtn {
+    color: #fff;
+    padding: 12px 20px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    min-width: 80px;
+    text-align: center;
+    cursor: pointer; /* Indicate it's clickable */
+    display: block; /* Make the whole area clickable */
+    /* Ensure it inherits nav-left a hover effects */
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    position: relative;
+    display: inline-block; /* Allows it to sit next to other nav items */
+    /* Inherit nav-left a hover effects for the main button */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+}
+
+/* Apply hover effects to the dropdown container itself, which contains the dropbtn */
+.dropdown:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none; /* This is the key: hidden by default */
+    position: absolute;
+    background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%); /* Same as nav background */
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1; /* Ensure it appears above other content */
+    border-radius: 8px;
+    top: 100%; /* Position below the button */
+    left: 0;
+    padding: 10px 0; /* Add some padding inside */
+    /* Ensure it doesn't affect the layout when hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px); /* Start slightly below */
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+
 /* Links inside the dropdown */
 .dropdown-content a {
     color: white;
     padding: 12px 16px;
     text-decoration: none;
-    display: block;
+    display: block; /* Each link on its own line within the dropdown */
     text-align: left;
     transition: background-color 0.3s, color 0.3s;
     border-radius: 0; /* Remove border-radius for individual items */
     min-width: unset; /* Override nav-left a min-width */
 }
+
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
     background: rgba(255, 255, 255, 0.15); /* Lighter background on hover */
     color: #fff;
-    transform: none; /* Remove translateY from general nav-left a:hover */
-    box-shadow: none; /* Remove box-shadow from general nav-left a:hover */
+    /* Ensure no unwanted transforms or shadows from general nav-left a:hover */
+    transform: none;
+    box-shadow: none;
 }
+
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
-    display: block;
+    display: block; /* Show the content */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Slide up to position */
 }
-/* Adjust .nav-left a:hover for dropdown button */
-.dropdown .dropbtn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+
+/* Ensure the dropbtn itself doesn't get extra padding/margin from nav-left a */
+.nav-left .dropdown .dropbtn {
+    padding: 12px 20px; /* Explicitly set padding */
+    margin: 0; /* Remove any default margin */
+}
+
+/* Adjust the gap for nav-left items if needed, to account for dropdown */
+.nav-left {
+    gap: 20px; /* Keep existing gap, or adjust if dropdown spacing is off */
 }
 
 /* ====================== */
