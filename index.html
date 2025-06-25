@@ -17,14 +17,7 @@
       href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-
-    <script>
-      function setLanguage(lang) {
-        document.querySelectorAll("[data-en]").forEach((el) => {
-          el.textContent = el.getAttribute(`data-${lang}`);
-        });
-      }
-    </script>
+    <script src="script.js" defer></script>
 
     <title>Tools4Friends</title>
   </head>
@@ -49,8 +42,8 @@
         </div>
 
         <div class="nav-right language-toggle">
-          <button onclick="setLanguage('en')">English</button>    
-          <button onclick="setLanguage('cs')">Čeština</button>  
+          <button onclick="smartLanguageSwitch('en')">English</button>    
+          <button onclick="smartLanguageSwitch('cs')">Čeština</button>  
         </div>
       </nav>
 
@@ -116,10 +109,6 @@
       </main>
       <footer>
         <p>&copy; <span id="year"></span> Tools4Friends</p>
-        <script>
-          document.getElementById("year").textContent =
-            new Date().getFullYear();
-        </script>
       </footer>
     </div>
   </body>
