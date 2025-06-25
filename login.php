@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (password_verify($password, $password_hash)) {
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $db_username;
-                    header("Location: index 4.html");
+                    header("Location: index.html"); // Changed from index 4.html
                     exit();
                 } else {
                     $error = "Invalid credentials.";
