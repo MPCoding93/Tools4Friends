@@ -1,5 +1,8 @@
 <?php
-// tool_availability.php
+// Start session at the very beginning of the file
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Include database connection
 include 'db_connect.php';
@@ -35,6 +38,15 @@ while ($row = $availability_result->fetch_assoc()) {
 $name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['name'];
 $description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
 $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
+
+// --- User Login Status for Navbar ---
+// These variables need to be defined BEFORE including navbar.php
+$loggedIn = isset($_SESSION['user_id']);
+$fullName = '';
+if ($loggedIn) {
+    // Assuming 'firstname' and 'lastname' are stored in the session upon login
+    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -63,23 +75,13 @@ $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['
             </div>
         </header>
         <div class="line-break"></div>
-        <nav>
-            <div class="nav-left">
-                <a href="index.html?lang=<?php echo $lang; ?>">
-                    <?php echo $lang === 'cs' ? 'Domů' : 'Home'; ?>
-                </a>
-                <a href="tools.php?lang=<?php echo $lang; ?>">
-                    <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
-                </a>
-                <a href="contacts.html?lang=<?php echo $lang; ?>">
-                    <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
-                </a>
-            </div>
-            <div class="nav-right language-toggle">
-                <button onclick="switchLanguage('en', 'tool_availability.php')">English</button>
-                <button onclick="switchLanguage('cs', 'tool_availability.php')">Čeština</button>
-            </div>
-        </nav>
+
+        <?php
+        // Include the navbar file here
+        // Make sure navbar.php is in the same directory or provide the correct path
+        include 'navbar.php';
+        ?>
+
         <main>
             <h1><?php echo htmlspecialchars($name); ?></h1>
             <div class="tool-details">
