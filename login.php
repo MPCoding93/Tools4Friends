@@ -5,6 +5,9 @@ require_once 'db_connect.php'; // Your DB connection file
 $error = '';
 $success = '';
 
+// Get selected language from URL or default to English
+$lang = $_GET['lang'] ?? 'en';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
 
@@ -28,9 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['firstname'] = $db_firstname;
                     $_SESSION['lastname'] = $db_lastname;
-                    // Redirect to index.html with current language if available
-                    $lang = $_GET['lang'] ?? 'en'; // Preserve language
-                    header("Location: index.html?lang=" . $lang);
+                    // Redirect to index.php with current language if available
+                    header("Location: index.php?lang=" . $lang); // Changed to index.php
                     exit();
                 } else {
                     $error = "Invalid credentials.";
@@ -71,15 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Insert new user into the database
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                // Assuming 'username' is optional or derived from email/firstname,
-                // for simplicity, we'll use email as username if username column exists and is unique.
-                // If 'username' is a separate required field, you'd need to add it to the form.
-                // For now, let's assume 'username' can be the email or is not strictly used for login.
-                // If your 'Users' table has a 'username' column that must be unique, you'd need to handle that too.
-                // For this example, we'll just use email for login.
-
-                // If you have a 'username' column and it's required/unique, you might set it to email by default:
-                // $username_for_db = $email; // Or get from form if you add a username field
 
                 $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)");
                 $stmt_insert->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
@@ -90,9 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['firstname'] = $firstname;
                     $_SESSION['lastname'] = $lastname;
 
-                    // Redirect to index.html with current language if available
-                    $lang = $_GET['lang'] ?? 'en'; // Preserve language
-                    header("Location: index.html?lang=" . $lang);
+                    // Redirect to index.php with current language if available
+                    header("Location: index.php?lang=" . $lang); // Changed to index.php
                     exit();
                 } else {
                     $error = "Registration failed. Please try again. " . $conn->error; // Added $conn->error for debugging
@@ -102,15 +94,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+// --- User Login Status for Navbar ---
+// These variables need to be defined BEFORE including navbar.php
+$loggedIn = isset($_SESSION['user_id']);
+$fullName = '';
+if ($loggedIn) {
+    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>"> <!-- Added lang attribute -->
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css"> <!-- Changed to absolute path -->
     <link rel="icon" href="/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link
         href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet" />
-    <script src="script.js" defer></script>
+    <script src="/script.js" defer></script> <!-- Changed to absolute path -->
     <title>Login / Register</title>
     <script>
         function toggleForm(action) {
@@ -163,18 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </header>
         <div class="line-break"></div>
 
-        <nav>
-            <div class="nav-left">
-                <a href="index.html" data-en="Home" data-cs="Domů">Home</a>
-                <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>
-                <a href="contacts.html" data-en="Contacts" data-cs="Kontakty">Contacts</a>
-            </div>
+        <?php include 'navbar.php'; // Include the navbar ?>
 
-            <div class="nav-right language-toggle">
-                <button onclick="smartLanguageSwitch('en')">English</button>
-                <button onclick="smartLanguageSwitch('cs')">Čeština</button>
-            </div>
-        </nav>
         <main> <!-- Added main tag here -->
             <header>
                 <h1>Login / Register</h1>
