@@ -266,6 +266,34 @@ main {
     font-weight: 600;
 }
 
+.category-nav {
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
+}
+
+.category-nav a {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(31, 45, 90, 0.3);
+}
+
+.category-nav a:hover {
+    background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
+}
+
 /* ====================== */
 /* BUTTONS */
 /* ====================== */
@@ -531,11 +559,12 @@ main {
 /* ====================== */
 footer {
     text-align: center;
-    background-color: rgb(31, 45, 90);
+    background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);
     color: #fff;
-    padding: 10px 0 20px 0;
-    border-bottom-left-radius: 17px;
-    border-bottom-right-radius: 17px;
+    padding: 20px 0 30px 0;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
     margin-top: auto;
+    box-shadow: 0 -10px 30px rgba(31, 45, 90, 0.2);
 }
 
