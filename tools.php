@@ -1,4 +1,9 @@
 <?php
+// Start session at the very beginning of the file
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Include database connection
 include 'db_connect.php';
 
@@ -17,9 +22,9 @@ if ($selected_category === 'vše') {
     $tools_sql = "SELECT * FROM Tools";
     $tools_result = $conn->query($tools_sql);
 } else {
-    $tools_sql = "SELECT Tools.* FROM Tools 
-                  JOIN ToolCategories ON Tools.tool_id = ToolCategories.tool_id 
-                  JOIN Categories ON ToolCategories.category_id = Categories.category_id 
+    $tools_sql = "SELECT Tools.* FROM Tools
+                  JOIN ToolCategories ON Tools.tool_id = ToolCategories.tool_id
+                  JOIN Categories ON ToolCategories.category_id = Categories.category_id
                   WHERE Categories.category_name = ?";
     $stmt = $conn->prepare($tools_sql);
     $stmt->bind_param("s", $selected_category);
@@ -30,6 +35,13 @@ if ($selected_category === 'vše') {
 $tools = [];
 while ($tool_row = $tools_result->fetch_assoc()) {
     $tools[] = $tool_row;
+}
+
+// --- User Login Status for Navbar ---
+$loggedIn = isset($_SESSION['user_id']);
+$fullName = '';
+if ($loggedIn) {
+    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 
@@ -74,11 +86,32 @@ while ($tool_row = $tools_result->fetch_assoc()) {
                 <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
                     <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
                 </a>
+
+                <?php if ($loggedIn): ?>
+                    <div class="dropdown">
+                        <a href="#" class="dropbtn"><?php echo $fullName; ?></a>
+                        <div class="dropdown-content">
+                            <a href="profile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
+                                <?php echo $lang === 'cs' ? 'Můj Profil' : 'My Profile'; ?>
+                            </a>
+                            <a href="orders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
+                                <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
+                            </a>
+                            <a href="logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
+                                <?php echo $lang === 'cs' ? 'Odhlásit se' : 'Log Out'; ?>
+                            </a>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="login.php?lang=<?php echo $lang; ?>" data-en="Login" data-cs="Přihlásit">
+                        <?php echo $lang === 'cs' ? 'Přihlásit' : 'Login'; ?>
+                    </a>
+                <?php endif; ?>
             </div>
 
             <div class="nav-right language-toggle">
-                <button onclick="switchLanguage('en', 'tools.php')">English</button>
-                <button onclick="switchLanguage('cs', 'tools.php')">Čeština</button>
+                <button onclick="switchLanguage('en', '<?php echo basename($_SERVER['PHP_SELF']); ?>')">English</button>
+                <button onclick="switchLanguage('cs', '<?php echo basename($_SERVER['PHP_SELF']); ?>')">Čeština</button>
             </div>
         </nav>
 
