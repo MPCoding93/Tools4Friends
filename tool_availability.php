@@ -43,8 +43,8 @@ $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($name); ?> - 
-           <?php echo $lang === 'cs' ? 'Dostupnost' : 'Availability'; ?> - Tools4Friends</title>
+    <title><?php echo htmlspecialchars($name); ?> - <?php echo $lang === 'cs' ? 'Dostupnost' : 'Availability'; ?>
+    </title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +52,7 @@ $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['
     <link
         href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+    <script src="script.js" defer></script>
 </head>
 
 <body>
@@ -75,89 +76,58 @@ $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['
                 </a>
             </div>
             <div class="nav-right language-toggle">
-                <button onclick="switchLanguage('en')" class="<?php echo $lang === 'en' ? 'active' : ''; ?>">English</button>
-                <button onclick="switchLanguage('cs')" class="<?php echo $lang === 'cs' ? 'active' : ''; ?>">Čeština</button>
+                <button onclick="switchLanguage('en', 'tool_availability.php')">English</button>
+                <button onclick="switchLanguage('cs', 'tool_availability.php')">Čeština</button>
             </div>
         </nav>
         <main>
-            <div class="breadcrumb">
-                <a href="tools.php?lang=<?php echo $lang; ?>">
-                    <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
-                </a>
-                <span class="breadcrumb-separator">/</span>
-                <span><?php echo htmlspecialchars($name); ?></span>
+            <h1><?php echo htmlspecialchars($name); ?></h1>
+            <div class="tool-details">
+                <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
+                    <?php echo htmlspecialchars($description); ?></p>
+                <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
+                    <?php echo htmlspecialchars($tool['brand']); ?></p>
+                <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
+                    <?php echo htmlspecialchars($tool['model']); ?></p>
+                <?php if (!empty($technical_data)): ?>
+                    <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
+                        <?php echo htmlspecialchars($technical_data); ?></p>
+                <?php endif; ?>
+                <?php if (!empty($tool['ownerID'])): ?>
+                    <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
+                        <?php echo htmlspecialchars($tool['ownerID']); ?></p>
+                <?php endif; ?>
             </div>
 
-            <h1><?php echo htmlspecialchars($name); ?></h1>
-            
-            <div class="tool-details">
-                <div class="tool-info-grid">
-                    <div class="tool-image">
-                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>" 
-                             alt="<?php echo htmlspecialchars($name); ?>"
-                             onerror="this.src='/images/tool-placeholder.png'">
-                    </div>
-                    <div class="tool-specs">
-                        <h3><?php echo $lang === 'cs' ? 'Specifikace' : 'Specifications'; ?></h3>
-                        <div class="spec-item">
-                            <strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
-                            <span><?php echo htmlspecialchars($description); ?></span>
-                        </div>
-                        <div class="spec-item">
-                            <strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
-                            <span><?php echo htmlspecialchars($tool['brand']); ?></span>
-                        </div>
-                        <div class="spec-item">
-                            <strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
-                            <span><?php echo htmlspecialchars($tool['model']); ?></span>
-                        </div>
-                        <?php if (!empty($technical_data)): ?>
-                        <div class="spec-item">
-                            <strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
-                            <span><?php echo htmlspecialchars($technical_data); ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <div class="spec-item">
-                            <strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
-                            <span><?php echo htmlspecialchars($tool['ownerID']); ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="availability-section">
-                <h2><?php echo $lang === 'cs' ? 'Kalendář Dostupnosti' : 'Availability Calendar'; ?></h2>
-                <div class="calendar-container">
+            <h2><?php echo $lang === 'cs' ? 'Kalendář Dostupnosti' : 'Availability Calendar'; ?></h2>
+            <div class="calendar-container">
+                <div class="calendar-nav">
+                    <button onclick="changeMonth(-1)">←
+                        <?php echo $lang === 'cs' ? 'Předchozí' : 'Previous'; ?></button>
                     <div class="calendar-controls">
-                        <div class="month-navigation">
-                            <button id="prev-month" class="nav-btn">
-                                <span class="nav-arrow">←</span>
-                            </button>
-                            <h3 id="calendar-month" class="current-month"></h3>
-                            <button id="next-month" class="nav-btn">
-                                <span class="nav-arrow">→</span>
-                            </button>
-                        </div>
-                        <div class="calendar-legend">
-                            <div class="legend-item">
-                                <div class="legend-color available"></div>
-                                <span><?php echo $lang === 'cs' ? 'Dostupné' : 'Available'; ?></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color unavailable"></div>
-                                <span><?php echo $lang === 'cs' ? 'Nedostupné' : 'Unavailable'; ?></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color today"></div>
-                                <span><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></span>
-                            </div>
-                        </div>
+                        <h3 id="calendar-month"></h3>
+                        <button onclick="goToToday()"
+                            class="today-btn"><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></button>
                     </div>
-                    <div class="modern-calendar" id="calendar"></div>
-                    <div class="calendar-info">
-                        <p class="selected-date-info" id="selected-date-info">
-                            <?php echo $lang === 'cs' ? 'Klikněte na datum pro více informací' : 'Click on a date for more information'; ?>
-                        </p>
+                    <button onclick="changeMonth(1)"><?php echo $lang === 'cs' ? 'Další' : 'Next'; ?> →</button>
+                </div>
+                <div class="calendar" id="calendar"></div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color available"></div>
+                        <span><?php echo $lang === 'cs' ? 'Dostupné' : 'Available'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unavailable"></div>
+                        <span><?php echo $lang === 'cs' ? 'Nedostupné' : 'Unavailable'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color today"></div>
+                        <span><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color selected"></div>
+                        <span><?php echo $lang === 'cs' ? 'Vybráno' : 'Selected'; ?></span>
                     </div>
                 </div>
             </div>
@@ -168,14 +138,12 @@ $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['
     </div>
 
     <script>
-        // Pass PHP data to JavaScript
-        window.toolData = {
-            unavailableRanges: <?php echo json_encode($unavailable_ranges); ?>,
-            lang: '<?php echo $lang; ?>',
-            toolId: <?php echo $tool_id; ?>
-        };
+        // Initialize calendar when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
+            initializeCalendar(unavailableRanges);
+        });
     </script>
-    <script src="script.js"></script>
 </body>
 
 </html>
