@@ -6,13 +6,57 @@ document.addEventListener("DOMContentLoaded", function() {
   if (yearElement) {
     yearElement.textContent = new Date().getFullYear();
   }
+  
+  // Initialize language on page load
+  initializeLanguage();
 });
 
-// Language switching functionality
+// Initialize language based on URL parameter or default to English
+function initializeLanguage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const langFromUrl = urlParams.get('lang');
+  
+  if (langFromUrl && (langFromUrl === 'en' || langFromUrl === 'cs')) {
+    setLanguage(langFromUrl);
+    updateLanguageButtons(langFromUrl);
+  } else {
+    // Default to English and update URL
+    setLanguage('en');
+    updateLanguageButtons('en');
+    updateUrlWithLanguage('en');
+  }
+}
+
+// Enhanced language switching functionality
 function setLanguage(lang) {
   document.querySelectorAll("[data-en]").forEach(el => {
-    el.textContent = el.getAttribute(`data-${lang}`);
+    const text = el.getAttribute(`data-${lang}`);
+    if (text) {
+      el.textContent = text;
+    }
   });
+  
+  // Update HTML lang attribute
+  document.documentElement.lang = lang;
+}
+
+// Update language button states
+function updateLanguageButtons(activeLang) {
+  const buttons = document.querySelectorAll('.language-toggle button');
+  buttons.forEach(button => {
+    button.classList.remove('active');
+    if ((activeLang === 'en' && button.textContent === 'English') ||
+        (activeLang === 'cs' && button.textContent === 'Čeština')) {
+      button.classList.add('active');
+    }
+  });
+}
+
+// Update URL with language parameter without page reload
+function updateUrlWithLanguage(lang) {
+  const url = new URL(window.location);
+  url.searchParams.set('lang', lang);
+  window.history.replaceState({}, '', url);
 }
 
 // Enhanced language switching with URL parameters
@@ -27,9 +71,41 @@ function switchLanguage(lang, page = null) {
   if (page) {
     window.location.href = `${page}?${currentParams.toString()}`;
   } else {
-    // Update current page URL
-    window.location.href = `${currentUrl.pathname}?${currentParams.toString()}`;
+    // For static HTML files, update current page URL and apply language
+    const newUrl = `${currentUrl.pathname}?${currentParams.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+    setLanguage(lang);
+    updateLanguageButtons(lang);
   }
+}
+
+// Smart language switching that works for both static and PHP files
+function smartLanguageSwitch(lang) {
+  const currentPage = window.location.pathname;
+  
+  // Check if it's a PHP file
+  if (currentPage.includes('.php')) {
+    switchLanguage(lang, currentPage.split('/').pop());
+  } else {
+    // Static HTML file
+    switchLanguage(lang);
+  }
+}
+
+// Update navigation links to preserve language
+function updateNavigationLinks() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentLang = urlParams.get('lang') || 'en';
+  
+  // Update all navigation links to include current language
+  document.querySelectorAll('nav a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && !href.startsWith('#') && !href.startsWith('mailto:')) {
+      const url = new URL(href, window.location.origin);
+      url.searchParams.set('lang', currentLang);
+      link.href = url.toString();
+    }
+  });
 }
 
 // Calendar functionality for tool availability
@@ -164,10 +240,28 @@ function goToMonth(year, month) {
   renderCalendar(currentDate);
 }
 
+// Initialize everything when DOM is loaded
+document.addEventListener("DOMContentLoaded", function() {
+  // Update navigation links to preserve language
+  setTimeout(updateNavigationLinks, 100);
+});
+
 // Export functions for global use
 window.setLanguage = setLanguage;
 window.switchLanguage = switchLanguage;
+window.smartLanguageSwitch = smartLanguageSwitch;
 window.changeMonth = changeMonth;
 window.initializeCalendar = initializeCalendar;
 window.goToToday = goToToday;
 window.goToMonth = goToMonth;
+
+// CSS for active language button (inject into head)
+const style = document.createElement('style');
+style.textContent = `
+  .nav-right button.active {
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important;
+  }
+`;
+document.head.appendChild(style);
