@@ -295,6 +295,12 @@ main {
     box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
 }
 
+.category-nav a:active {
+    background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
+}
+
 /* ====================== */
 /* BUTTONS */
 /* ====================== */
