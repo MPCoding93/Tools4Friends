@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", function() {
   
   // Initialize language on page load
   initializeLanguage();
+  
+  // Update navigation links immediately after language initialization
+  updateNavigationLinks(); 
 });
 
 // Initialize language based on URL parameter or default to English
@@ -69,7 +72,9 @@ function switchLanguage(lang, page = null) {
 
   // If specific page is provided, navigate to that page
   if (page) {
-    window.location.href = `${page}?${currentParams.toString()}`;
+    // Construct the new URL with the correct path and parameters
+    const newPath = page.startsWith('/') ? page : `/${page}`; // Ensure path starts with /
+    window.location.href = `${currentUrl.origin}${newPath}?${currentParams.toString()}`;
   } else {
     // For static HTML files, update current page URL and apply language
     const newUrl = `${currentUrl.pathname}?${currentParams.toString()}`;
@@ -80,6 +85,8 @@ function switchLanguage(lang, page = null) {
 }
 
 // Smart language switching that works for both static and PHP files
+// This function is now less critical as switchLanguage is more robust,
+// but kept for backward compatibility if needed.
 function smartLanguageSwitch(lang) {
   const currentPage = window.location.pathname;
   
@@ -88,7 +95,7 @@ function smartLanguageSwitch(lang) {
     switchLanguage(lang, currentPage.split('/').pop());
   } else {
     // Static HTML file
-    switchLanguage(lang);
+    switchLanguage(lang, currentPage.split('/').pop()); // Pass current page name for consistency
   }
 }
 
@@ -190,8 +197,8 @@ function renderCalendar(date) {
     // Add click functionality for future available dates
     if (!isUnavailable && cellDate >= today) {
       cell.style.cursor = "pointer";
-      cell.addEventListener("click", function() {
-        selectDate(cellDate);
+      cell.addEventListener("click", function(event) { // Pass event to selectDate
+        selectDate(cellDate, event);
       });
     }
 
@@ -204,7 +211,7 @@ function changeMonth(offset) {
   renderCalendar(currentDate);
 }
 
-function selectDate(date) {
+function selectDate(date, event) { // Receive event object
   // Remove previous selections
   document.querySelectorAll(".calendar-day.selected").forEach(cell => {
     cell.classList.remove("selected");
@@ -241,10 +248,7 @@ function goToMonth(year, month) {
 }
 
 // Initialize everything when DOM is loaded
-document.addEventListener("DOMContentLoaded", function() {
-  // Update navigation links to preserve language
-  setTimeout(updateNavigationLinks, 100);
-});
+// (Already handled by the main DOMContentLoaded listener at the top)
 
 // Export functions for global use
 window.setLanguage = setLanguage;
