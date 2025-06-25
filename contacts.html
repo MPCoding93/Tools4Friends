@@ -26,7 +26,7 @@
       }
     </script>
 
-    <title>Tools4Friends</title>
+    <title>Tools4Friends - Contacts</title>
   </head>
 
   <body>
@@ -42,46 +42,55 @@
       <div class="line-break"></div>
 
       <nav>
-         
-
         <div class="nav-left">
-            <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
-          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
-          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty"
-            >Contacts</a
-          >
+          <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
+          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
+          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty">Contacts</a>
         </div>
 
-         
         <div class="nav-right language-toggle">
-              <button onclick="setLanguage('en')">English</button>    
-          <button onclick="setLanguage('cs')">Čeština</button>  
+          <button onclick="setLanguage('en')">English</button>    
+          <button onclick="setLanguage('cs')">Čeština</button>  
         </div>
       </nav>
 
-            <main id="contact-container">
-                <div id="contact">
-                    <h1>How to reach us?</h1>
-                    <h2>Contact Details</h2>
-                    <div class="profile">
-                        <img src="/ProfilePicture.jpg" alt="Michael Pauwels" class="profile-pic">
-                        <h3>Michael Pauwels</h3>
-                    </div>
-                
-                    <div class="profile">
-                        <img src="/NoProfilePicture.jpg" alt="Profile Picture" class="profile-pic">
-                        <h3>Pavel Eleder</h3>
-                    </div>
-                    <br>
-                    <p><b>Email:</b> <a href="mailto:info@tools4friends.kvalitne.cz?subject=Info%20request">Contact Us</a></p>
-                </div>
-
-            </main>
-            <footer>
-                <p>&copy; <span id="year"></span> Tools4Friends</p>
-                <script>
-                    document.getElementById('year').textContent = new Date().getFullYear();
-                </script>
-            </footer>
-</body>
+      <main id="contact-container">
+        <div id="contact">
+          <h1 data-en="How to reach us?" data-cs="Jak nás kontaktovat?">How to reach us?</h1>
+          <h2 data-en="Contact Details" data-cs="Kontaktní údaje">Contact Details</h2>
+          
+          <div class="profile">
+            <img src="/ProfilePicture.jpg" alt="Michael Pauwels" class="profile-pic">
+            <div>
+              <h3>Michael Pauwels</h3>
+              <p data-en="Co-founder & Developer" data-cs="Spoluzakladatel & Vývojář">Co-founder & Developer</p>
+            </div>
+          </div>
+        
+          <div class="profile">
+            <img src="/NoProfilePicture.jpg" alt="Pavel Eleder" class="profile-pic">
+            <div>
+              <h3>Pavel Eleder</h3>
+              <p data-en="Co-founder" data-cs="Spoluzakladatel">Co-founder</p>
+            </div>
+          </div>
+          
+          <div class="contact-info">
+            <p><strong data-en="Email:" data-cs="Email:">Email:</strong> 
+              <a href="mailto:info@tools4friends.kvalitne.cz?subject=Info%20request">
+                info@tools4friends.kvalitne.cz
+              </a>
+            </p>
+          </div>
+        </div>
+      </main>
+      
+      <footer>
+        <p>&copy; <span id="year"></span> Tools4Friends</p>
+        <script>
+          document.getElementById('year').textContent = new Date().getFullYear();
+        </script>
+      </footer>
+    </div>
+  </body>
 </html>
