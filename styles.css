@@ -60,6 +60,12 @@ nav a:focus {
     background-color: #fff;
 }
 
+.line-break {
+    height: 1px;
+    background-color: #1F2D5A;
+    margin: 0;
+}
+
 h1, h2, h3 {
     color: #1F2D5A;
 }
@@ -90,6 +96,10 @@ main {
     padding: 20px;
 }
 
+#contact-container {
+    margin: 0;
+}
+
 .profile {
     display: flex;
     align-items: center;
@@ -104,6 +114,27 @@ main {
 
 .page_title {
     margin: 20px;
+}
+
+.category-nav {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.category-nav a {
+    display: inline-block;
+    margin-right: 15px;
+    padding: 5px 10px;
+    background-color: #1F2D5A;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.category-nav a:hover {
+    background-color: #2a3f6b;
 }
 
 .tool-list {
@@ -151,4 +182,89 @@ main {
     color: #1F2D5A;
     border: 2px solid #1F2D5A;
     border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.availability-button:hover {
+    background-color: #1F2D5A;
+    color: #fff;
+}
+
+/* Calendar styles for tool availability page */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.calendar-nav button {
+    padding: 10px 15px;
+    background-color: #1F2D5A;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.calendar-nav button:hover {
+    background-color: #2a3f6b;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin: 20px 0;
+    border: 1px solid #1F2D5A;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    padding: 15px 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    background-color: #fff;
+    min-height: 20px;
+}
+
+.calendar-day.unavailable {
+    background-color: #ffcccc;
+    color: #cc0000;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tool-block {
+        width: 45%;
+    }
+    
+    .nav-left a {
+        margin-right: 5px;
+        padding: 5px;
+    }
+    
+    .nav-right button {
+        margin-left: 5px;
+        padding: 3px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tool-block {
+        width: 90%;
+    }
+    
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nav-left, .nav-right {
+        display: flex;
+        justify-content: center;
+    }
 }

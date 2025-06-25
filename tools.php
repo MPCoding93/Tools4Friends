@@ -39,6 +39,20 @@ while ($tool_row = $tools_result->fetch_assoc()) {
     <meta name="author" content="MPCoding" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="/favicon-dark.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <script>
+        function setLanguage(lang) {
+            document.querySelectorAll("[data-en]").forEach((el) => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+        }
+    </script>
+
     <title>Tools4Friends</title>
 </head>
 
@@ -49,23 +63,22 @@ while ($tool_row = $tools_result->fetch_assoc()) {
                 <img src="/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
             </div>
         </header>
-
         <div class="line-break"></div>
 
         <nav>
             <div class="nav-left">
-                <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">Home</a>&nbsp;
-               lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>&nbsp;
+                <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">Home</a>
+                <a href="tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">Tools</a>
                 <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">Contacts</a>
             </div>
 
             <div class="nav-right language-toggle">
-                <button onclick="window.location.href='tools.php?lang=en'">English</button>&nbsp;&nbsp;&nbsp;
-                <button onclick="window.location.href='tools.php?lang=cs'">Čeština</button>&nbsp;
+                <button onclick="window.location.href='tools.php?lang=en'">English</button>
+                <button onclick="window.location.href='tools.php?lang=cs'">Čeština</button>
             </div>
         </nav>
 
-        <div class="content">
+        <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
             <nav class="category-nav">
@@ -103,7 +116,7 @@ while ($tool_row = $tools_result->fetch_assoc()) {
                     </div>
                 <?php endforeach; ?>
             </div>
-        </div>
+        </main>
 
         <footer>
             <p>&copy; <span id="year"></span> Tools4Friends</p>
