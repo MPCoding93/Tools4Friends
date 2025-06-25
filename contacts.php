@@ -1,5 +1,23 @@
+<?php
+// Start session at the very beginning of the file
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Get selected language from URL or default to English
+$lang = $_GET['lang'] ?? 'en';
+
+// --- User Login Status for Navbar ---
+// These variables need to be defined BEFORE including navbar.php
+$loggedIn = isset($_SESSION['user_id']);
+$fullName = '';
+if ($loggedIn) {
+    // Assuming 'firstname' and 'lastname' are stored in the session upon login
+    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -34,40 +52,33 @@
       </header>
       <div class="line-break"></div>
 
-      <nav>
-        <div class="nav-left">
-          <a href="index.html" data-en="Home" data-cs="Domů">Home</a>  
-          <a href="tools.php" data-en="Tools" data-cs="Nářadí">Tools</a>  
-          <a href="contacts.html" data-en="Contacts" data-cs="Kontakty">Contacts</a>
-        </div>
-
-        <div class="nav-right language-toggle">
-          <button onclick="switchLanguage('en', 'contacts.html')">English</button>    
-          <button onclick="switchLanguage('cs', 'contacts.html')">Čeština</button>  
-        </div>
-      </nav>
+      <?php
+      // Include the navbar file here
+      // Make sure navbar.php is in the same directory or provide the correct path
+      include 'navbar.php';
+      ?>
 
       <main id="contact-container">
         <div id="contact">
           <h1 data-en="How to reach us?" data-cs="Jak nás kontaktovat?">How to reach us?</h1>
           <h2 data-en="Contact Details" data-cs="Kontaktní údaje">Contact Details</h2>
-          
+
           <div class="profile">
             <img src="https://i.ibb.co/pjnxkGVb/Profile-Picture.jpg" alt="Michael Pauwels" class="profile-pic">
             <div>
               <h3>Michael Pauwels</h3>
             </div>
           </div>
-        
+
           <div class="profile">
             <img src="https://i.ibb.co/qZd1jR0/No-Profile-Picture.jpg" alt="Pavel Eleder" class="profile-pic">
             <div>
               <h3>Pavel Eleder</h3>
             </div>
           </div>
-          
+
           <div class="contact-info">
-            <p><strong data-en="Email:" data-cs="Email:">Email:</strong> 
+            <p><strong data-en="Email:" data-cs="Email:">Email:</strong>
               <a href="mailto:info@tools4friends.kvalitne.cz?subject=Info%20request">
                 info@tools4friends.kvalitne.cz
               </a>
@@ -75,7 +86,7 @@
           </div>
         </div>
       </main>
-      
+
       <footer>
         <p>&copy; <span id="year"></span> Tools4Friends</p>
       </footer>
