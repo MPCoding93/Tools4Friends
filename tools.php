@@ -49,8 +49,9 @@ while ($tool_row = $tools_result->fetch_assoc()) {
     <link
         href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+    <script src="script.js" defer></script>
 
-    <title><?php echo $lang === 'cs' ? 'Nářadí - Tools4Friends' : 'Tools - Tools4Friends'; ?></title>
+    <title>Tools4Friends</title>
 </head>
 
 <body>
@@ -76,8 +77,8 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             </div>
 
             <div class="nav-right language-toggle">
-                <button onclick="switchLanguage('en')" class="<?php echo $lang === 'en' ? 'active' : ''; ?>">English</button>
-                <button onclick="switchLanguage('cs')" class="<?php echo $lang === 'cs' ? 'active' : ''; ?>">Čeština</button>
+                <button onclick="switchLanguage('en', 'tools.php')">English</button>
+                <button onclick="switchLanguage('cs', 'tools.php')">Čeština</button>
             </div>
         </nav>
 
@@ -85,55 +86,48 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
             <nav class="category-nav">
-                <a href="tools.php?category=vše&lang=<?php echo $lang; ?>" 
-                   class="<?php echo $selected_category === 'vše' ? 'active' : ''; ?>">
+                <a href="tools.php?category=vše&lang=<?php echo $lang; ?>"
+                    class="<?php echo $selected_category === 'vše' ? 'active' : ''; ?>">
                     <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                 </a>
                 <?php while ($category_row = $category_result->fetch_assoc()): ?>
                     <a href="tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
-                       class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
+                        class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                         <?php echo htmlspecialchars($category_row['category_name']); ?>
                     </a>
                 <?php endwhile; ?>
             </nav>
 
             <div class="tool-list">
-                <?php if (empty($tools)): ?>
-                    <div class="no-tools-message">
-                        <p><?php echo $lang === 'cs' ? 'V této kategorii není žádné nářadí.' : 'No tools found in this category.'; ?></p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($tools as $tool): 
-                        $name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['name'];
-                        $description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
-                        $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
+                <?php foreach ($tools as $tool):
+                    $name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['name'];
+                    $description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
+                    $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
                     ?>
-                        <div class="tool-block">
-                            <img src="<?php echo htmlspecialchars($tool['picture']); ?>" 
-                                 alt="<?php echo htmlspecialchars($name); ?>"
-                                 onerror="this.src='/images/tool-placeholder.png'">
-                            <h3><?php echo htmlspecialchars($name); ?></h3>
-                            <div class="left-text">
-                                <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong> 
-                                   <?php echo htmlspecialchars($description); ?></p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong> 
-                                   <?php echo htmlspecialchars($tool['brand']); ?></p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong> 
-                                   <?php echo htmlspecialchars($tool['model']); ?></p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong> 
-                                   <?php echo htmlspecialchars($technical_data); ?></p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong> 
-                                   <?php echo htmlspecialchars($tool['ownerID']); ?></p>
-                            </div>
-                            <div>
-                                <a href="tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>" 
-                                   class="availability-button">
-                                    <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
-                                </a>
-                            </div>
+                    <div class="tool-block">
+                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>"
+                            alt="<?php echo htmlspecialchars($name); ?>">
+                        <h3><?php echo htmlspecialchars($name); ?></h3>
+                        <div class="left-text">
+                            <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
+                                <?php echo htmlspecialchars($description); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
+                                <?php echo htmlspecialchars($tool['brand']); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
+                                <?php echo htmlspecialchars($tool['model']); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
+                                <?php echo htmlspecialchars($technical_data); ?></p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
+                                <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                        <div>
+                            <a href="tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
+                                class="availability-button">
+                                <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </main>
 
@@ -141,8 +135,6 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             <p>&copy; <span id="year"></span> Tools4Friends</p>
         </footer>
     </div>
-
-    <script src="script.js"></script>
 </body>
 
 </html>
