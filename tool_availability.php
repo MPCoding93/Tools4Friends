@@ -4,8 +4,9 @@
 // Include database connection
 include 'db_connect.php';
 
-// Get tool ID
+// Get tool ID and language
 $tool_id = isset($_GET['tool_id']) ? intval($_GET['tool_id']) : 0;
+$lang = $_GET['lang'] ?? 'en';
 
 // Fetch tool details
 $stmt = $conn->prepare("SELECT * FROM Tools WHERE tool_id = ?");
@@ -14,10 +15,10 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo "<h2>Tool not found.</h2>";
+    echo "<h2>" . ($lang === 'cs' ? 'Nářadí nenalezeno.' : 'Tool not found.') . "</h2>";
     exit;
 }
-$tool = $result->fetch_assoc(); // Keep only this one
+$tool = $result->fetch_assoc();
 
 // Fetch availability ranges using MySQLi
 $availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ?");
@@ -29,15 +30,21 @@ $unavailable_ranges = [];
 while ($row = $availability_result->fetch_assoc()) {
     $unavailable_ranges[] = $row;
 }
+
+// Get localized tool data
+$name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['name'];
+$description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
+$technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($tool['name']); ?> - Availability</title>
+    <title><?php echo htmlspecialchars($name); ?> - 
+           <?php echo $lang === 'cs' ? 'Dostupnost' : 'Availability'; ?> - Tools4Friends</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,14 +52,6 @@ while ($row = $availability_result->fetch_assoc()) {
     <link
         href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-
-    <script>
-        function setLanguage(lang) {
-            document.querySelectorAll("[data-en]").forEach((el) => {
-                el.textContent = el.getAttribute(`data-${lang}`);
-            });
-        }
-    </script>
 </head>
 
 <body>
@@ -65,121 +64,118 @@ while ($row = $availability_result->fetch_assoc()) {
         <div class="line-break"></div>
         <nav>
             <div class="nav-left">
-                <a data-cs="Domů" data-en="Home" href="index.html">Home</a>  
-                <a data-cs="Nářadí" data-en="Tools" href="tools.php">Tools</a>  
-                <a data-cs="Kontakty" data-en="Contacts" href="contacts.html">Contacts</a>
+                <a href="index.html?lang=<?php echo $lang; ?>">
+                    <?php echo $lang === 'cs' ? 'Domů' : 'Home'; ?>
+                </a>
+                <a href="tools.php?lang=<?php echo $lang; ?>">
+                    <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
+                </a>
+                <a href="contacts.html?lang=<?php echo $lang; ?>">
+                    <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
+                </a>
             </div>
             <div class="nav-right language-toggle">
-                <button onclick="setLanguage('en')">English</button>    
-                <button onclick="setLanguage('cs')">Čeština</button>  
+                <button onclick="switchLanguage('en')" class="<?php echo $lang === 'en' ? 'active' : ''; ?>">English</button>
+                <button onclick="switchLanguage('cs')" class="<?php echo $lang === 'cs' ? 'active' : ''; ?>">Čeština</button>
             </div>
         </nav>
         <main>
-            <h1><?php echo htmlspecialchars($tool['name']); ?></h1>
+            <div class="breadcrumb">
+                <a href="tools.php?lang=<?php echo $lang; ?>">
+                    <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
+                </a>
+                <span class="breadcrumb-separator">/</span>
+                <span><?php echo htmlspecialchars($name); ?></span>
+            </div>
+
+            <h1><?php echo htmlspecialchars($name); ?></h1>
+            
             <div class="tool-details">
-                <p><strong>Description:</strong> <?php echo htmlspecialchars($tool['description']); ?></p>
-                <p><strong>Brand:</strong> <?php echo htmlspecialchars($tool['brand']); ?></p>
-                <p><strong>Model:</strong> <?php echo htmlspecialchars($tool['model']); ?></p>
-                <?php if (!empty($tool['power'])): ?>
-                    <p><strong>Power:</strong> <?php echo htmlspecialchars($tool['power']); ?></p>
-                <?php endif; ?>
+                <div class="tool-info-grid">
+                    <div class="tool-image">
+                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>" 
+                             alt="<?php echo htmlspecialchars($name); ?>"
+                             onerror="this.src='/images/tool-placeholder.png'">
+                    </div>
+                    <div class="tool-specs">
+                        <h3><?php echo $lang === 'cs' ? 'Specifikace' : 'Specifications'; ?></h3>
+                        <div class="spec-item">
+                            <strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
+                            <span><?php echo htmlspecialchars($description); ?></span>
+                        </div>
+                        <div class="spec-item">
+                            <strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
+                            <span><?php echo htmlspecialchars($tool['brand']); ?></span>
+                        </div>
+                        <div class="spec-item">
+                            <strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
+                            <span><?php echo htmlspecialchars($tool['model']); ?></span>
+                        </div>
+                        <?php if (!empty($technical_data)): ?>
+                        <div class="spec-item">
+                            <strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
+                            <span><?php echo htmlspecialchars($technical_data); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        <div class="spec-item">
+                            <strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
+                            <span><?php echo htmlspecialchars($tool['ownerID']); ?></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <h2>Availability Calendar</h2>
-            <div class="calendar-container">
-                <div class="calendar-nav">
-                    <button onclick="changeMonth(-1)">← Previous</button>
-                    <h3 id="calendar-month"></h3>
-                    <button onclick="changeMonth(1)">Next →</button>
-                </div>
-                <div class="calendar" id="calendar"></div>
-                <div class="calendar-legend">
-                    <div class="legend-item">
-                        <div class="legend-color available"></div>
-                        <span>Available</span>
+            <div class="availability-section">
+                <h2><?php echo $lang === 'cs' ? 'Kalendář Dostupnosti' : 'Availability Calendar'; ?></h2>
+                <div class="calendar-container">
+                    <div class="calendar-controls">
+                        <div class="month-navigation">
+                            <button id="prev-month" class="nav-btn">
+                                <span class="nav-arrow">←</span>
+                            </button>
+                            <h3 id="calendar-month" class="current-month"></h3>
+                            <button id="next-month" class="nav-btn">
+                                <span class="nav-arrow">→</span>
+                            </button>
+                        </div>
+                        <div class="calendar-legend">
+                            <div class="legend-item">
+                                <div class="legend-color available"></div>
+                                <span><?php echo $lang === 'cs' ? 'Dostupné' : 'Available'; ?></span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color unavailable"></div>
+                                <span><?php echo $lang === 'cs' ? 'Nedostupné' : 'Unavailable'; ?></span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color today"></div>
+                                <span><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color unavailable"></div>
-                        <span>Unavailable</span>
+                    <div class="modern-calendar" id="calendar"></div>
+                    <div class="calendar-info">
+                        <p class="selected-date-info" id="selected-date-info">
+                            <?php echo $lang === 'cs' ? 'Klikněte na datum pro více informací' : 'Click on a date for more information'; ?>
+                        </p>
                     </div>
                 </div>
             </div>
         </main>
         <footer>
             <p>&copy; <span id="year"></span> Tools4Friends</p>
-            <script>
-                document.getElementById('year').textContent = new Date().getFullYear();
-            </script>
         </footer>
     </div>
 
     <script>
-        const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
-        let currentDate = new Date();
-
-        function renderCalendar(date) {
-            const calendar = document.getElementById('calendar');
-            const monthLabel = document.getElementById('calendar-month');
-            calendar.innerHTML = '';
-
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const startDay = firstDay.getDay();
-
-            monthLabel.textContent = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-            // Add day headers
-            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'calendar-header';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-
-            // Add empty cells for days before the first day of the month
-            for (let i = 0; i < startDay; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'calendar-day empty';
-                calendar.appendChild(emptyCell);
-            }
-
-            // Add days of the month
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const cell = document.createElement('div');
-                cell.className = 'calendar-day';
-                const cellDate = new Date(year, month, day);
-                const cellDateStr = cellDate.toISOString().split('T')[0];
-
-                // Check if this date is unavailable
-                let isUnavailable = false;
-                for (const range of unavailableRanges) {
-                    if (cellDateStr >= range.start_date && cellDateStr <= range.end_date) {
-                        cell.classList.add('unavailable');
-                        isUnavailable = true;
-                        break;
-                    }
-                }
-
-                if (!isUnavailable) {
-                    cell.classList.add('available');
-                }
-
-                cell.textContent = day;
-                calendar.appendChild(cell);
-            }
-        }
-
-        function changeMonth(offset) {
-            currentDate.setMonth(currentDate.getMonth() + offset);
-            renderCalendar(currentDate);
-        }
-
-        // Initialize calendar
-        renderCalendar(currentDate);
+        // Pass PHP data to JavaScript
+        window.toolData = {
+            unavailableRanges: <?php echo json_encode($unavailable_ranges); ?>,
+            lang: '<?php echo $lang; ?>',
+            toolId: <?php echo $tool_id; ?>
+        };
     </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
