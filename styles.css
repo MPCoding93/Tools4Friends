@@ -193,6 +193,13 @@ main {
 }
 
 /* Calendar styles for tool availability page */
+/* Container to limit calendar width */
+.calendar-container {
+    width: 33.33%; /* 1/3 of the page */
+    margin: 0 auto; /* Center it horizontally */
+}
+
+/* Existing styles remain unchanged */
 .calendar-nav {
     display: flex;
     justify-content: space-between;
@@ -235,6 +242,7 @@ main {
     background-color: #ffcccc;
     color: #cc0000;
 }
+
 
 /* Responsive design */
 @media (max-width: 768px) {
