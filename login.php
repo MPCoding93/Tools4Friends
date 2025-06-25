@@ -9,30 +9,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
 
     if ($action === 'login') {
-        $username = trim($_POST['username']);
+        $username = trim($_POST['username']); // This can be email or username
         $password = $_POST['password'];
 
         if (!empty($username) && !empty($password)) {
             // LOGIN
-            $stmt = $conn->prepare("SELECT user_id, username, password_hash FROM Users WHERE username = ? OR email = ?");
+            // Prepare statement to fetch user by username or email
+            $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash FROM Users WHERE username = ? OR email = ?");
             $stmt->bind_param("ss", $username, $username);
             $stmt->execute();
             $stmt->store_result();
 
             if ($stmt->num_rows === 1) {
-                $stmt->bind_result($user_id, $db_username, $password_hash);
+                $stmt->bind_result($user_id, $db_firstname, $db_lastname, $password_hash);
                 $stmt->fetch();
 
                 if (password_verify($password, $password_hash)) {
                     $_SESSION['user_id'] = $user_id;
-                    $_SESSION['username'] = $db_username;
-                    header("Location: index.html"); // Redirect after successful login
+                    $_SESSION['firstname'] = $db_firstname;
+                    $_SESSION['lastname'] = $db_lastname;
+                    // Redirect to index.html with current language if available
+                    $lang = $_GET['lang'] ?? 'en'; // Preserve language
+                    header("Location: index.html?lang=" . $lang);
                     exit();
                 } else {
                     $error = "Invalid credentials.";
                 }
             } else {
-                $error = "User  not found.";
+                $error = "User not found.";
             }
 
             $stmt->close();
@@ -43,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $firstname = trim($_POST['firstname']);
         $lastname = trim($_POST['lastname']);
         $email = trim($_POST['email']);
-        $phone = trim($_POST['phone']);
+        $phone = trim($_POST['phone']); // This column should now exist
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
 
@@ -53,31 +57,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($password !== $confirm_password) {
             $error = "Passwords do not match.";
         } else {
-            // Check if email already exists
-            $stmt = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $stmt->store_result();
+            // --- Email Uniqueness Check ---
+            $stmt_check_email = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
+            $stmt_check_email->bind_param("s", $email);
+            $stmt_check_email->execute();
+            $stmt_check_email->store_result();
 
-            if ($stmt->num_rows > 0) {
-                $error = "Email already exists.";
+            if ($stmt_check_email->num_rows > 0) {
+                $error = "Email address is already in use. Please use a different email or log in.";
+                $stmt_check_email->close();
             } else {
+                $stmt_check_email->close(); // Close the check statement
+
                 // Insert new user into the database
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                $stmt->close();
-                $stmt = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone_number, password_hash) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
-                if ($stmt->execute()) {
-                    // Log the user in after successful registration
-                    $_SESSION['user_id'] = $stmt->insert_id;
-                    $_SESSION['username'] = $firstname; // or any other identifier
-                    header("Location: index.html"); // Redirect after successful registration
+                // Assuming 'username' is optional or derived from email/firstname,
+                // for simplicity, we'll use email as username if username column exists and is unique.
+                // If 'username' is a separate required field, you'd need to add it to the form.
+                // For now, let's assume 'username' can be the email or is not strictly used for login.
+                // If your 'Users' table has a 'username' column that must be unique, you'd need to handle that too.
+                // For this example, we'll just use email for login.
+
+                // If you have a 'username' column and it's required/unique, you might set it to email by default:
+                // $username_for_db = $email; // Or get from form if you add a username field
+
+                $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)");
+                $stmt_insert->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
+
+                if ($stmt_insert->execute()) {
+                    // --- Automatic Login after successful registration ---
+                    $_SESSION['user_id'] = $stmt_insert->insert_id;
+                    $_SESSION['firstname'] = $firstname;
+                    $_SESSION['lastname'] = $lastname;
+
+                    // Redirect to index.html with current language if available
+                    $lang = $_GET['lang'] ?? 'en'; // Preserve language
+                    header("Location: index.html?lang=" . $lang);
                     exit();
                 } else {
-                    $error = "Registration failed. Please try again.";
+                    $error = "Registration failed. Please try again. " . $conn->error; // Added $conn->error for debugging
                 }
+                $stmt_insert->close();
             }
-            $stmt->close();
         }
     }
 }
@@ -105,14 +126,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function toggleForm(action) {
             const loginForm = document.getElementById('login-form');
             const registerForm = document.getElementById('register-form');
+            const loginButton = document.querySelector('.form-toggle button:nth-child(1)');
+            const registerButton = document.querySelector('.form-toggle button:nth-child(2)');
+
             if (action === 'login') {
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
+                loginButton.classList.add('active');
+                registerButton.classList.remove('active');
             } else {
                 loginForm.style.display = 'none';
                 registerForm.style.display = 'block';
+                loginButton.classList.remove('active');
+                registerButton.classList.add('active');
             }
         }
+
+        // Set initial active state for login/register toggle buttons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            if (loginForm && loginForm.style.display === 'block') {
+                document.querySelector('.form-toggle button:nth-child(1)').classList.add('active');
+            } else {
+                document.querySelector('.form-toggle button:nth-child(2)').classList.add('active');
+            }
+        });
     </script>
 </head>
 
@@ -137,48 +175,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button onclick="smartLanguageSwitch('cs')">Čeština</button>
             </div>
         </nav>
-        <div class="container">
-    <header>
-            <h1>Login / Register</h1>
-        </header>
-        <div class="line-break"></div>
+        <main> <!-- Added main tag here -->
+            <header>
+                <h1>Login / Register</h1>
+            </header>
+            <div class="line-break"></div>
 
-        <?php if ($error): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error); ?></div> <!-- Changed class name -->
-        <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
 
-        <div class="form-toggle">
-            <button class="toggle-button" onclick="toggleForm('login')">Login</button>
-            <button class="toggle-button" onclick="toggleForm('register')">Register</button>
-        </div>
+            <div class="form-toggle">
+                <button class="toggle-button" onclick="toggleForm('login')">Login</button>
+                <button class="toggle-button" onclick="toggleForm('register')">Register</button>
+            </div>
 
-    <form id="login-form" method="POST" class="form-card" style="display: block;"> <!-- Added form-card class -->
-            <input type="hidden" name="action" value="login">
-            <label for="username">Email:</label>
-            <input type="text" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" name="password" required>
-            <button type="submit" class="submit-button">Login</button>
-        </form>
+            <form id="login-form" method="POST" class="form-card" style="display: block;">
+                <input type="hidden" name="action" value="login">
+                <label for="username">Email:</label>
+                <input type="text" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="submit-button">Login</button>
+            </form>
 
-    <form id="register-form" method="POST" class="form-card" style="display: none;"> <!-- Added form-card class -->
-            <input type="hidden" name="action" value="register">
-            <label for="firstname">First Name:</label>
-            <input type="text" name="firstname" required>
-            <label for="lastname">Last Name:</label>
-            <input type="text" name="lastname" required>
-            <label for="email">Email:</label>
-            <input type="email" name="email" required>
-            <label for="phone">Phone:</label>
-            <input type="text" name="phone">
-            <label for="password">Password:</label>
-            <input type="password" name="password" required>
-            <label for="confirm_password">Confirm Password:</label>
-            <input type="password" name="confirm_password" required>
-            <button type="submit" class="submit-button">Register</button>
-        </form>
-</div>
-
+            <form id="register-form" method="POST" class="form-card" style="display: none;">
+                <input type="hidden" name="action" value="register">
+                <label for="firstname">First Name:</label>
+                <input type="text" name="firstname" required>
+                <label for="lastname">Last Name:</label>
+                <input type="text" name="lastname" required>
+                <label for="email">Email:</label>
+                <input type="email" name="email" required>
+                <label for="phone">Phone:</label>
+                <input type="text" name="phone">
+                <label for="password">Password:</label>
+                <input type="password" name="password" required>
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" name="confirm_password" required>
+                <button type="submit" class="submit-button">Register</button>
+            </form>
+        </main>
+        <footer>
+            <p>&copy; <span id="year"></span> Tools4Friends</p>
+        </footer>
+    </div>
 </body>
 
 </html>
