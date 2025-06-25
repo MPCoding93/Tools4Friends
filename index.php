@@ -1,4 +1,47 @@
-    <script src="script.js" defer></script>
+<?php
+// Start session at the very beginning of the file
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Get selected language from URL or default to English
+$lang = $_GET['lang'] ?? 'en';
+
+// --- User Login Status for Navbar ---
+// These variables need to be defined BEFORE including navbar.php
+$loggedIn = isset($_SESSION['user_id']);
+$fullName = '';
+if ($loggedIn) {
+    // Assuming 'firstname' and 'lastname' are stored in the session upon login
+    // You might need to fetch user details from the database if only user_id is in session
+    // For now, let's assume you have firstname and lastname in session or can get them easily
+    // Example: $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    // If not, you'd need to query the Users table using $_SESSION['user_id']
+    // For this example, we'll just use a placeholder if not available
+    $fullName = htmlspecialchars($_SESSION['username'] ?? 'User'); // Using username as a fallback
+}
+?>
+<!DOCTYPE html>
+<html lang="<?php echo $lang; ?>">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Borrowing tools from friends for friends"
+    />
+    <meta name="keywords" content="Tools for Friends, tools, naradi" />
+    <meta name="author" content="MPCoding" />
+    <link rel="stylesheet" href="/styles.css" /> <!-- Changed to absolute path -->
+    <link rel="icon" href="/favicon-dark.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/script.js" defer></script> <!-- Changed to absolute path -->
+
     <title>Tools4Friends</title>
   </head>
   <body>
@@ -67,11 +110,11 @@
         </p>
 
         <p
-          data-en='For more information please contact us <a href="contacts.html">here</a>'
-          data-cs='Pro více informací nás prosím kontaktujte <a href="contacts.html">zde</a>'
+          data-en='For more information please contact us <a href="contacts.php?lang=<?php echo $lang; ?>">here</a>' <!-- Changed to .php and added lang parameter -->
+          data-cs='Pro více informací nás prosím kontaktujte <a href="contacts.php?lang=<?php echo $lang; ?>">zde</a>' <!-- Changed to .php and added lang parameter -->
         >
           For more information please contact us
-          <a href="contacts.html">here</a>
+          <a href="contacts.php?lang=<?php echo $lang; ?>">here</a> <!-- Changed to .php and added lang parameter -->
         </p>
       </main>
       <footer>
