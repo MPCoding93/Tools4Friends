@@ -86,10 +86,7 @@ while ($tool_row = $tools_result->fetch_assoc()) {
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
             <nav class="category-nav">
-                <a href="tools.php?category=vše&lang=<?php echo $lang; ?>"
-                    class="<?php echo $selected_category === 'vše' ? 'active' : ''; ?>">
-                    <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
-                </a>
+
                 <?php while ($category_row = $category_result->fetch_assoc()): ?>
                     <a href="tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
