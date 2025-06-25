@@ -162,10 +162,11 @@ main {
 /* TOOL COMPONENTS */
 /* ====================== */
 .tool-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    justify-content: center;
+    margin-top: 30px;
 }
 
 .tool-block {
