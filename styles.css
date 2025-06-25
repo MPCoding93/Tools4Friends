@@ -221,7 +221,11 @@ main {
     visibility: hidden;
     transform: translateY(10px); /* Start slightly below */
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+
+    /* --- FIX FOR FLICKERING --- */
+    margin-top: -5px; /* Pull the dropdown content up slightly to overlap with the button's hover area */
 }
+
 
 /* Links inside the dropdown */
 .dropdown-content a {
