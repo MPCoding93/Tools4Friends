@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insert new user into the database
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt->close();
-                $stmt = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)");
+                $stmt = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone_number, password_hash) VALUES (?, ?, ?, ?, ?)");
                 $stmt->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
                 if ($stmt->execute()) {
                     // Log the user in after successful registration
