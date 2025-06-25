@@ -12,13 +12,12 @@ $stmt = $conn->prepare("SELECT * FROM Tools WHERE tool_id = ?");
 $stmt->bind_param("i", $tool_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$tool = $result->fetch_assoc();
 
 if ($result->num_rows === 0) {
     echo "<h2>Tool not found.</h2>";
     exit;
 }
-$tool = $result->fetch_assoc();
+$tool = $result->fetch_assoc(); // Keep only this one
 
 // Fetch availability ranges using MySQLi
 $availability_stmt = $conn->prepare("SELECT start_date, end_date FROM Availability WHERE tool_id = ?");
