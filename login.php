@@ -7,11 +7,12 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
 
-    if (!empty($username) && !empty($password)) {
-        if ($action === 'login') {
+    if ($action === 'login') {
+        $username = trim($_POST['username']);
+        $password = $_POST['password'];
+
+        if (!empty($username) && !empty($password)) {
             // LOGIN
             $stmt = $conn->prepare("SELECT user_id, username, password_hash FROM Users WHERE username = ? OR email = ?");
             $stmt->bind_param("ss", $username, $username);
@@ -25,41 +26,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (password_verify($password, $password_hash)) {
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $db_username;
-                    header("Location: index.html"); // Changed from index 4.html
+                    header("Location: index.html"); // Redirect after successful login
                     exit();
                 } else {
                     $error = "Invalid credentials.";
                 }
             } else {
-                $error = "User not found.";
+                $error = "User  not found.";
             }
 
             $stmt->close();
-        } elseif ($action === 'register') {
-            // REGISTER
-            $stmt = $conn->prepare("SELECT user_id FROM Users WHERE username = ? OR email = ?");
-            $stmt->bind_param("ss", $username, $username);
+        } else {
+            $error = "Please enter both email and password.";
+        }
+    } elseif ($action === 'register') {
+        $firstname = trim($_POST['firstname']);
+        $lastname = trim($_POST['lastname']);
+        $email = trim($_POST['email']);
+        $phone = trim($_POST['phone']);
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        // Validate registration fields
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
+            $error = "Please fill in all mandatory fields.";
+        } elseif ($password !== $confirm_password) {
+            $error = "Passwords do not match.";
+        } else {
+            // Check if email already exists
+            $stmt = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
+            $stmt->bind_param("s", $email);
             $stmt->execute();
             $stmt->store_result();
 
             if ($stmt->num_rows > 0) {
-                $error = "Username or email already exists.";
+                $error = "Email already exists.";
             } else {
-                $stmt->close();
+                // Insert new user into the database
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $conn->prepare("INSERT INTO Users (username, password_hash) VALUES (?, ?)");
-                $stmt->bind_param("ss", $username, $password_hash);
+                $stmt->close();
+                $stmt = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
                 if ($stmt->execute()) {
-                    $success = "Registration successful. You can now log in.";
+                    // Log the user in after successful registration
+                    $_SESSION['user_id'] = $stmt->insert_id;
+                    $_SESSION['username'] = $firstname; // or any other identifier
+                    header("Location: index.html"); // Redirect after successful registration
+                    exit();
                 } else {
                     $error = "Registration failed. Please try again.";
                 }
             }
-
             $stmt->close();
         }
-    } else {
-        $error = "Please enter both username and password.";
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Login / Register</title>
+    <script>
+        function toggleForm(action) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            if (action === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Login / Register</h1>
+        </header>
+        <div class="line-break"></div>
+
+        <?php if ($error): ?>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+
+        <div>
+            <button onclick="toggleForm('login')">Login</button>
+            <button onclick="toggleForm('register')">Register</button>
+        </div>
+
+        <form id="login-form" method="POST" style="display: block;">
+            <input type="hidden" name="action" value="login">
+            <label for="username">Email:</label>
+            <input type="text" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <form id="register-form" method="POST" style="display: none;">
+            <input type="hidden" name="action" value="register">
+            <label for="firstname">First Name:</label>
+            <input type="text" name="firstname" required>
+            <label for="lastname">Last Name:</label>
+            <input type="text" name="lastname" required>
+            <label for="email">Email:</label>
+            <input type="email" name="email" required>
+            <label for="phone">Phone:</label>
+            <input type="text" name="phone">
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" name="confirm_password" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>
