@@ -137,6 +137,18 @@ nav {
 }
 
 /* ====================== */
+/* FOOTER */
+/* ====================== */
+footer {
+    text-align: center;
+    background-color: rgb(31, 45, 90);
+    color: #fff;
+    padding: 10px 0 20px 0;
+    border-bottom-left-radius: 17px;
+    border-bottom-right-radius: 17px;
+}
+
+/* ====================== */
 /* MAIN CONTENT */
 /* ====================== */
 main {
@@ -561,15 +573,5 @@ main {
 .profile {
     display: flex;
 
-/* ====================== */
-/* FOOTER */
-/* ====================== */
-footer {
-    text-align: center;
-    background-color: rgb(31, 45, 90);
-    color: #fff;
-    padding: 10px 0 20px 0;
-    border-bottom-left-radius: 17px;
-    border-bottom-right-radius: 17px;
-}
+
 
