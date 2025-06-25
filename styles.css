@@ -822,3 +822,91 @@ a:focus,
         border: 2px solid #dc3545;
     }
 }
+
+.container {
+    max-width: 600px; /* Set a max width for the container */
+    margin: 20px auto; /* Center the container */
+    padding: 20px; /* Add padding */
+    background: rgba(255, 255, 255, 0.95); /* Light background for contrast */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(31, 45, 90, 0.1); /* Subtle shadow */
+}
+
+header h1 {
+    text-align: center; /* Center the header text */
+    color: #1F2D5A; /* Primary color */
+}
+
+.line-break {
+    height: 2px; /* Line height */
+    background: linear-gradient(90deg, #1F2D5A, #4a90e2, #1F2D5A); /* Decorative line */
+    margin: 20px 0; /* Margin for spacing */
+}
+
+.form-toggle {
+    display: flex; /* Flexbox for button alignment */
+    justify-content: center; /* Center the buttons */
+    margin-bottom: 20px; /* Space below the buttons */
+}
+
+.toggle-button {
+    background: #4a90e2; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for buttons */
+    margin: 0 10px; /* Margin between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background 0.3s; /* Smooth background transition */
+}
+
+.toggle-button:hover {
+    background: #1F2D5A; /* Darker background on hover */
+}
+
+.form {
+    display: flex; /* Flexbox for form layout */
+    flex-direction: column; /* Stack elements vertically */
+    gap: 15px; /* Space between form elements */
+}
+
+label {
+    font-weight: bold; /* Bold labels */
+    color: #1F2D5A; /* Label color */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    padding: 10px; /* Padding for input fields */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    transition: border 0.3s; /* Smooth border transition */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #4a90e2; /* Change border color on focus */
+}
+
+.submit-button {
+    background: #4a90e2; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Padding for button */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background 0.3s; /* Smooth background transition */
+}
+
+.submit-button:hover {
+    background: #1F2D5A; /* Darker background on hover */
+}
+
+.error {
+    color: red; /* Error message color */
+    text-align: center; /* Center error messages */
+    margin-bottom: 20px; /* Space below error messages */
+}
+
