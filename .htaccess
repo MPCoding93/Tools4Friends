@@ -1,5 +1,3 @@
-Is this included?
-
 # Prioritize index.php over other index files
 DirectoryIndex index.php index.html index.htm
 
