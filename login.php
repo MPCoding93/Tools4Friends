@@ -138,46 +138,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </nav>
         <div class="container">
-            <header>
-                <h1>Login / Register</h1>
-            </header>
-            <div class="line-break"></div>
+    <header>
+        <h1>Login / Register</h1>
+    </header>
+    <div class="line-break"></div>
 
-            <?php if ($error): ?>
-                <div class="error"><?php echo htmlspecialchars($error); ?></div>
-            <?php endif; ?>
+    <?php if ($error): ?>
+        <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
 
-            <div>
-                <button onclick="toggleForm('login')">Login</button>
-                <button onclick="toggleForm('register')">Register</button>
-            </div>
+    <div class="form-toggle">
+        <button class="toggle-button" onclick="toggleForm('login')">Login</button>
+        <button class="toggle-button" onclick="toggleForm('register')">Register</button>
+    </div>
 
-            <form id="login-form" method="POST" style="display: block;">
-                <input type="hidden" name="action" value="login">
-                <label for="username">Email:</label>
-                <input type="text" name="username" required>
-                <label for="password">Password:</label>
-                <input type="password" name="password" required>
-                <button type="submit">Login</button>
-            </form>
+    <form id="login-form" method="POST" class="form" style="display: block;">
+        <input type="hidden" name="action" value="login">
+        <label for="username">Email:</label>
+        <input type="text" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <button type="submit" class="submit-button">Login</button>
+    </form>
 
-            <form id="register-form" method="POST" style="display: none;">
-                <input type="hidden" name="action" value="register">
-                <label for="firstname">First Name:</label>
-                <input type="text" name="firstname" required>
-                <label for="lastname">Last Name:</label>
-                <input type="text" name="lastname" required>
-                <label for="email">Email:</label>
-                <input type="email" name="email" required>
-                <label for="phone">Phone:</label>
-                <input type="text" name="phone">
-                <label for="password">Password:</label>
-                <input type="password" name="password" required>
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" name="confirm_password" required>
-                <button type="submit">Register</button>
-            </form>
-        </div>
+    <form id="register-form" method="POST" class="form" style="display: none;">
+        <input type="hidden" name="action" value="register">
+        <label for="firstname">First Name:</label>
+        <input type="text" name="firstname" required>
+        <label for="lastname">Last Name:</label>
+        <input type="text" name="lastname" required>
+        <label for="email">Email:</label>
+        <input type="email" name="email" required>
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone">
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" name="confirm_password" required>
+        <button type="submit" class="submit-button">Register</button>
+    </form>
+</div>
+
 </body>
 
 </html>
