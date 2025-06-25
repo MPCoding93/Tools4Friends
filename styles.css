@@ -1,5 +1,8 @@
+/* ====================== */
+/* BASE STYLES */
+/* ====================== */
 body {
-    font-family: "Libre Baskerville", serif; /* Keeping Libre Baskerville as primary, Montserrat can be used for specific elements if desired */
+    font-family: "Libre Baskerville", serif;
     font-weight: 400;
     font-style: normal;
     margin: 0;
@@ -9,7 +12,46 @@ body {
     min-height: 100vh;
 }
 
-/* Navigation improvements for better spacing and usability */
+h1, h2, h3 {
+    color: #1F2D5A;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+    background: linear-gradient(135deg, #1F2D5A, #4a90e2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ====================== */
+/* LAYOUT COMPONENTS */
+/* ====================== */
+.container {
+    border: none;
+    margin: 20px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(31, 45, 90, 0.15);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+}
+
+.line-break {
+    height: 2px;
+    background: linear-gradient(90deg, #1F2D5A, #4a90e2, #1F2D5A);
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* ====================== */
+/* NAVIGATION */
+/* ====================== */
 nav {
     display: flex;
     justify-content: space-between;
@@ -21,23 +63,22 @@ nav {
     backdrop-filter: blur(10px);
 }
 
-/* Improved nav-left spacing */
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 20px; /* Added consistent gap between navigation items */
+    gap: 20px;
 }
 
 .nav-left a {
     color: #fff;
-    padding: 12px 20px; /* Increased horizontal padding for better touch targets */
+    padding: 12px 20px;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 8px;
     font-weight: 500;
     position: relative;
     overflow: hidden;
-    min-width: 80px; /* Minimum width for consistent button sizes */
+    min-width: 80px;
     text-align: center;
 }
 
@@ -64,21 +105,19 @@ nav {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
 }
 
-/* Active state styling */
 .nav-left a.active {
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
-/* Improved nav-right spacing */
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 15px; /* Added consistent gap between language buttons */
+    gap: 15px;
 }
 
 .nav-right button {
-    padding: 10px 18px; /* Increased padding for better touch targets */
+    padding: 10px 18px;
     background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
     color: #1F2D5A;
     border: none;
@@ -87,7 +126,7 @@ nav {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-    min-width: 90px; /* Minimum width for consistent button sizes */
+    min-width: 90px;
     text-align: center;
 }
 
@@ -97,58 +136,17 @@ nav {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
 }
 
-/* Focus improvements for accessibility */
-.nav-left a:focus,
-.nav-right button:focus {
-    outline: 3px solid #4a90e2;
-    outline-offset: 2px;
+/* ====================== */
+/* MAIN CONTENT */
+/* ====================== */
+main {
+    margin: 30px;
+    flex: 1;
 }
 
-/* Removed redundant legacy nav a styles */
-
-.container {
-    border: none;
-    margin: 20px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.95);
-    min-height: calc(100vh - 40px);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 60px rgba(31, 45, 90, 0.15);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
-}
-
-.line-break {
-    height: 2px;
-    background: linear-gradient(90deg, #1F2D5A, #4a90e2, #1F2D5A);
-    margin: 0;
-    opacity: 0.8;
-}
-
-h1, h2, h3 {
-    color: #1F2D5A;
-    font-weight: 700;
-}
-
-h1 {
-    font-size: 2.5em;
-    margin-bottom: 0.5em;
-    background: linear-gradient(135deg, #1F2D5A, #4a90e2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-footer {
+.page_title {
+    margin: 30px 0;
     text-align: center;
-    background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);
-    color: #fff;
-    padding: 20px 0 30px 0;
-    border-bottom-left-radius: 24px;
-    border-bottom-right-radius: 24px;
-    margin-top: auto;
-    box-shadow: 0 -10px 30px rgba(31, 45, 90, 0.2);
 }
 
 .banner img {
@@ -160,78 +158,9 @@ footer {
     border-top-right-radius: 24px;
 }
 
-main {
-    margin: 30px;
-    flex: 1;
-}
-
-#contact {
-    padding: 30px;
-}
-
-#contact-container {
-    margin: 0;
-}
-
-.profile {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.profile:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(31, 45, 90, 0.15);
-}
-
-.profile-pic {
-    width: 80px;
-    height: 80px;
-    margin-right: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #fff;
-    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.2);
-}
-
-.page_title {
-    margin: 30px 0;
-    text-align: center;
-}
-
-.category-nav {
-    margin: 30px 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-}
-
-.category-nav a {
-    display: inline-block;
-    margin-right: 15px;
-    margin-bottom: 10px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);
-    color: white;
-    text-decoration: none;
-    border-radius: 25px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-    box-shadow: 0 4px 15px rgba(31, 45, 90, 0.3);
-}
-
-.category-nav a:hover {
-    background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
-}
-
+/* ====================== */
+/* TOOL COMPONENTS */
+/* ====================== */
 .tool-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -319,10 +248,28 @@ main {
     font-weight: 600;
 }
 
-.tool-block .availability-button {
-    margin-top: auto;
+.tool-details {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
+    border-left: 4px solid #4a90e2;
 }
 
+.tool-details p {
+    margin: 15px 0;
+    font-size: 1.1em;
+}
+
+.tool-details strong {
+    color: #1F2D5A;
+    font-weight: 600;
+}
+
+/* ====================== */
+/* BUTTONS */
+/* ====================== */
 .availability-button {
     width: 220px;
     padding: 12px 24px;
@@ -362,26 +309,9 @@ main {
     box-shadow: 0 12px 35px rgba(31, 45, 90, 0.3);
 }
 
-.tool-details {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 30px;
-    border-radius: 16px;
-    margin-bottom: 40px;
-    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-    border-left: 4px solid #4a90e2;
-}
-
-.tool-details p {
-    margin: 15px 0;
-    font-size: 1.1em;
-}
-
-.tool-details strong {
-    color: #1F2D5A;
-    font-weight: 600;
-}
-
-/* Modern Calendar Styles */
+/* ====================== */
+/* CALENDAR */
+/* ====================== */
 .calendar-container {
     max-width: 700px;
     margin: 0 auto;
@@ -439,17 +369,6 @@ main {
     background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
-}
-
-.calendar-nav h3 {
-    margin: 0;
-    color: #1F2D5A;
-    font-size: 1.4em;
-    font-weight: 700;
-    background: linear-gradient(135deg, #1F2D5A, #4a90e2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .calendar {
@@ -540,7 +459,7 @@ main {
 }
 
 .calendar-day.selected {
-    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%); /* Example: Blue gradient */
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
     transform: scale(1.05);
@@ -585,328 +504,25 @@ main {
 }
 
 .legend-color.today {
-    background: #ffc107; /* Example: Yellow for today */
-    border-left: 4px solid #e0a800; /* Example border */
+    background: #ffc107;
+    border-left: 4px solid #e0a800;
 }
 
 .legend-color.selected {
-    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%); /* Match selected day */
-    border-left: 4px solid #1F2D5A; /* Example border */
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%);
+    border-left: 4px solid #1F2D5A;
 }
 
-/* Enhanced Contact Info */
-.contact-info {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 25px;
-    border-radius: 16px;
-    margin-top: 30px;
-    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-    border-left: 4px solid #4a90e2;
+/* ====================== */
+/* CONTACT & PROFILE */
+/* ====================== */
+#contact {
+    padding: 30px;
 }
 
-.contact-info a {
-    color: #4a90e2;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    padding: 2px 8px;
-    border-radius: 4px;
+#contact-container {
+    margin: 0;
 }
 
-.contact-info a:hover {
-    background: rgba(74, 144, 226, 0.1);
-    color: #1F2D5A;
-}
-
-/* Loading Animation */
-@keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-}
-
-.loading-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite;
-}
-
-/* Responsive Design Improvements */
-@media (max-width: 1024px) {
-    .tool-list {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-    }
-    
-    .container {
-        margin: 15px;
-    }
-}
-
-/* Enhanced mobile responsiveness */
-@media (max-width: 768px) {
-    .tool-list {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .tool-block {
-        min-height: auto;
-    }
-    
-    nav {
-        padding: 15px 20px;
-    }
-    
-    .nav-left {
-        gap: 15px; /* Slightly reduced gap on mobile but still adequate */
-    }
-    
-    .nav-left a {
-        padding: 10px 16px;
-        font-size: 0.95em;
-        min-width: 70px;
-    }
-    
-    .nav-right {
-        gap: 12px;
-    }
-    
-    .nav-right button {
-        padding: 8px 14px;
-        font-size: 0.9em;
-        min-width: 80px;
-    }
-
-    .calendar-container {
-        max-width: 100%;
-        padding: 20px;
-        margin: 0 -10px;
-    }
-
-    .calendar-day {
-        padding: 12px 8px;
-        font-size: 0.9em;
-        min-height: 20px;
-    }
-
-    .calendar-legend {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    h1 {
-        font-size: 2em;
-    }
-    
-    main {
-        margin: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    nav {
-        flex-direction: column;
-        gap: 20px; /* Increased gap between nav sections */
-        padding: 20px;
-    }
-    
-    .nav-left, .nav-right {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 15px; /* Consistent spacing in mobile stacked layout */
-    }
-    
-    .nav-left a {
-        padding: 12px 18px; /* Larger touch targets on mobile */
-        min-width: 85px;
-    }
-    
-    .nav-right button {
-        padding: 12px 20px; /* Larger touch targets on mobile */
-        min-width: 95px;
-    }
-
-    .container {
-        margin: 10px;
-        border-radius: 20px;
-    }
-
-    main {
-        margin: 15px;
-    }
-
-    .calendar-nav {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-
-    .calendar-nav h3 {
-        order: -1;
-        font-size: 1.2em;
-    }
-
-    .calendar-day {
-        padding: 10px 4px;
-        font-size: 0.8em;
-        min-height: 15px;
-    }
-    
-    .tool-block {
-        padding: 20px 15px;
-    }
-    
-    .availability-button {
-        width: 100%;
-        margin-top: 20px;
-    }
-    
-    h1 {
-        font-size: 1.8em;
-    }
-    
-    .profile {
-        flex-direction: column;
-        text-align: center;
-        padding: 25px;
-    }
-    
-    .profile-pic {
-        margin-right: 0;
-        margin-bottom: 15px;
-        width: 100px;
-        height: 100px;
-    }
-}
-
-/* Dark mode support (future enhancement) */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-primary: #1a1a1a;
-        --bg-secondary: #2d2d2d;
-        --text-primary: #ffffff;
-        --text-secondary: #cccccc;
-    }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Focus styles for better accessibility */
-button:focus,
-a:focus,
-.calendar-day:focus {
-    outline: 3px solid #4a90e2;
-    outline-offset: 2px;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .tool-block {
-        border: 2px solid #1F2D5A;
-    }
-    
-    .calendar-day.available {
-        border: 2px solid #28a745;
-    }
-    
-    .calendar-day.unavailable {
-        border: 2px solid #dc3545;
-    }
-}
-
-.container {
-    max-width: 600px; /* Set a max width for the container */
-    margin: 20px auto; /* Center the container */
-    padding: 20px; /* Add padding */
-    background: rgba(255, 255, 255, 0.95); /* Light background for contrast */
-    border-radius: 12px; /* Rounded corners */
-    box-shadow: 0 4px 20px rgba(31, 45, 90, 0.1); /* Subtle shadow */
-}
-
-header h1 {
-    text-align: center; /* Center the header text */
-    color: #1F2D5A; /* Primary color */
-}
-
-.line-break {
-    height: 2px; /* Line height */
-    background: linear-gradient(90deg, #1F2D5A, #4a90e2, #1F2D5A); /* Decorative line */
-    margin: 20px 0; /* Margin for spacing */
-}
-
-.form-toggle {
-    display: flex; /* Flexbox for button alignment */
-    justify-content: center; /* Center the buttons */
-    margin-bottom: 20px; /* Space below the buttons */
-}
-
-.toggle-button {
-    background: #4a90e2; /* Button background color */
-    color: white; /* Button text color */
-    border: none; /* Remove border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px 20px; /* Padding for buttons */
-    margin: 0 10px; /* Margin between buttons */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background 0.3s; /* Smooth background transition */
-}
-
-.toggle-button:hover {
-    background: #1F2D5A; /* Darker background on hover */
-}
-
-.form {
-    display: flex; /* Flexbox for form layout */
-    flex-direction: column; /* Stack elements vertically */
-    gap: 15px; /* Space between form elements */
-}
-
-label {
-    font-weight: bold; /* Bold labels */
-    color: #1F2D5A; /* Label color */
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    padding: 10px; /* Padding for input fields */
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 8px; /* Rounded corners */
-    transition: border 0.3s; /* Smooth border transition */
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-    border-color: #4a90e2; /* Change border color on focus */
-}
-
-.submit-button {
-    background: #4a90e2; /* Button background color */
-    color: white; /* Button text color */
-    border: none; /* Remove border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px; /* Padding for button */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background 0.3s; /* Smooth background transition */
-}
-
-.submit-button:hover {
-    background: #1F2D5A; /* Darker background on hover */
-}
-
-.error {
-    color: red; /* Error message color */
-    text-align: center; /* Center error messages */
-    margin-bottom: 20px; /* Space below error messages */
-}
-
+.profile {
+    display: flex;
