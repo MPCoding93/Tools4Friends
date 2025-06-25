@@ -1,23 +1,7 @@
-# Enable URL Rewriting
-RewriteEngine On
+Is this included?
 
 # Prioritize index.php over other index files
 DirectoryIndex index.php index.html index.htm
 
 # Optional: Disable directory browsing for security (recommended)
 Options -Indexes
-
-# Redirect requests for index.php to the root
-RewriteRule ^index\.php$ / [R=301,L]
-
-# Rewrite .php extensions to clean URLs
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^([^\.]+)$ $1.php [NC,L]
-
-# Handle language parameter for clean URLs (optional, if you want to hide ?lang= from .php)
-# This rule needs to come BEFORE the rule that removes .php extension
-RewriteCond %{QUERY_STRING} ^lang=(en|cs)$ [NC]
-RewriteRule ^(index|tools|contacts|login)\.php$ $1? [R=301,L]
-
-# If you want to force non-www to www (or vice-versa) or HTTPS, add rules here.
