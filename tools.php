@@ -38,9 +38,11 @@ while ($tool_row = $tools_result->fetch_assoc()) {
 }
 
 // --- User Login Status for Navbar ---
+// These variables need to be defined BEFORE including navbar.php
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
+    // Assuming 'firstname' and 'lastname' are stored in the session upon login
     $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
@@ -75,45 +77,11 @@ if ($loggedIn) {
         </header>
         <div class="line-break"></div>
 
-        <nav>
-            <div class="nav-left">
-                <a href="index.html?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">
-                    <?php echo $lang === 'cs' ? 'Domů' : 'Home'; ?>
-                </a>
-                <a href="tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">
-                    <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
-                </a>
-                <a href="contacts.html?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
-                    <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
-                </a>
-
-                <?php if ($loggedIn): ?>
-                    <div class="dropdown">
-                        <a href="#" class="dropbtn"><?php echo $fullName; ?></a>
-                        <div class="dropdown-content">
-                            <a href="profile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
-                                <?php echo $lang === 'cs' ? 'Můj Profil' : 'My Profile'; ?>
-                            </a>
-                            <a href="orders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
-                                <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
-                            </a>
-                            <a href="logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
-                                <?php echo $lang === 'cs' ? 'Odhlásit se' : 'Log Out'; ?>
-                            </a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="login.php?lang=<?php echo $lang; ?>" data-en="Login" data-cs="Přihlásit">
-                        <?php echo $lang === 'cs' ? 'Přihlásit' : 'Login'; ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-
-            <div class="nav-right language-toggle">
-                <button onclick="switchLanguage('en', '<?php echo basename($_SERVER['PHP_SELF']); ?>')">English</button>
-                <button onclick="switchLanguage('cs', '<?php echo basename($_SERVER['PHP_SELF']); ?>')">Čeština</button>
-            </div>
-        </nav>
+        <?php
+        // Include the navbar file here
+        // Make sure navbar.php is in the same directory or provide the correct path
+        include 'navbar.php';
+        ?>
 
         <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
