@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db_connection.php'; // Assumes a separate file for DB connection
+require_once 'db_connect.php'; // Assumes a separate file for DB connection
 
 $error = '';
 
