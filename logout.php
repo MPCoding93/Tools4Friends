@@ -2,6 +2,6 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: index 4.html");
+header("Location: index.html"); // Changed from index 4.html
 exit();
 ?>
