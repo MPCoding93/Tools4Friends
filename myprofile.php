@@ -19,7 +19,7 @@ $password_error = '';
 $profile_error = '';
 
 // Fetch user data with prepared statement
-$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone_number, profile_picture FROM Users WHERE user_id = ?");
+$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone, profile_picture FROM Users WHERE user_id = ?");
 $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $result_user = $stmt_user->get_result();
@@ -118,7 +118,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
 
                             <div class="form-group">
                                 <label for="phone"><?php echo ($lang === 'cs' ? 'Telefon:' : 'Phone:'); ?></label>
-                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone_number'] ?? ''); ?>">
+                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                             </div>
 
                             <div class="picture-upload">
