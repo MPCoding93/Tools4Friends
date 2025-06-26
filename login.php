@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // These variables need to be defined BEFORE including navbar.php
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
-if ($loggedIn) {
+if ($loggedIn) { // Ensure fullName is set for the navbar after login/registration
     $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
