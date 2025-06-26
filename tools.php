@@ -78,8 +78,6 @@ if ($loggedIn) {
         <div class="line-break"></div>
 
         <?php
-        // Include the navbar file here
-        // Make sure navbar.php is in the same directory or provide the correct path
         include 'navbar.php';
         ?>
 
