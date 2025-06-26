@@ -11,7 +11,7 @@ include __DIR__ . '/../app/db_connect.php'; // Path from public/tools.php to app
 $lang = $_GET['lang'] ?? 'en';
 
 // Get selected category or default to 'vše'
-$selected_category = $_GET['category'] ?? 'vše';
+$selected_category = $_GET['category'] ?? 'All';
 
 // Fetch categories
 $category_sql = "SELECT DISTINCT category_name FROM Categories";
@@ -23,7 +23,7 @@ if (!$category_result) {
 }
 
 // Fetch tools based on selected category - FIXED SQL INJECTION
-if ($selected_category === 'vše') {
+if ($selected_category === 'All') {
     $tools_sql = "SELECT * FROM Tools";
     $tools_result = $conn->query($tools_sql);
 } else {
