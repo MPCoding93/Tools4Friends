@@ -114,7 +114,7 @@ if ($loggedIn) {
                             <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
                                 <?php echo htmlspecialchars($technical_data); ?></p>
                            <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong>
-                                <?php echo htmlspecialchars($tool['manipulation_fee']); ?></p>
+                                <?php echo htmlspecialchars($tool['manipulation_fee']); ?>Kc</p>
                             <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
                                 <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
