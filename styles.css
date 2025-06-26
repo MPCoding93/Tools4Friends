@@ -445,6 +445,48 @@ main {
     }
 }
 
+/* Add these to your existing styles.css */
+.availability-button.wide-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1em;
+    margin: 20px 0;
+}
+
+.profile-sections {
+    display: grid;
+    grid-template-areas: 
+        "profile password"
+        "add-tool add-tool"
+        "tools tools";
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.profile-section-profile { grid-area: profile; }
+.profile-section-password { grid-area: password; }
+.profile-section-add { grid-area: add-tool; }
+.profile-section-tools { grid-area: tools; }
+
+.tool-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .profile-sections {
+        grid-template-areas: 
+            "profile"
+            "password"
+            "add-tool"
+            "tools";
+    }
+}
+
+
 
 /* ====================== */
 /* TOOL COMPONENTS */
