@@ -2,16 +2,13 @@
 session_start();
 require_once 'db_connect.php';
 
-// Include PHPMailer classes
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
 
-// Adjust path if you installed manually
-require 'vendor/autoload.php'; // If using Composer
-// OR
-// require 'PHPMailer/src/Exception.php';
-// require 'PHPMailer/src/PHPMailer.php';
-// require 'PHPMailer/src/SMTP.php';
+    require 'PHPMailer/src/Exception.php';
+    require 'PHPMailer/src/PHPMailer.php';
+    require 'PHPMailer/src/SMTP.php'; // Only if using SMTP
+    
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
