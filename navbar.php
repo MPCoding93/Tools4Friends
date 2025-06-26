@@ -29,10 +29,10 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
             <div class="dropdown">
                 <a href="#" class="dropbtn"><?php echo $fullName; ?></a>
                 <div class="dropdown-content">
-                    <a href="profile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
+                    <a href="myprofile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
                         <?php echo $lang === 'cs' ? 'Můj Profil' : 'My Profile'; ?>
                     </a>
-                    <a href="orders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
+                    <a href="myorders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
                         <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
                     </a>
                     <a href="logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
