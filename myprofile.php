@@ -19,7 +19,7 @@ $password_error = '';
 $profile_error = '';
 
 // Fetch user data with prepared statement
-$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone, profile_picture FROM Users WHERE user_id = ?");
+$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone_number FROM Users WHERE user_id = ?");
 $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $result_user = $stmt_user->get_result();
@@ -89,17 +89,13 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                 <div>
                     <section class="profile-section form-card">
                         <div class="profile-header">
-                            <img src="<?php echo !empty($user['profile_picture']) ? htmlspecialchars($user['profile_picture']) : 'images/default-profile.jpg'; ?>" 
-                                 alt="<?php echo htmlspecialchars($fullName); ?>" 
-                                 class="profile-picture" 
-                                 id="profile-preview">
                             <div class="profile-name">
                                 <h2><?php echo htmlspecialchars($fullName); ?></h2>
                                 <p>ID: <?php echo $user_id; ?></p>
                             </div>
                         </div>
 
-                        <form method="POST" enctype="multipart/form-data">
+                        <form method="POST">
                             <div class="form-group">
                                 <label for="firstname"><?php echo ($lang === 'cs' ? 'Jméno:' : 'First Name:'); ?></label>
                                 <input type="text" id="firstname" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>" required>
@@ -118,13 +114,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
 
                             <div class="form-group">
                                 <label for="phone"><?php echo ($lang === 'cs' ? 'Telefon:' : 'Phone:'); ?></label>
-                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
-                            </div>
-
-                            <div class="picture-upload">
-                                <label for="profile_picture" class="upload-button"><?php echo ($lang === 'cs' ? 'Nahrát novou fotku' : 'Upload new photo'); ?></label>
-                                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                                <div class="picture-preview"></div>
+                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone_number'] ?? ''); ?>">
                             </div>
 
                             <?php if ($profile_error): ?>
