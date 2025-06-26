@@ -50,13 +50,11 @@ if ($loggedIn) {
           />
         </div>
       </header>
-       <div class="line-break"></div>
- 
-       <?php
-// Include the navbar file here
-// Make sure navbar.php is in the same directory or provide the correct path
-       include 'navbar.php';
-       ?>
+      <div class="line-break"></div>
+
+      <?php
+      include 'navbar.php';
+      ?>
 
       <main id="contact-container">
         <div id="contact">
