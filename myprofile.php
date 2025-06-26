@@ -19,7 +19,7 @@ $password_error = '';
 $profile_error = '';
 
 // Fetch user data with prepared statement
-$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone_number FROM Users WHERE user_id = ?");
+$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone FROM Users WHERE user_id = ?");
 $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $result_user = $stmt_user->get_result();
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (empty($firstname) || empty($lastname)) {
         $profile_error = ($lang === 'cs' ? 'Jméno a příjmení jsou povinné.' : 'First name and last name are required.');
     } else {
-        $stmt_update = $conn->prepare("UPDATE Users SET firstname = ?, lastname = ?, phone_number = ? WHERE user_id = ?");
+        $stmt_update = $conn->prepare("UPDATE Users SET firstname = ?, lastname = ?, phone = ? WHERE user_id = ?");
         $stmt_update->bind_param("sssi", $firstname, $lastname, $phone, $user_id);
         if ($stmt_update->execute()) {
             $_SESSION['firstname'] = $firstname;
@@ -164,7 +164,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
 
                             <div class="form-group">
                                 <label for="phone"><?php echo ($lang === 'cs' ? 'Telefon:' : 'Phone:'); ?></label>
-                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone_number'] ?? ''); ?>">
+                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                             </div>
 
                             <?php if ($profile_error): ?>
