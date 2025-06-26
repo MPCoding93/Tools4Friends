@@ -19,7 +19,7 @@ $password_error = '';
 $profile_error = '';
 
 // Fetch user data with prepared statement
-$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone_number FROM Users WHERE user_id = ?");
+$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone FROM Users WHERE user_id = ?");
 $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $result_user = $stmt_user->get_result();
