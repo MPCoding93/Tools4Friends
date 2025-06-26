@@ -2,13 +2,22 @@
 session_start();
 require_once 'db_connect.php';
 
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\Exception;
+// --- START: Secure Credential Loading ---
+// Adjust the path based on where you placed config_credentials.php
+// Example: if it's one directory up from your web root
+require_once __DIR__ . '/../config_credentials.php';
+// --- END: Secure Credential Loading ---
 
-    require 'PHPMailer/src/Exception.php';
-    require 'PHPMailer/src/PHPMailer.php';
-    require 'PHPMailer/src/SMTP.php'; // Only if using SMTP
-    
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Use Composer's autoloader if you installed via Composer
+require 'vendor/autoload.php';
+// OR, if you installed manually, use these:
+// require 'PHPMailer/src/Exception.php';
+// require 'PHPMailer/src/PHPMailer.php';
+// require 'PHPMailer/src/SMTP.php';
+
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
@@ -47,17 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $mail = new PHPMailer(true); // Pass `true` to enable exceptions
                 try {
-                    // Server settings
-                    $mail->isSMTP();                                            // Send using SMTP
-                    $mail->Host       = 'smtp.your-hosting.com';               // Set the SMTP server to send through (e.g., smtp.kvalitne.cz)
-                    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                    $mail->Username   = 'noreply@tools4friends.kvalitne.cz';    // SMTP username
-                    $mail->Password   = 'YOUR_NOREPLY_EMAIL_PASSWORD';          // SMTP password
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
-                    $mail->Port       = 587;                                    // TCP port to connect to
+                    // Server settings - NOW USING SECURELY LOADED CONSTANTS
+                    $mail->isSMTP();
+                    $mail->Host       = SMTP_HOST;
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = SMTP_USERNAME;
+                    $mail->Password   = SMTP_PASSWORD;
+                    $mail->SMTPSecure = SMTP_ENCRYPTION;
+                    $mail->Port       = SMTP_PORT;
 
                     // Recipients
-                    $mail->setFrom('noreply@tools4friends.kvalitne.cz', 'Tools4Friends No-Reply');
+                    $mail->setFrom(SMTP_USERNAME, 'Tools4Friends No-Reply'); // Use the defined username for 'From' address
                     $mail->addAddress($email);                                  // Add a recipient
 
                     // Content
