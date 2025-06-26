@@ -9,7 +9,8 @@ if ($loggedIn) {
 }
 
 // Determine the current page's base name for language switching
-$currentPageBasename = basename($_SERVER['PHP_PHP_SELF']);
+// CORRECTED: Changed 'PHP_PHP_SELF' to 'PHP_SELF'
+$currentPageBasename = basename($_SERVER['PHP_SELF']);
 ?>
 
 <nav>
