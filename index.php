@@ -16,9 +16,7 @@ if ($loggedIn) {
     // You might need to fetch user details from the database if only user_id is in session
     // For now, let's assume you have firstname and lastname in session or can get them easily
     // Example: $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
-    // If not, you'd need to query the Users table using $_SESSION['user_id']
-    // For this example, we'll just use a placeholder if not available
-    $fullName = htmlspecialchars($_SESSION['username'] ?? 'User'); // Using username as a fallback
+    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 <!DOCTYPE html>
