@@ -223,7 +223,7 @@ main {
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
 
     /* --- FIX FOR FLICKERING --- */
-    margin-top: -5px; /* Pull the dropdown content up slightly to overlap with the button's hover area */
+    margin-top: -5px; /* Pull the dropdown content up slightly to overlap with the button's hover area to prevent flickering */
 }
 
 
