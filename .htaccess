@@ -1,0 +1,5 @@
+# Prioritize index.php over other index files
+DirectoryIndex index.php index.html index.htm
+
+# Optional: Disable directory browsing for security (recommended)
+Options -Indexes
