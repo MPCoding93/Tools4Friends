@@ -73,7 +73,7 @@ function switchLanguage(lang, page = null) {
   // If specific page is provided, navigate to that page
   if (page) {
     // Construct the new URL with the correct path and parameters
-    const newPath = page.startsWith('/') ? page : `/${page}`; // Ensure path starts with /
+    const newPath = page.startsWith('/') ? page : `/${page}`; // Ensure path starts with / if it's not already absolute
     window.location.href = `${currentUrl.origin}${newPath}?${currentParams.toString()}`;
   } else {
     // For static HTML files, update current page URL and apply language
@@ -85,18 +85,10 @@ function switchLanguage(lang, page = null) {
 }
 
 // Smart language switching that works for both static and PHP files
-// This function is now less critical as switchLanguage is more robust,
-// but kept for backward compatibility if needed.
+// This function is no longer needed as switchLanguage handles both cases.
+// If you still need it for some reason, consider its purpose carefully.
 function smartLanguageSwitch(lang) {
-  const currentPage = window.location.pathname;
-  
-  // Check if it's a PHP file
-  if (currentPage.includes('.php')) {
-    switchLanguage(lang, currentPage.split('/').pop());
-  } else {
-    // Static HTML file
-    switchLanguage(lang, currentPage.split('/').pop()); // Pass current page name for consistency
-  }
+  switchLanguage(lang, window.location.pathname.split('/').pop());
 }
 
 // Update navigation links to preserve language
@@ -106,8 +98,8 @@ function updateNavigationLinks() {
   
   // Update all navigation links to include current language
   document.querySelectorAll('nav a').forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const href = link.getAttribute('href'); // Get the original href
+    if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('javascript:')) { // Exclude javascript: links
       const url = new URL(href, window.location.origin);
       url.searchParams.set('lang', currentLang);
       link.href = url.toString();
@@ -198,7 +190,7 @@ function renderCalendar(date) {
     if (!isUnavailable && cellDate >= today) {
       cell.style.cursor = "pointer";
       cell.addEventListener("click", function(event) { // Pass event to selectDate
-        selectDate(cellDate, event);
+        selectDate(cellDate, event); // Pass event object
       });
     }
 
@@ -206,6 +198,7 @@ function renderCalendar(date) {
   }
 }
 
+// Function to change month in the calendar
 function changeMonth(offset) {
   currentDate.setMonth(currentDate.getMonth() + offset);
   renderCalendar(currentDate);
@@ -219,14 +212,16 @@ function selectDate(date, event) { // Receive event object
 
   // Add selection to clicked date
   event.target.classList.add("selected");
+  event.stopPropagation(); // Prevent potential issues if nested
 
   // You can add functionality here to handle date selection
   console.log("Selected date:", date.toISOString().split("T")[0]);
 
   // Example: Show a confirmation or booking form
-  showBookingInfo(date);
+  // showBookingInfo(date); // Commented out to prevent intrusive alerts
 }
 
+// Placeholder for booking information display
 function showBookingInfo(date) {
   // This function can be expanded to show booking information
   const formattedDate = date.toLocaleDateString();
@@ -235,6 +230,7 @@ function showBookingInfo(date) {
   );
 }
 
+// Function to navigate to today's date in the calendar
 // Utility function to go to today
 function goToToday() {
   currentDate = new Date();
@@ -247,8 +243,7 @@ function goToMonth(year, month) {
   renderCalendar(currentDate);
 }
 
-// Initialize everything when DOM is loaded
-// (Already handled by the main DOMContentLoaded listener at the top)
+// Initialize everything when DOM is loaded (already handled by the main DOMContentLoaded listener at the top)
 
 // Export functions for global use
 window.setLanguage = setLanguage;
