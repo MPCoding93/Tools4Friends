@@ -12,10 +12,6 @@ $lang = $_GET['lang'] ?? 'en';
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
-    // Assuming 'firstname' and 'lastname' are stored in the session upon login
-    // You might need to fetch user details from the database if only user_id is in session
-    // For now, let's assume you have firstname and lastname in session or can get them easily
-    // Example: $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
     $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
@@ -30,15 +26,15 @@ if ($loggedIn) {
     />
     <meta name="keywords" content="Tools for Friends, tools, naradi" />
     <meta name="author" content="MPCoding" />
-    <link rel="stylesheet" href="styles.css" /> <!-- Changed to relative path -->
-    <link rel="icon" href="favicon/favicon-dark.ico" /> <!-- Updated path -->
+    <link rel="stylesheet" href="public/styles.css" /> <!-- Updated path -->
+    <link rel="icon" href="public/favicon/favicon-dark.ico" /> <!-- Updated path -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-    <script src="script.js" defer></script> <!-- Changed to relative path -->
+    <script src="public/script.js" defer></script> <!-- Updated path -->
 
     <title>Tools4Friends</title>
   </head>
@@ -47,13 +43,13 @@ if ($loggedIn) {
       <header>
         <div class="banner">
           <img
-            src="images/banners/tools4friends_dark_Banner_2000x400.png"
+            src="public/images/banners/tools4friends_dark_Banner_2000x400.png"
             alt="Company Logo"
           /> <!-- Updated path -->
         </div>
       </header>
       <div class="line-break"></div>
-      <?php include __DIR__ . '/../app/navbar.php'; // Include the navbar - Updated path ?>
+      <?php include 'app/navbar.php'; // Updated path ?>
 
       <main>
         <h1
@@ -108,15 +104,15 @@ if ($loggedIn) {
         </p>
 
         <p
-          data-en='For more information please contact us <a href="contacts.php?lang=<?php echo $lang; ?>">here</a>' <!-- Changed to .php and added lang parameter -->
-          data-cs='Pro více informací nás prosím kontaktujte <a href="contacts.php?lang=<?php echo $lang; ?>">zde</a>' <!-- Changed to .php and added lang parameter -->
+          data-en='For more information please contact us <a href="public/contacts.php?lang=<?php echo $lang; ?>">here</a>'
+          data-cs='Pro více informací nás prosím kontaktujte <a href="public/contacts.php?lang=<?php echo $lang; ?>">zde</a>'
         >
           For more information please contact us
-          <a href="contacts.php?lang=<?php echo $lang; ?>">here</a> <!-- Changed to .php and added lang parameter -->
+          <a href="public/contacts.php?lang=<?php echo $lang; ?>">here</a>
         </p>
       </main>
       <footer>
-        <p>&copy; <span id="year"></span> Tools4Friends</p>
+        <p>© <span id="year"></span> Tools4Friends</p>
         <script>
           document.getElementById("year").textContent =
             new Date().getFullYear();
