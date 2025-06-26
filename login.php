@@ -8,6 +8,11 @@ $success = '';
 // Get selected language from URL or default to English
 $lang = $_GET['lang'] ?? 'en';
 
+// Function to generate ownerID
+function generateOwnerID($firstname, $lastname) {
+    return 't4f_' . strtolower(substr($firstname, 0, 1) . substr($lastname, 0, 2));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
 
@@ -38,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = "Invalid credentials.";
                 }
             } else {
-                $error = "User not found.";
+                $error = "User  not found.";
             }
 
             $stmt->close();
@@ -73,9 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Insert new user into the database
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
+                $ownerID = generateOwnerID($firstname, $lastname); // Generate ownerID
 
-                $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)");
-                $stmt_insert->bind_param("sssss", $firstname, $lastname, $email, $phone, $password_hash);
+                $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash, ownerID) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt_insert->bind_param("ssssss", $firstname, $lastname, $email, $phone, $password_hash, $ownerID);
 
                 if ($stmt_insert->execute()) {
                     // --- Automatic Login after successful registration ---
