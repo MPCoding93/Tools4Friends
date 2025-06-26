@@ -186,7 +186,7 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <button class="toggle-button" onclick="toggleForm('register')">Register</button>
             </div>
 
-            <form id="login-form" method="POST" class="form-card" style="display: block;">
+                        <form id="login-form" method="POST" class="form-card" style="display: block;">
                 <input type="hidden" name="action" value="login">
                 <label for="username">Email:</label>
                 <input type="text" name="username" required>
@@ -194,6 +194,12 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <input type="password" name="password" required>
                 <button type="submit" class="submit-button">Login</button>
             </form>
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="forgot_password.php?lang=<?php echo $lang; ?>">
+                    <?php echo ($lang === 'cs' ? 'Zapomenuté heslo?' : 'Forgot Password?'); ?>
+                </a>
+            </p>
+
 
             <form id="register-form" method="POST" class="form-card" style="display: none;">
                 <input type="hidden" name="action" value="register">
