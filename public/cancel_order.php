@@ -8,33 +8,39 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $lang = $_POST['lang'] ?? 'en';
-$order_id = intval($_POST['order_id']);
+$availability_id = intval($_POST['availability_id']);
 $user_id = $_SESSION['user_id'];
 
-// Verify the order belongs to the user
-$verify_stmt = $conn->prepare("SELECT order_id FROM Orders WHERE order_id = ? AND user_id = ?");
-$verify_stmt->bind_param("ii", $order_id, $user_id);
+// Verify the availability record belongs to the user's tool
+$verify_stmt = $conn->prepare("
+    SELECT a.availability_id 
+    FROM Availability a
+    JOIN Tools t ON a.tool_id = t.tool_id
+    JOIN Users u ON t.ownerID = u.ownerID
+    WHERE a.availability_id = ? AND u.user_id = ?
+");
+$verify_stmt->bind_param("ii", $availability_id, $user_id);
 $verify_stmt->execute();
 $verify_stmt->store_result();
 
 if ($verify_stmt->num_rows === 0) {
     echo json_encode([
         'success' => false, 
-        'message' => $lang === 'cs' ? 'Objednávka nebyla nalezena nebo nemáte oprávnění.' : 'Order not found or not authorized.'
+        'message' => $lang === 'cs' ? 'Rezervace nebyla nalezena nebo nemáte oprávnění.' : 'Reservation not found or not authorized.'
     ]);
     exit;
 }
 
-// Update order status to cancelled
-$update_stmt = $conn->prepare("UPDATE Orders SET status = 'cancelled' WHERE order_id = ?");
-if ($update_stmt->execute([$order_id])) {
+// Delete the availability record (or update status if you prefer)
+$delete_stmt = $conn->prepare("DELETE FROM Availability WHERE availability_id = ?");
+if ($delete_stmt->execute([$availability_id])) {
     echo json_encode([
         'success' => true, 
-        'message' => $lang === 'cs' ? 'Objednávka byla úspěšně zrušena.' : 'Order successfully cancelled.'
+        'message' => $lang === 'cs' ? 'Rezervace byla úspěšně zrušena.' : 'Reservation successfully cancelled.'
     ]);
 } else {
     echo json_encode([
         'success' => false, 
-        'message' => $lang === 'cs' ? 'Chyba při rušení objednávky.' : 'Error cancelling order.'
+        'message' => $lang === 'cs' ? 'Chyba při rušení rezervace.' : 'Error cancelling reservation.'
     ]);
 }
