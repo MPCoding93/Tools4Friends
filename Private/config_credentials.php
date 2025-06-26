@@ -28,12 +28,12 @@
             try {
                 // Server settings - now using constants
                 $mail->isSMTP();
-                $mail->Host       = SMTP_HOST;
+                $mail->Host       = smtp.webzdarma.cz;
                 $mail->SMTPAuth   = true;
-                $mail->Username   = SMTP_USERNAME;
-                $mail->Password   = SMTP_PASSWORD;
-                $mail->SMTPSecure = SMTP_ENCRYPTION;
-                $mail->Port       = SMTP_PORT;
+                $mail->Username   = noreply@tools4friends.kvalitne.cz;
+                $mail->Password   = Micha3lNoReply;
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
 
                 // ... (rest of your existing code)
 
