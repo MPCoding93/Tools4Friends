@@ -13,9 +13,14 @@ $lang = $_GET['lang'] ?? 'en';
 // Get selected category or default to 'vše'
 $selected_category = $_GET['category'] ?? 'vše';
 
-// Fetch categories excluding 'vše' (All)
-$category_sql = "SELECT DISTINCT category_name FROM Categories WHERE category_name != 'vše'";
+// Fetch categories
+$category_sql = "SELECT DISTINCT category_name FROM Categories";
 $category_result = $conn->query($category_sql);
+
+// Check for SQL errors
+if (!$category_result) {
+    die("Database query failed: " . $conn->error);
+}
 
 // Fetch tools based on selected category - FIXED SQL INJECTION
 if ($selected_category === 'vše') {
@@ -30,6 +35,11 @@ if ($selected_category === 'vše') {
     $stmt->bind_param("s", $selected_category);
     $stmt->execute();
     $tools_result = $stmt->get_result();
+}
+
+// Check for SQL errors
+if (!$tools_result) {
+    die("Database query failed: " . $conn->error);
 }
 
 $tools = [];
@@ -57,12 +67,10 @@ if ($loggedIn) {
     <meta name="keywords" content="Tools for Friends, tools, naradi" />
     <meta name="author" content="MPCoding" />
     <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" href="favicon/favicon-dark.ico" /> <!-- Updated path -->
+    <link rel="icon" href="favicon/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="script.js" defer></script>
 
     <title>Tools4Friends</title>
@@ -72,20 +80,17 @@ if ($loggedIn) {
     <div class="container">
         <header>
             <div class="banner">
-                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" /> <!-- Updated path -->
+                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
             </div>
         </header>
         <div class="line-break"></div>
 
-        <?php
-        include __DIR__ . '/../app/navbar.php'; // Updated path
-        ?>
+        <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
             <nav class="category-nav">
-
                 <?php while ($category_row = $category_result->fetch_assoc()): ?>
                     <a href="tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
@@ -101,8 +106,7 @@ if ($loggedIn) {
                     $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
                     ?>
                     <div class="tool-block">
-                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>"
-                            alt="<?php echo htmlspecialchars($name); ?>">
+                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>" alt="<?php echo htmlspecialchars($name); ?>">
                         <h3><?php echo htmlspecialchars($name); ?></h3>
                         <div class="left-text">
                             <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
@@ -113,7 +117,7 @@ if ($loggedIn) {
                                 <?php echo htmlspecialchars($tool['model']); ?></p>
                             <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
                                 <?php echo htmlspecialchars($technical_data); ?></p>
-                           <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong>
+                            <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong>
                                 <?php echo htmlspecialchars($tool['manipulation_fee']); ?>Kc</p>
                             <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
                                 <?php echo htmlspecialchars($tool['ownerID']); ?></p>
