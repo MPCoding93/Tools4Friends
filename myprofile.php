@@ -19,8 +19,7 @@ $password_error = ''; // Specific error for password change
 $profile_error = ''; // Specific error for profile update
 
 // Fetch user data with prepared statement
-// Note: Changed 'phone' to 'phone_number' based on previous discussions and common database naming
-$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone_number FROM Users WHERE user_id = ?");
+$stmt_user = $conn->prepare("SELECT firstname, lastname, email, phone FROM Users WHERE user_id = ?");
 $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $result_user = $stmt_user->get_result();
