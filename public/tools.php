@@ -5,12 +5,12 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Include database connection
-include __DIR__ . '/../app/db_connect.php'; // Path from public./tools.php to app/db_connect.php
+include __DIR__ . '/../app/db_connect.php'; // Path from public/tools.php to app/db_connect.php
 
 // Get selected language from URL or default to English
 $lang = $_GET['lang'] ?? 'en';
 
-// Get selected category or default to 'vše'
+// Get selected category or default to 'All'
 $selected_category = $_GET['category'] ?? 'All';
 
 // Fetch categories
@@ -93,8 +93,8 @@ if ($loggedIn) {
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
             <nav class="category-nav">
-                <!-- Add "All" category option with absolute path -->
-                <a href="/tools.php?category=All&lang=<?php echo $lang; ?>"
+                <!-- Add "All" category option with relative path -->
+                <a href="./tools.php?category=All&lang=<?php echo $lang; ?>"
                     class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
                     <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                 </a>
@@ -106,7 +106,7 @@ if ($loggedIn) {
                 }
 
                 while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                         <?php echo htmlspecialchars($category_row['category_name']); ?>
                     </a>
@@ -138,7 +138,7 @@ if ($loggedIn) {
                                 <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
                         <div>
-                            <a href="tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
+                            <a href="./tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
                                 class="availability-button">
                                 <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
                             </a>
