@@ -94,7 +94,7 @@ if ($loggedIn) {
 
             <nav class="category-nav">
                 <!-- Add "All" category option with relative path -->
-                <a href="./tools.php?category=All&lang=<?php echo $lang; ?>"
+                <a href="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
                     class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
                     <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                 </a>
@@ -106,7 +106,7 @@ if ($loggedIn) {
                 }
 
                 while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                    <a href="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                         <?php echo htmlspecialchars($category_row['category_name']); ?>
                     </a>
