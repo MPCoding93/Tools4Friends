@@ -92,49 +92,52 @@ if ($loggedIn) {
         <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
-            <!-- Desktop Category Navigation -->
-            <nav class="category-nav">
-                <!-- Add "All" category option with relative path -->
-                <a href="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
-                    class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
-                    <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
-                </a>
-
-                <?php
-                // Reset result pointer if needed
-                if ($category_result->num_rows > 0) {
-                    $category_result->data_seek(0);
-                }
-
-                while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
-                        class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
-                        <?php echo htmlspecialchars($category_row['category_name']); ?>
-                    </a>
-                <?php endwhile; ?>
-            </nav>
-
-            <!-- Mobile/Tablet Category Dropdown -->
-            <div class="category-dropdown">
-                <label for="category-select" class="sr-only">Select Category</label>
-                <select id="category-select" onchange="location = this.value;">
-                    <option value="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
-                        <?php echo $selected_category === 'All' ? 'selected' : ''; ?>>
+            <!-- Category Filter Container -->
+            <div class="category-filter-container">
+                <!-- Desktop Category Navigation -->
+                <nav class="category-nav-desktop">
+                    <!-- Add "All" category option with relative path -->
+                    <a href="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
+                        class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
                         <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
-                    </option>
+                    </a>
+
                     <?php
-                    // Reset result pointer again for the dropdown
+                    // Reset result pointer if needed
                     if ($category_result->num_rows > 0) {
                         $category_result->data_seek(0);
                     }
+
                     while ($category_row = $category_result->fetch_assoc()): ?>
-                        <option value="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
-                            <?php echo $selected_category === $category_row['category_name'] ? 'selected' : ''; ?>>
+                        <a href="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                            class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                             <?php echo htmlspecialchars($category_row['category_name']); ?>
-                        </option>
+                        </a>
                     <?php endwhile; ?>
-                </select>
-            </div>
+                </nav>
+
+                <!-- Mobile/Tablet Category Dropdown -->
+                <div class="category-dropdown-mobile">
+                    <label for="category-select" class="sr-only">Select Category</label>
+                    <select id="category-select" onchange="location = this.value;">
+                        <option value="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
+                            <?php echo $selected_category === 'All' ? 'selected' : ''; ?>>
+                            <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
+                        </option>
+                        <?php
+                        // Reset result pointer again for the dropdown
+                        if ($category_result->num_rows > 0) {
+                            $category_result->data_seek(0);
+                        }
+                        while ($category_row = $category_result->fetch_assoc()): ?>
+                            <option value="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                                <?php echo $selected_category === $category_row['category_name'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($category_row['category_name']); ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+            </div> <!-- End category-filter-container -->
 
             <div class="tool-list">
                 <?php foreach ($tools as $tool):
