@@ -245,6 +245,70 @@ nav {
     gap: 20px;
 }
 
+/* Add to styles.css */
+.orders-section {
+    margin-bottom: 40px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(31, 45, 90, 0.15);
+}
+
+.orders-section h2 {
+    color: #1F2D5A;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.order-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.order-card {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.order-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.order-details {
+    flex: 1;
+}
+
+.order-details h3 {
+    margin-top: 0;
+    color: #1F2D5A;
+}
+
+.order-details p {
+    margin: 8px 0;
+    font-size: 0.95em;
+}
+
+.order-details strong {
+    color: #1F2D5A;
+    font-weight: 600;
+}
+
+
 /* ====================== */
 /* BUTTONS */
 /* ====================== */
@@ -455,6 +519,86 @@ nav {
 }
 
 /* ====================== */
+/* PROFILE PAGE STYLES */
+/* ====================== */
+.profile-container { /* This might be redundant with profile-sections */
+    max-width: 1200px;
+    margin: 30px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* This is overridden by profile-sections */
+    gap: 30px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #4a90e2;
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+}
+
+.profile-name h2 {
+    margin: 0;
+    font-size: 2em;
+    color: #1F2D5A;
+}
+
+.profile-name p {
+    margin: 5px 0 0;
+    color: #6c757d;
+}
+
+.picture-upload {
+    margin-top: 20px;
+}
+
+.picture-upload input[type="file"] {
+    display: none;
+}
+
+.picture-preview {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Profile Sections Grid */
+.profile-sections {
+    display: grid;
+    grid-template-areas: 
+        "profile password"
+        "add-tool add-tool"
+        "tools tools";
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.profile-section-profile { grid-area: profile; }
+.profile-section-password { grid-area: password; }
+.profile-section-add { grid-area: add-tool; }
+.profile-section-tools { grid-area: tools; }
+
+/* Wide button for Add Tool */
+.availability-button.wide-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1em;
+    margin: 20px 0; /* Adjust margin as needed within the grid */
+}
+
+
+/* ====================== */
 /* TOOL COMPONENTS (General) */
 /* ====================== */
 .tool-list { /* Used for general tool listings, e.g., index page */
@@ -569,9 +713,6 @@ nav {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-    display: flex; /* Keep as flex for desktop */
-    flex-wrap: wrap;
-    justify-content: center;
 }
 
 .category-nav a {
@@ -598,110 +739,6 @@ nav {
     background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
-}
-
-/* Category Dropdown specific styles (initially hidden for desktop) */
-.category-dropdown {
-    display: none; /* Hidden by default */
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.category-dropdown select {
-    width: 100%;
-    padding: 10px 15px;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    font-size: 1em;
-    background-color: #fdfdfd;
-    color: #1F2D5A;
-    appearance: none; /* Remove default select arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231F2D5A%22%20d%3D%22M287%2C197.9L159.3%2C69.2c-3.7-3.7-9.7-3.7-13.4%2C0L5.4%2C197.9c-3.7%2C3.7-3.7%2C9.7%2C0%2C13.4l13.4%2C13.4c3.7%2C3.7%2C9.7%2C3.7%2C13.4%2C0l110.7-110.7l110.7%2C110.7c3.7%2C3.7%2C9.7%2C3.7%2C13.4%2C0l13.4-13.4C290.7%2C207.6%2C290.7%2C201.6%2C287%2C197.9z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 12px auto;
-}
-
-
-/* ====================== */
-/* PROFILE PAGE STYLES */
-/* ====================== */
-.profile-container { /* This might be redundant with profile-sections */
-    max-width: 1200px;
-    margin: 30px auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* This is overridden by profile-sections */
-    gap: 30px;
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid #4a90e2;
-    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
-}
-
-.profile-name h2 {
-    margin: 0;
-    font-size: 2em;
-    color: #1F2D5A;
-}
-
-.profile-name p {
-    margin: 5px 0 0;
-    color: #6c757d;
-}
-
-.picture-upload {
-    margin-top: 20px;
-}
-
-.picture-upload input[type="file"] {
-    display: none;
-}
-
-.picture-preview {
-    margin-top: 15px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-/* Profile Sections Grid */
-.profile-sections {
-    display: grid;
-    grid-template-areas:
-        "profile password"
-        "add-tool add-tool"
-        "tools tools";
-    gap: 30px;
-    margin-bottom: 40px;
-}
-
-.profile-section-profile { grid-area: profile; }
-.profile-section-password { grid-area: password; }
-.profile-section-add { grid-area: add-tool; }
-.profile-section-tools { grid-area: tools; }
-
-/* Wide button for Add Tool */
-.availability-button.wide-button {
-    display: block;
-    width: 100%;
-    text-align: center;
-    padding: 15px;
-    font-size: 1.1em;
-    margin: 20px 0; /* Adjust margin as needed within the grid */
 }
 
 /* Tool Cards (Specific to Profile Page) */
@@ -751,71 +788,6 @@ nav {
     margin-top: 15px;
     display: flex;
     gap: 10px;
-}
-
-/* ====================== */
-/* ORDERS SECTION */
-/* ====================== */
-.orders-section {
-    margin-bottom: 40px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(31, 45, 90, 0.15);
-}
-
-.orders-section h2 {
-    color: #1F2D5A;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
-.order-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
-}
-
-.order-card {
-    display: flex;
-    gap: 20px;
-    padding: 15px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.order-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-.order-image {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.order-details {
-    flex: 1;
-}
-
-.order-details h3 {
-    margin-top: 0;
-    color: #1F2D5A;
-}
-
-.order-details p {
-    margin: 8px 0;
-    font-size: 0.95em;
-}
-
-.order-details strong {
-    color: #1F2D5A;
-    font-weight: 600;
 }
 
 /* ====================== */
@@ -1100,36 +1072,19 @@ footer {
 /* ====================== */
 /* RESPONSIVE ADJUSTMENTS */
 /* ====================== */
-
-/* Tablet (max-width: 900px) */
 @media (max-width: 900px) {
-    .profile-container {
+    .profile-container { /* This might be redundant with profile-sections */
         grid-template-columns: 1fr;
     }
     .profile-sections {
-        grid-template-areas:
+        grid-template-areas: 
             "profile"
             "password"
             "add-tool"
             "tools";
     }
-
-    /* Category filter to dropdown */
-    .category-nav {
-        display: none; /* Hide the regular category navigation */
-    }
-
-    .category-dropdown {
-        display: block; /* Show the dropdown */
-    }
-
-    /* Tools display in 2 columns */
-    .tool-list {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
 }
 
-/* Mobile Phone (max-width: 600px) */
 @media (max-width: 600px) {
     .profile-header {
         flex-direction: column;
@@ -1137,33 +1092,5 @@ footer {
     }
     .tool-list-grid {
         grid-template-columns: 1fr;
-    }
-
-    /* Tools display in 1 column */
-    .tool-list {
-        grid-template-columns: 1fr;
-    }
-
-    /* Further adjustments for smaller screens if needed */
-    main {
-        margin: 15px;
-    }
-
-    .page_title {
-        font-size: 2em;
-    }
-
-    .nav-left, .nav-right {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    nav {
-        padding: 10px 15px;
-    }
-
-    .category-dropdown select {
-        font-size: 0.9em;
-        padding: 8px 10px;
     }
 }
