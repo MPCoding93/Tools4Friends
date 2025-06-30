@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Include database connection
-include __DIR__ . '/../app/db_connect.php'; // Path from public/tools.php to app/db_connect.php
+include __DIR__ . '/../app/db_connect.php'; // Path from public./tools.php to app/db_connect.php
 
 // Get selected language from URL or default to English
 $lang = $_GET['lang'] ?? 'en';
