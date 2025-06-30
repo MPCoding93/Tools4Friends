@@ -1009,6 +1009,17 @@ nav {
     transform: scale(1.05);
 }
 
+.calendar-day.today {
+  background-color: yellow !important; /* or your preferred shade */
+  color: #222; /* for contrast */
+}
+
+.calendar-day.selected {
+  background-color: #0074D9 !important; /* blue, or your chosen color */
+  color: #fff;
+  border: 2px solid #005fa3;
+}
+
 .calendar-legend {
     display: flex;
     justify-content: center;
