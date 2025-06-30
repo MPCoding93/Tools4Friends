@@ -70,7 +70,9 @@ if ($loggedIn) {
     <link rel="icon" href="favicon/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <script src="script.js" defer></script>
 
     <title>Tools4Friends</title>
@@ -90,9 +92,31 @@ if ($loggedIn) {
         <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
-            <nav class="category-nav">
+            <!--<nav class="category-nav">
                 <?php while ($category_row = $category_result->fetch_assoc()): ?>
                     <a href="tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                        class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
+                        <?php echo htmlspecialchars($category_row['category_name']); ?>
+                    </a>
+                <?php endwhile; ?>
+            </nav>
+            -->
+
+            <nav class="category-nav">
+                <!-- Add "All" category option with absolute path -->
+                <a href="/tools.php?category=All&lang=<?php echo $lang; ?>"
+                    class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
+                    <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
+                </a>
+
+                <?php
+                // Reset result pointer if needed
+                if ($category_result->num_rows > 0) {
+                    $category_result->data_seek(0);
+                }
+
+                while ($category_row = $category_result->fetch_assoc()): ?>
+                    <a href="/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                         <?php echo htmlspecialchars($category_row['category_name']); ?>
                     </a>
@@ -106,7 +130,8 @@ if ($loggedIn) {
                     $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
                     ?>
                     <div class="tool-block">
-                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>" alt="<?php echo htmlspecialchars($name); ?>">
+                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>"
+                            alt="<?php echo htmlspecialchars($name); ?>">
                         <h3><?php echo htmlspecialchars($name); ?></h3>
                         <div class="left-text">
                             <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
