@@ -1,53 +1,5 @@
-# Security Headers
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'"
-
 # Prioritize index.php over other index files
 DirectoryIndex index.php index.html index.htm
 
-# Disable directory browsing for security
+# Optional: Disable directory browsing for security (recommended)
 Options -Indexes
-
-# Prevent access to sensitive files
-<Files ~ "^\.">
-    Order allow,deny
-    Deny from all
-</Files>
-
-<Files ~ "\.php$">
-    Order allow,deny
-    Allow from all
-</Files>
-
-# Protect configuration files
-<Files "config.credentials.php">
-    Order allow,deny
-    Deny from all
-</Files>
-
-<Files "db_connect.php">
-    Order allow,deny
-    Deny from all
-</Files>
-
-# Prevent access to backup files
-<FilesMatch "\.(bak|backup|old|tmp)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Limit file upload size (adjust as needed)
-php_value upload_max_filesize 5M
-php_value post_max_size 5M
-
-# Hide PHP version
-Header unset X-Powered-By
-
-# Prevent hotlinking
-RewriteEngine On
-RewriteCond %{HTTP_REFERER} !^$
-RewriteCond %{HTTP_REFERER} !^https?://(www\.)?tools4friends\.kvalitne\.cz [NC]
-RewriteRule \.(jpg|jpeg|png|gif)$ - [F]
