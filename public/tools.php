@@ -92,7 +92,6 @@ if ($loggedIn) {
         <main>
             <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
 
-            <!-- Desktop Category Navigation -->
             <nav class="category-nav">
                 <!-- Add "All" category option with relative path -->
                 <a href="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
@@ -113,28 +112,6 @@ if ($loggedIn) {
                     </a>
                 <?php endwhile; ?>
             </nav>
-
-            <!-- Mobile/Tablet Category Dropdown -->
-            <div class="category-dropdown">
-                <label for="category-select" class="sr-only">Select Category</label>
-                <select id="category-select" onchange="location = this.value;">
-                    <option value="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
-                        <?php echo $selected_category === 'All' ? 'selected' : ''; ?>>
-                        <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
-                    </option>
-                    <?php
-                    // Reset result pointer again for the dropdown
-                    if ($category_result->num_rows > 0) {
-                        $category_result->data_seek(0);
-                    }
-                    while ($category_row = $category_result->fetch_assoc()): ?>
-                        <option value="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
-                            <?php echo $selected_category === $category_row['category_name'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($category_row['category_name']); ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
 
             <div class="tool-list">
                 <?php foreach ($tools as $tool):
