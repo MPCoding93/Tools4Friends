@@ -138,7 +138,7 @@ if ($loggedIn) {
                                 <?php echo htmlspecialchars($tool['ownerID']); ?></p>
                         </div>
                         <div>
-                            <a href="./tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
+                            <a href="./public/tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
                                 class="availability-button">
                                 <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
                             </a>
