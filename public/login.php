@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['firstname'] = $db_firstname;
                     $_SESSION['lastname'] = $db_lastname;
                     // Redirect to index.php with current language if available
-                    header("Location: ../index.php?lang=" . $lang); // Fixed path
+                    header("Location: index.php?lang=" . $lang); // Changed to index.php
                     exit();
                 } else {
                     $error = "Invalid credentials.";
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['lastname'] = $lastname;
 
                     // Redirect to index.php with current language if available
-                    header("Location: ../index.php?lang=" . $lang); // Fixed path
+                    header("Location: index.php?lang=" . $lang); // Changed to index.php
                     exit();
                 } else {
                     $error = "Registration failed. Please try again. " . $conn->error; // Added $conn->error for debugging
