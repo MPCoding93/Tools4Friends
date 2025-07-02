@@ -264,3 +264,181 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// Initialize calendar when page loads
+document.addEventListener('DOMContentLoaded', function () {
+    const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
+    const lang = '<?php echo $lang; ?>';
+    const toolId = <?php echo $tool_id; ?>;
+    
+    initializeCalendar(unavailableRanges, lang);
+    initializeBookingFunctionality(toolId, lang);
+});
+
+// Booking functionality
+function initializeBookingFunctionality(toolId, lang) {
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    const addToCartBtn = document.getElementById('add-to-cart');
+    const selectedDatesInfo = document.getElementById('selected-dates-info');
+    const selectedPeriod = document.getElementById('selected-period');
+    const bookingAlert = document.getElementById('booking-alert');
+
+    let selectedStartDate = null;
+    let selectedEndDate = null;
+    let isSelectingRange = false;
+
+    // Handle date input changes
+    startDateInput.addEventListener('change', function() {
+        selectedStartDate = this.value;
+        updateDateSelection();
+        updateCalendarHighlight();
+    });
+
+    endDateInput.addEventListener('change', function() {
+        selectedEndDate = this.value;
+        updateDateSelection();
+        updateCalendarHighlight();
+    });
+
+    // Handle calendar clicks for date selection
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('day') && e.target.classList.contains('available')) {
+            const clickedDate = e.target.dataset.date;
+            
+            if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+                // Start new selection
+                selectedStartDate = clickedDate;
+                selectedEndDate = null;
+                startDateInput.value = clickedDate;
+                endDateInput.value = '';
+                isSelectingRange = true;
+            } else if (selectedStartDate && !selectedEndDate) {
+                // Set end date
+                if (clickedDate >= selectedStartDate) {
+                    selectedEndDate = clickedDate;
+                    endDateInput.value = clickedDate;
+                } else {
+                    // If clicked date is before start date, make it the new start date
+                    selectedEndDate = selectedStartDate;
+                    selectedStartDate = clickedDate;
+                    startDateInput.value = clickedDate;
+                    endDateInput.value = selectedEndDate;
+                }
+                isSelectingRange = false;
+            }
+            
+            updateDateSelection();
+            updateCalendarHighlight();
+        }
+    });
+
+    // Add to cart functionality
+    addToCartBtn.addEventListener('click', function() {
+        if (!selectedStartDate || !selectedEndDate) {
+            showAlert('error', lang === 'cs' ? 'Vyberte prosím datum začátku a konce.' : 'Please select start and end dates.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'add_to_cart');
+        formData.append('start_date', selectedStartDate);
+        formData.append('end_date', selectedEndDate);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                // Update cart count
+                updateCartCount(data.cart_count);
+                // Clear selection
+                clearSelection();
+            } else {
+                showAlert('error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('error', lang === 'cs' ? 'Došlo k chybě při přidávání do košíku.' : 'An error occurred while adding to cart.');
+        });
+    });
+
+    function updateDateSelection() {
+        if (selectedStartDate && selectedEndDate) {
+            const start = new Date(selectedStartDate);
+            const end = new Date(selectedEndDate);
+            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            
+            selectedPeriod.textContent = `${formatDate(start, lang)} - ${formatDate(end, lang)} (${days} ${lang === 'cs' ? 'dní' : 'days'})`;
+            selectedDatesInfo.style.display = 'block';
+            addToCartBtn.disabled = false;
+        } else {
+            selectedDatesInfo.style.display = 'none';
+            addToCartBtn.disabled = true;
+        }
+    }
+
+    function updateCalendarHighlight() {
+        // Remove existing highlights
+        document.querySelectorAll('.day').forEach(day => {
+            day.classList.remove('range-start', 'range-end', 'range-middle');
+        });
+
+        if (selectedStartDate && selectedEndDate) {
+            const start = new Date(selectedStartDate);
+            const end = new Date(selectedEndDate);
+            
+            document.querySelectorAll('.day').forEach(day => {
+                const dayDate = new Date(day.dataset.date);
+                if (dayDate >= start && dayDate <= end) {
+                    if (dayDate.getTime() === start.getTime()) {
+                        day.classList.add('range-start');
+                    } else if (dayDate.getTime() === end.getTime()) {
+                        day.classList.add('range-end');
+                    } else {
+                        day.classList.add('range-middle');
+                    }
+                }
+            });
+        }
+    }
+
+    function clearSelection() {
+        selectedStartDate = null;
+        selectedEndDate = null;
+        startDateInput.value = '';
+        endDateInput.value = '';
+        selectedDatesInfo.style.display = 'none';
+        addToCartBtn.disabled = true;
+        updateCalendarHighlight();
+    }
+
+    function showAlert(type, message) {
+        bookingAlert.className = `alert ${type}`;
+        bookingAlert.textContent = message;
+        bookingAlert.style.display = 'block';
+        setTimeout(() => {
+            bookingAlert.style.display = 'none';
+        }, 5000);
+    }
+
+    function updateCartCount(count) {
+        const cartCountElement = document.querySelector('.cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+        } else if (count > 0) {
+            const cartLink = document.querySelector('.cart-link');
+            cartLink.innerHTML += `<span class="cart-count">${count}</span>`;
+        }
+    }
+
+    function formatDate(date, lang) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-US', options);
+    }
+}
+
