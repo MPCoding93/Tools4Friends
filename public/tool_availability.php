@@ -170,4 +170,63 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
                     <?php echo htmlspecialchars($description); ?></p>
                 <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
                     <?php echo htmlspecialchars($tool['brand']); ?></p>
-                <
+                <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
+                    <?php echo htmlspecialchars($tool['model']); ?></p>
+                <?php if (!empty($technical_data)): ?>
+                    <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
+                        <?php echo htmlspecialchars($technical_data); ?></p>
+                <?php endif; ?>
+                <?php if (!empty($tool['ownerID'])): ?>
+                    <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
+                        <?php echo htmlspecialchars($tool['ownerID']); ?></p>
+                <?php endif; ?>
+            </div>
+
+            <h2><?php echo $lang === 'cs' ? 'Kalendář Dostupnosti' : 'Availability Calendar'; ?></h2>
+            <div class="calendar-container">
+                <div class="calendar-nav">
+                    <button onclick="changeMonth(-1)">←
+                        <?php echo $lang === 'cs' ? 'Předchozí' : 'Previous'; ?></button>
+                    <div class="calendar-controls">
+                        <h3 id="calendar-month"></h3>
+                        <button onclick="goToToday()"
+                            class="today-btn"><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></button>
+                    </div>
+                    <button onclick="changeMonth(1)"><?php echo $lang === 'cs' ? 'Další' : 'Next'; ?> →</button>
+                </div>
+                <div class="calendar" id="calendar"></div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color available"></div>
+                        <span><?php echo $lang === 'cs' ? 'Dostupné' : 'Available'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unavailable"></div>
+                        <span><?php echo $lang === 'cs' ? 'Nedostupné' : 'Unavailable'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color today"></div>
+                        <span><?php echo $lang === 'cs' ? 'Dnes' : 'Today'; ?></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color selected"></div>
+                        <span><?php echo $lang === 'cs' ? 'Vybráno' : 'Selected'; ?></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; <span id="year"></span> Tools4Friends</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize calendar when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
+            initializeCalendar(unavailableRanges);
+        });
+    </script>
+</body>
+
+</html>
