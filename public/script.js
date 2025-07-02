@@ -1,444 +1,330 @@
-// Global JavaScript functions for Tools4Friends website
+// Global JavaScript functions for Tools4Friends website - updated version
 
-// Set current year in footer
+// Consolidated DOMContentLoaded listener
 document.addEventListener("DOMContentLoaded", function() {
+  // Set current year in footer
   const yearElement = document.getElementById("year");
   if (yearElement) {
     yearElement.textContent = new Date().getFullYear();
   }
   
-  // Initialize language on page load
+  // Initialize language
   initializeLanguage();
+  updateNavigationLinks();
   
-  // Update navigation links immediately after language initialization
-  updateNavigationLinks(); 
+  // Initialize calendar and booking functionality
+  if (typeof unavailableRanges !== 'undefined') {
+    initializeCalendar(unavailableRanges);
+  }
+  if (typeof toolId !== 'undefined') {
+    initializeBookingFunctionality(toolId, document.documentElement.lang || 'en');
+  }
 });
 
-// Initialize language based on URL parameter or default to English
+// Language functions
 function initializeLanguage() {
   const urlParams = new URLSearchParams(window.location.search);
   const langFromUrl = urlParams.get('lang');
+  const supportedLanguages = ['en', 'cs'];
   
-  if (langFromUrl && (langFromUrl === 'en' || langFromUrl === 'cs')) {
+  if (supportedLanguages.includes(langFromUrl)) {
     setLanguage(langFromUrl);
     updateLanguageButtons(langFromUrl);
   } else {
-    // Default to English and update URL
-    setLanguage('en');
-    updateLanguageButtons('en');
-    updateUrlWithLanguage('en');
+    const defaultLang = 'en';
+    setLanguage(defaultLang);
+    updateLanguageButtons(defaultLang);
+    updateUrlWithLanguage(defaultLang);
   }
 }
 
-// Enhanced language switching functionality
 function setLanguage(lang) {
-  document.querySelectorAll("[data-en]").forEach(el => {
-    const text = el.getAttribute(`data-${lang}`);
-    if (text) {
-      el.textContent = text;
-    }
+  // Update all translatable elements
+  document.querySelectorAll("[data-translate]").forEach(el => {
+    const translationKey = el.getAttribute('data-translate');
+    const translation = translations[lang]?.[translationKey] || el.textContent;
+    if (translation) el.textContent = translation;
   });
   
   // Update HTML lang attribute
   document.documentElement.lang = lang;
 }
 
-// Update language button states
 function updateLanguageButtons(activeLang) {
-  const buttons = document.querySelectorAll('.language-toggle button');
-  buttons.forEach(button => {
-    button.classList.remove('active');
-    if ((activeLang === 'en' && button.textContent === 'English') ||
-        (activeLang === 'cs' && button.textContent === 'Čeština')) {
-      button.classList.add('active');
-    }
+  document.querySelectorAll('.language-toggle button').forEach(button => {
+    button.classList.toggle('active', 
+      (activeLang === 'en' && button.textContent === 'EN') ||
+      (activeLang === 'cs' && button.textContent === 'ČS')
+    );
   });
 }
 
-// Update URL with language parameter without page reload
 function updateUrlWithLanguage(lang) {
   const url = new URL(window.location);
   url.searchParams.set('lang', lang);
   window.history.replaceState({}, '', url);
 }
 
-// Enhanced language switching with URL parameters
 function switchLanguage(lang, page = null) {
-  const currentUrl = new URL(window.location.href);
-  const currentParams = new URLSearchParams(currentUrl.search);
-
-  // Update or add language parameter
-  currentParams.set("lang", lang);
-
-  // If specific page is provided, navigate to that page
+  const url = new URL(window.location);
+  url.searchParams.set('lang', lang);
+  
   if (page) {
-    // Construct the new URL with the correct path and parameters
-    const newPath = page.startsWith('/') ? page : `/${page}`; // Ensure path starts with / if it's not already absolute
-    window.location.href = `${currentUrl.origin}${newPath}?${currentParams.toString()}`;
+    window.location.href = `${url.origin}/${page}?${url.searchParams.toString()}`;
   } else {
-    // For static HTML files, update current page URL and apply language
-    const newUrl = `${currentUrl.pathname}?${currentParams.toString()}`;
-    window.history.replaceState({}, '', newUrl);
+    window.history.replaceState({}, '', url);
     setLanguage(lang);
     updateLanguageButtons(lang);
   }
 }
 
-// Smart language switching that works for both static and PHP files
-// This function is no longer needed as switchLanguage handles both cases.
-// If you still need it for some reason, consider its purpose carefully.
-function smartLanguageSwitch(lang) {
-  switchLanguage(lang, window.location.pathname.split('/').pop());
-}
-
-// Update navigation links to preserve language
-function updateNavigationLinks() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentLang = urlParams.get('lang') || 'en';
-  
-  // Update all navigation links to include current language
-  document.querySelectorAll('nav a').forEach(link => {
-    const href = link.getAttribute('href'); // Get the original href
-    if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('javascript:')) { // Exclude javascript: links
-      const url = new URL(href, window.location.origin);
-      url.searchParams.set('lang', currentLang);
-      link.href = url.toString();
-    }
-  });
-}
-
-// Calendar functionality for tool availability
+// Calendar functions
 let currentDate = new Date();
-let unavailableRanges = [];
+let unavailableDates = [];
 
-// Initialize calendar with data from PHP
-function initializeCalendar(ranges) {
-  unavailableRanges = ranges || [];
+function initializeCalendar(dates) {
+  unavailableDates = dates || [];
   renderCalendar(currentDate);
 }
 
 function renderCalendar(date) {
-  const calendar = document.getElementById("calendar");
-  const monthLabel = document.getElementById("calendar-month");
+  const calendarEl = document.getElementById("calendar");
+  const monthLabelEl = document.getElementById("calendar-month");
 
-  if (!calendar || !monthLabel) return;
+  if (!calendarEl || !monthLabelEl) return;
 
-  calendar.innerHTML = "";
+  calendarEl.innerHTML = "";
 
+  // Create month label
+  monthLabelEl.textContent = date.toLocaleDateString(document.documentElement.lang, {
+    month: 'long',
+    year: 'numeric'
+  });
+
+  // Create day headers
+  const daysOfWeek = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  daysOfWeek.forEach(day => {
+    const dayEl = document.createElement("div");
+    dayEl.className = "calendar-header";
+    dayEl.textContent = day;
+    calendarEl.appendChild(dayEl);
+  });
+
+  // Calculate days to show
   const year = date.getFullYear();
   const month = date.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startDay = (firstDay.getDay() + 6) % 7; // Convert to Monday start
+  const daysInMonth = lastDay.getDate();
+  const startOffset = (firstDay.getDay() + 6) % 7; // Monday first
 
-  monthLabel.textContent = date.toLocaleString("default", {
-    month: "long",
-    year: "numeric"
-  });
-
-  // Add day headers (Monday first)
-  const dayHeaders = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  dayHeaders.forEach(day => {
-    const header = document.createElement("div");
-    header.className = "calendar-header";
-    header.textContent = day;
-    calendar.appendChild(header);
-  });
-
-  // Add empty cells for days before the first day of the month
-  for (let i = 0; i < startDay; i++) {
-    const emptyCell = document.createElement("div");
-    emptyCell.className = "calendar-day empty";
-    calendar.appendChild(emptyCell);
+  // Add empty cells for offset
+  for (let i = 0; i < startOffset; i++) {
+    calendarEl.appendChild(createDayElement(null, 'empty'));
   }
 
-  // Add days of the month
-  for (let day = 1; day <= lastDay.getDate(); day++) {
-    const cell = document.createElement("div");
-    cell.className = "calendar-day";
-    const cellDate = new Date(year, month, day);
-    const cellDateStr = cellDate.toISOString().split("T")[0];
+  // Add days of month
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    // Check if this date is unavailable
-    let isUnavailable = false;
-    for (const range of unavailableRanges) {
-      if (cellDateStr >= range.start_date && cellDateStr <= range.end_date) {
-        cell.classList.add("unavailable");
-        isUnavailable = true;
-        break;
-      }
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dayDate = new Date(year, month, i);
+    const dateStr = dayDate.toISOString().split('T')[0];
+    const isUnavailable = unavailableDates.some(range => 
+      dateStr >= range.start_date && dateStr <= range.end_date
+    );
+
+    const dayEl = createDayElement(i, [
+      'calendar-day',
+      isUnavailable ? 'unavailable' : 'available',
+      dayDate < today && !isSameDay(dayDate, today) ? 'past' : '',
+      isSameDay(dayDate, today) ? 'today' : ''
+    ].filter(Boolean).join(' '));
+
+    if (!isUnavailable && dayDate >= today) {
+      dayEl.dataset.date = dateStr;
+      dayEl.style.cursor = 'pointer';
     }
 
-    if (!isUnavailable) {
-      cell.classList.add("available");
-    }
-
-    // Add today highlight
-    const today = new Date();
-    if (cellDate.toDateString() === today.toDateString()) {
-      cell.classList.add("today");
-    }
-
-    // Add past date styling
-    if (cellDate < today && cellDate.toDateString() !== today.toDateString()) {
-      cell.classList.add("past");
-    }
-
-    cell.textContent = day;
-
-    // Add click functionality for future available dates
-    if (!isUnavailable && cellDate >= today) {
-      cell.style.cursor = "pointer";
-      cell.addEventListener("click", function(event) { // Pass event to selectDate
-        selectDate(cellDate, event); // Pass event object
-      });
-    }
-
-    calendar.appendChild(cell);
+    calendarEl.appendChild(dayEl);
   }
 }
 
-// Function to change month in the calendar
+function createDayElement(dayNumber, className) {
+  const el = document.createElement("div");
+  el.className = className;
+  if (dayNumber) el.textContent = dayNumber;
+  return el;
+}
+
+function isSameDay(date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}
+
 function changeMonth(offset) {
   currentDate.setMonth(currentDate.getMonth() + offset);
   renderCalendar(currentDate);
 }
 
-function selectDate(date, event) { // Receive event object
-  // Remove previous selections
-  document.querySelectorAll(".calendar-day.selected").forEach(cell => {
-    cell.classList.remove("selected");
-  });
-
-  // Add selection to clicked date
-  event.target.classList.add("selected");
-  event.stopPropagation(); // Prevent potential issues if nested
-
-  // You can add functionality here to handle date selection
-  console.log("Selected date:", date.toISOString().split("T")[0]);
-
-  // Example: Show a confirmation or booking form
-  // showBookingInfo(date); // Commented out to prevent intrusive alerts
-}
-
-// Placeholder for booking information display
-function showBookingInfo(date) {
-  // This function can be expanded to show booking information
-  const formattedDate = date.toLocaleDateString();
-  alert(
-    `You selected ${formattedDate}. Booking functionality can be implemented here.`
-  );
-}
-
-// Function to navigate to today's date in the calendar
-// Utility function to go to today
 function goToToday() {
   currentDate = new Date();
   renderCalendar(currentDate);
 }
 
-// Enhanced navigation with year/month selection
-function goToMonth(year, month) {
-  currentDate = new Date(year, month, 1);
-  renderCalendar(currentDate);
-}
-
-// Initialize everything when DOM is loaded (already handled by the main DOMContentLoaded listener at the top)
-
-// Export functions for global use
-window.setLanguage = setLanguage;
-window.switchLanguage = switchLanguage;
-window.smartLanguageSwitch = smartLanguageSwitch;
-window.changeMonth = changeMonth;
-window.initializeCalendar = initializeCalendar;
-window.goToToday = goToToday;
-window.goToMonth = goToMonth;
-
-// CSS for active language button (inject into head)
-const style = document.createElement('style');
-style.textContent = `
-  .nav-right button.active {
-    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%) !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4) !important;
-  }
-`;
-document.head.appendChild(style);
-
-// Initialize calendar when page loads
-document.addEventListener('DOMContentLoaded', function () {
-    const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
-    const lang = '<?php echo $lang; ?>';
-    const toolId = <?php echo $tool_id; ?>;
-    
-    initializeCalendar(unavailableRanges, lang);
-    initializeBookingFunctionality(toolId, lang);
-});
-
 // Booking functionality
 function initializeBookingFunctionality(toolId, lang) {
-    const startDateInput = document.getElementById('start-date');
-    const endDateInput = document.getElementById('end-date');
-    const addToCartBtn = document.getElementById('add-to-cart');
-    const selectedDatesInfo = document.getElementById('selected-dates-info');
-    const selectedPeriod = document.getElementById('selected-period');
-    const bookingAlert = document.getElementById('booking-alert');
+  const translations = {
+    en: {
+      select_dates: "Please select start and end dates",
+      date_range: "{0} - {1} ({2} days)",
+      added_to_cart: "Added to cart successfully"
+    },
+    cs: {
+      select_dates: "Prosím vyberte datum začátku a konce",
+      date_range: "{0} - {1} ({2} dní)",
+      added_to_cart: "Úspěšně přidáno do košíku"
+    }
+  };
 
-    let selectedStartDate = null;
-    let selectedEndDate = null;
-    let isSelectingRange = false;
+  const startDateInput = document.getElementById('start-date');
+  const endDateInput = document.getElementById('end-date');
+  const addToCartBtn = document.getElementById('add-to-cart');
+  const selectedDatesInfo = document.getElementById('selected-dates-info');
+  const bookingAlert = document.getElementById('booking-alert');
 
-    // Handle date input changes
-    startDateInput.addEventListener('change', function() {
-        selectedStartDate = this.value;
-        updateDateSelection();
-        updateCalendarHighlight();
+  let selectedStartDate = null;
+  let selectedEndDate = null;
+
+  // Event delegation for calendar clicks
+  document.getElementById('calendar')?.addEventListener('click', e => {
+    if (!e.target.classList.contains('calendar-day') || 
+        !e.target.classList.contains('available') ||
+        e.target.classList.contains('unavailable')) {
+      return;
+    }
+
+    const clickedDate = e.target.dataset.date;
+    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+      // New selection
+      selectedStartDate = clickedDate;
+      selectedEndDate = null;
+    } else if (new Date(clickedDate) >= new Date(selectedStartDate)) {
+      // Set end date
+      selectedEndDate = clickedDate;
+    } else {
+      // Swap dates if clicked date is before start date
+      selectedEndDate = selectedStartDate;
+      selectedStartDate = clickedDate;
+    }
+
+    updateDateSelection();
+    updateCalendarHighlight();
+  });
+
+  function updateDateSelection() {
+    if (startDateInput) startDateInput.value = selectedStartDate || '';
+    if (endDateInput) endDateInput.value = selectedEndDate || '';
+    
+    if (selectedStartDate && selectedEndDate) {
+      const start = new Date(selectedStartDate);
+      const end = new Date(selectedEndDate);
+      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (selectedDatesInfo) {
+        selectedDatesInfo.textContent = translations[lang].date_range
+          .replace('{0}', formatDate(start, lang))
+          .replace('{1}', formatDate(end, lang))
+          .replace('{2}', days);
+        selectedDatesInfo.style.display = 'block';
+      }
+      
+      if (addToCartBtn) {
+        addToCartBtn.disabled = false;
+      }
+    } else {
+      if (selectedDatesInfo) selectedDatesInfo.style.display = 'none';
+      if (addToCartBtn) addToCartBtn.disabled = true;
+    }
+  }
+
+  function updateCalendarHighlight() {
+    document.querySelectorAll('.calendar-day').forEach(day => {
+      day.classList.remove('selected', 'range-start', 'range-end', 'range-middle');
     });
 
-    endDateInput.addEventListener('change', function() {
-        selectedEndDate = this.value;
-        updateDateSelection();
-        updateCalendarHighlight();
-    });
-
-    // Handle calendar clicks for date selection
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('day') && e.target.classList.contains('available')) {
-            const clickedDate = e.target.dataset.date;
-            
-            if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-                // Start new selection
-                selectedStartDate = clickedDate;
-                selectedEndDate = null;
-                startDateInput.value = clickedDate;
-                endDateInput.value = '';
-                isSelectingRange = true;
-            } else if (selectedStartDate && !selectedEndDate) {
-                // Set end date
-                if (clickedDate >= selectedStartDate) {
-                    selectedEndDate = clickedDate;
-                    endDateInput.value = clickedDate;
-                } else {
-                    // If clicked date is before start date, make it the new start date
-                    selectedEndDate = selectedStartDate;
-                    selectedStartDate = clickedDate;
-                    startDateInput.value = clickedDate;
-                    endDateInput.value = selectedEndDate;
-                }
-                isSelectingRange = false;
-            }
-            
-            updateDateSelection();
-            updateCalendarHighlight();
+    if (selectedStartDate && selectedEndDate) {
+      const start = new Date(selectedStartDate);
+      const end = new Date(selectedEndDate);
+      
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        if (!day.dataset.date) return;
+        
+        const dayDate = new Date(day.dataset.date);
+        if (dayDate >= start && dayDate <= end) {
+          const dayClass = isSameDay(dayDate, start) ? 'range-start' :
+                          isSameDay(dayDate, end) ? 'range-end' : 'range-middle';
+          day.classList.add(dayClass);
         }
-    });
+      });
+    }
+  }
 
-    // Add to cart functionality
-    addToCartBtn.addEventListener('click', function() {
-        if (!selectedStartDate || !selectedEndDate) {
-            showAlert('error', lang === 'cs' ? 'Vyberte prosím datum začátku a konce.' : 'Please select start and end dates.');
-            return;
-        }
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', async () => {
+      if (!selectedStartDate || !selectedEndDate) {
+        showAlert('error', translations[lang].select_dates);
+        return;
+      }
 
-        const formData = new FormData();
-        formData.append('action', 'add_to_cart');
-        formData.append('start_date', selectedStartDate);
-        formData.append('end_date', selectedEndDate);
-
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('success', data.message);
-                // Update cart count
-                updateCartCount(data.cart_count);
-                // Clear selection
-                clearSelection();
-            } else {
-                showAlert('error', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('error', lang === 'cs' ? 'Došlo k chybě při přidávání do košíku.' : 'An error occurred while adding to cart.');
+      try {
+        const response = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            toolId,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate
+          })
         });
+
+        if (!response.ok) throw new Error('Failed to add to cart');
+        
+        showAlert('success', translations[lang].added_to_cart);
+        updateCartCount(await response.json().then(data => data.cartCount));
+      } catch (error) {
+        console.error('Error:', error);
+        showAlert('error', error.message);
+      }
     });
+  }
 
-    function updateDateSelection() {
-        if (selectedStartDate && selectedEndDate) {
-            const start = new Date(selectedStartDate);
-            const end = new Date(selectedEndDate);
-            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-            
-            selectedPeriod.textContent = `${formatDate(start, lang)} - ${formatDate(end, lang)} (${days} ${lang === 'cs' ? 'dní' : 'days'})`;
-            selectedDatesInfo.style.display = 'block';
-            addToCartBtn.disabled = false;
-        } else {
-            selectedDatesInfo.style.display = 'none';
-            addToCartBtn.disabled = true;
-        }
+  function showAlert(type, message) {
+    if (!bookingAlert) return;
+    bookingAlert.className = `alert ${type}`;
+    bookingAlert.textContent = message;
+    bookingAlert.style.display = 'block';
+    setTimeout(() => bookingAlert.style.display = 'none', 5000);
+  }
+
+  function updateCartCount(count) {
+    const cartCountEl = document.querySelector('.cart-count');
+    if (cartCountEl) {
+      cartCountEl.textContent = count;
     }
+  }
 
-    function updateCalendarHighlight() {
-        // Remove existing highlights
-        document.querySelectorAll('.day').forEach(day => {
-            day.classList.remove('range-start', 'range-end', 'range-middle');
-        });
-
-        if (selectedStartDate && selectedEndDate) {
-            const start = new Date(selectedStartDate);
-            const end = new Date(selectedEndDate);
-            
-            document.querySelectorAll('.day').forEach(day => {
-                const dayDate = new Date(day.dataset.date);
-                if (dayDate >= start && dayDate <= end) {
-                    if (dayDate.getTime() === start.getTime()) {
-                        day.classList.add('range-start');
-                    } else if (dayDate.getTime() === end.getTime()) {
-                        day.classList.add('range-end');
-                    } else {
-                        day.classList.add('range-middle');
-                    }
-                }
-            });
-        }
-    }
-
-    function clearSelection() {
-        selectedStartDate = null;
-        selectedEndDate = null;
-        startDateInput.value = '';
-        endDateInput.value = '';
-        selectedDatesInfo.style.display = 'none';
-        addToCartBtn.disabled = true;
-        updateCalendarHighlight();
-    }
-
-    function showAlert(type, message) {
-        bookingAlert.className = `alert ${type}`;
-        bookingAlert.textContent = message;
-        bookingAlert.style.display = 'block';
-        setTimeout(() => {
-            bookingAlert.style.display = 'none';
-        }, 5000);
-    }
-
-    function updateCartCount(count) {
-        const cartCountElement = document.querySelector('.cart-count');
-        if (cartCountElement) {
-            cartCountElement.textContent = count;
-        } else if (count > 0) {
-            const cartLink = document.querySelector('.cart-link');
-            cartLink.innerHTML += `<span class="cart-count">${count}</span>`;
-        }
-    }
-
-    function formatDate(date, lang) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-US', options);
-    }
+  function formatDate(date, lang) {
+    return date.toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
 }
 
+// Export functions to window
+window.switchLanguage = switchLanguage;
+window.changeMonth = changeMonth;
+window.goToToday = goToToday;
