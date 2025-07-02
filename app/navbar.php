@@ -8,19 +8,24 @@ if ($loggedIn) {
     $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 
+// Determine if we're in public directory or root
+$isInPublic = (basename(dirname($_SERVER['PHP_SELF'])) === 'public');
+$pathPrefix = $isInPublic ? '' : 'public/';
+$indexPath = $isInPublic ? '../index.php' : 'index.php';
+
 // Determine the current page's base name for language switching
 $currentPageBasename = basename($_SERVER['PHP_SELF']);
 ?>
 
 <nav>
     <div class="nav-left">
-        <a href="/index.php?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">
+        <a href="<?php echo $indexPath; ?>?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">
             <?php echo $lang === 'cs' ? 'Domů' : 'Home'; ?>
         </a>
-        <a href="public/tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">
+        <a href="<?php echo $pathPrefix; ?>tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">
             <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
         </a>
-        <a href="public/contacts.php?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
+        <a href="<?php echo $pathPrefix; ?>contacts.php?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
             <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
         </a>
 
@@ -28,19 +33,19 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
             <div class="dropdown">
                 <a href="#" class="dropbtn"><?php echo $fullName; ?></a>
                 <div class="dropdown-content">
-                    <a href="public/myprofile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
+                    <a href="<?php echo $pathPrefix; ?>myprofile.php?lang=<?php echo $lang; ?>" data-en="My Profile" data-cs="Můj Profil">
                         <?php echo $lang === 'cs' ? 'Můj Profil' : 'My Profile'; ?>
                     </a>
-                    <a href="public/myorders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
+                    <a href="<?php echo $pathPrefix; ?>myorders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
                         <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
                     </a>
-                    <a href="public/logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
+                    <a href="<?php echo $pathPrefix; ?>logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
                         <?php echo $lang === 'cs' ? 'Odhlásit se' : 'Log Out'; ?>
                     </a>
                 </div>
             </div>
         <?php else: ?>
-            <a href="public/login.php?lang=<?php echo $lang; ?>" data-en="Login" data-cs="Přihlásit">
+            <a href="<?php echo $pathPrefix; ?>login.php?lang=<?php echo $lang; ?>" data-en="Login" data-cs="Přihlásit">
                 <?php echo $lang === 'cs' ? 'Přihlásit' : 'Login'; ?>
             </a>
         <?php endif; ?>
