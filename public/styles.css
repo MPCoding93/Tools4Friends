@@ -598,15 +598,127 @@ nav {
 }
 
 
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
-    gap: 15px; /* Add a gap between items for better spacing */
-    justify-content: center; /* Center the items when they wrap */
+/* ====================== */
+/* TOOL COMPONENTS (General) */
+/* ====================== */
+.tool-list { /* Used for general tool listings, e.g., index page */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    justify-content: center;
+    margin-top: 30px;
 }
+
+.tool-block { /* Used for general tool listings, e.g., index page */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 550px;
+    border: none;
+    border-radius: 20px;
+    padding: 25px 20px 20px 20px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 15px 35px rgba(31, 45, 90, 0.15);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1F2D5A, #4a90e2, #1F2D5A);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tool-block:hover::before {
+    opacity: 1;
+}
+
+.tool-block:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 60px rgba(31, 45, 90, 0.25);
+}
+
+.tool-block img {
+    height: 220px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.tool-block:hover img {
+    transform: scale(1.05);
+}
+
+.tool-block h3 {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 1.3em;
+    background: linear-gradient(135deg, #1F2D5A, #4a90e2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.left-text {
+    text-align: left;
+    width: 100%;
+    flex-grow: 1;
+    padding: 10px 0;
+}
+
+.left-text p {
+    margin: 10px 0;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.left-text strong {
+    color: #1F2D5A;
+    font-weight: 600;
+}
+
+.tool-details {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
+    border-left: 4px solid #4a90e2;
+}
+
+.tool-details p {
+    margin: 15px 0;
+    font-size: 1.1em;
+}
+
+.tool-details strong {
+    color: #1F2D5A;
+    font-weight: 600;
+}
+
+.category-nav {
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
+}
+
 .category-nav a {
-    /* Remove display: inline-block; as flex item handles it */
-    /* Remove margin-right as gap handles spacing */
-    /* margin-right: 15px; */
-    margin-bottom: 0; /* Reset margin-bottom as gap handles vertical spacing */
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
     padding: 10px 20px;
     background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);
     color: white;
@@ -615,13 +727,14 @@ nav {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
     box-shadow: 0 4px 15px rgba(31, 45, 90, 0.3);
-    white-space: nowrap; /* Prevent text from wrapping inside the button */
 }
+
 .category-nav a:hover {
     background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(31, 45, 90, 0.4);
 }
+
 .category-nav a:active {
     background: linear-gradient(135deg, #2a3f6b 0%, #4a90e2 100%);
     transform: translateY(-3px);
