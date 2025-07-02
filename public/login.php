@@ -195,7 +195,7 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <button type="submit" class="submit-button">Login</button>
             </form>
             <p style="text-align: center; margin-top: 15px;">
-                <a href="./public/forgot_password.php?lang=<?php echo $lang; ?>">
+                <a href="./forgot_password.php?lang=<?php echo $lang; ?>">
                     <?php echo ($lang === 'cs' ? 'Zapomenuté heslo?' : 'Forgot Password?'); ?>
                 </a>
             </p>
