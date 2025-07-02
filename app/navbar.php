@@ -33,7 +33,7 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
                     </a>
                     <a href="public/myorders.php?lang=<?php echo $lang; ?>" data-en="My Orders" data-cs="Moje Objednávky">
                         <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
-                    </a>
+                    </a>    
                     <a href="public/logout.php?lang=<?php echo $lang; ?>" data-en="Log Out" data-cs="Odhlásit se">
                         <?php echo $lang === 'cs' ? 'Odhlásit se' : 'Log Out'; ?>
                     </a>

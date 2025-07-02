@@ -36,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['firstname'] = $db_firstname;
                     $_SESSION['lastname'] = $db_lastname;
-                    // Redirect to index.php with current language if available
-                    header("Location: index.php?lang=" . $lang); // Changed to index.php
+                    // Redirect to ../index.php with current language if available
+                    header("Location: ../index.php?lang=" . $lang); // Changed to ../index.php
                     exit();
                 } else {
                     $error = "Invalid credentials.";
@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['firstname'] = $firstname;
                     $_SESSION['lastname'] = $lastname;
 
-                    // Redirect to index.php with current language if available
-                    header("Location: index.php?lang=" . $lang); // Changed to index.php
+                    // Redirect to ../index.php with current language if available
+                    header("Location: ../index.php?lang=" . $lang); // Changed to ../index.php
                     exit();
                 } else {
                     $error = "Registration failed. Please try again. " . $conn->error; // Added $conn->error for debugging
@@ -186,7 +186,7 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <button class="toggle-button" onclick="toggleForm('register')">Register</button>
             </div>
 
-                        <form id="login-form" method="POST" class="form-card" style="display: block;">
+                <form id="login-form" method="POST" class="form-card" style="display: block;">
                 <input type="hidden" name="action" value="login">
                 <label for="username">Email:</label>
                 <input type="text" name="username" required>
@@ -195,7 +195,7 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <button type="submit" class="submit-button">Login</button>
             </form>
             <p style="text-align: center; margin-top: 15px;">
-                <a href="forgot_password.php?lang=<?php echo $lang; ?>">
+                <a href="./forgot_password.php?lang=<?php echo $lang; ?>">
                     <?php echo ($lang === 'cs' ? 'Zapomenuté heslo?' : 'Forgot Password?'); ?>
                 </a>
             </p>
