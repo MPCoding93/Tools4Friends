@@ -17,10 +17,10 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
         <a href="/index.php?lang=<?php echo $lang; ?>" data-en="Home" data-cs="Domů">
             <?php echo $lang === 'cs' ? 'Domů' : 'Home'; ?>
         </a>
-        <a href="public/tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">
+        <a href="./tools.php?lang=<?php echo $lang; ?>" data-en="Tools" data-cs="Nářadí">
             <?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?>
         </a>
-        <a href="public/contacts.php?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
+        <a href="./contacts.php?lang=<?php echo $lang; ?>" data-en="Contacts" data-cs="Kontakty">
             <?php echo $lang === 'cs' ? 'Kontakty' : 'Contacts'; ?>
         </a>
 
