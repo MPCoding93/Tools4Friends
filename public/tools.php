@@ -106,7 +106,7 @@ if ($loggedIn) {
                 }
 
                 while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="./public/tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
                         <?php echo htmlspecialchars($category_row['category_name']); ?>
                     </a>
