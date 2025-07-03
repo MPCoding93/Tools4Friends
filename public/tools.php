@@ -94,7 +94,7 @@ if ($loggedIn) {
 
             <nav class="category-nav">
                 <!-- Add "All" category option with relative path -->
-                <a href="./public/tools.php?category=All&lang=<?php echo $lang; ?>"
+                <a href="./tools.php?category=All&lang=<?php echo $lang; ?>"
                     class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
                     <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                 </a>
