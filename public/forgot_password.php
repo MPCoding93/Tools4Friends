@@ -1,110 +1,125 @@
 <?php
-session_start();
-require_once __DIR__ . '/../app/db_connect.php'; // Path from public/forgot_password.php to app/db_connect.php
+require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/db_connect.php';
 
-// --- START: Secure Credential Loading ---
-// Adjust the path based on where you placed config_credentials.php
-// Path from public/forgot_password.php to config/config.credentials.php
+startSecureSession();
+
+// Load credentials
 require_once __DIR__ . '/../config/config.credentials.php';
-// --- END: Secure Credential Loading ---
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Use Composer's autoloader if you installed via Composer
 require 'vendor/autoload.php';
-// OR, if you installed manually, use these:
-// require 'PHPMailer/src/Exception.php';
-// require 'PHPMailer/src/PHPMailer.php';
-// require 'PHPMailer/src/SMTP.php';
-
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-
-    if (empty($email)) {
-        $error = ($lang === 'cs' ? 'Zadejte prosím svůj email.' : 'Please enter your email address.');
+    // Validate CSRF token
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error = "Security validation failed.";
+        logSecurityEvent('CSRF validation failed on password reset', [
+            'ip' => $_SERVER['REMOTE_ADDR'],
+            'email' => $_POST['email'] ?? 'unknown'
+        ]);
     } else {
-        // 1. Check if email exists
-        $stmt = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $email = trim($_POST['email']);
 
-        if ($result->num_rows > 0) {
-            // 2. Generate a unique token
-            $token = bin2hex(random_bytes(32)); // Cryptographically secure random token
-            $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
-
-            // 3. Store token in database
-            // First, invalidate any existing unused tokens for this email
-            $stmt_invalidate = $conn->prepare("UPDATE password_resets SET used = TRUE WHERE email = ? AND used = FALSE");
-            $stmt_invalidate->bind_param("s", $email);
-            $stmt_invalidate->execute();
-            $stmt_invalidate->close();
-
-            $stmt_insert = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
-            $stmt_insert->bind_param("sss", $email, $token, $expires_at);
-
-            if ($stmt_insert->execute()) {
-                // 4. Send email with reset link
-                $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/reset_password.php?token=" . $token . "&lang=" . $lang;
-
-                $mail = new PHPMailer(true); // Pass `true` to enable exceptions
-                try {
-                    // Server settings - NOW USING SECURELY LOADED CONSTANTS
-                    $mail->isSMTP();
-                    $mail->Host       = SMTP_HOST;
-                    $mail->SMTPAuth   = true;
-                    $mail->Username   = SMTP_USERNAME;
-                    $mail->Password   = SMTP_PASSWORD;
-                    $mail->SMTPSecure = SMTP_ENCRYPTION;
-                    $mail->Port       = SMTP_PORT;
-
-                    // Recipients
-                    $mail->setFrom(SMTP_USERNAME, 'Tools4Friends No-Reply'); // Use the defined username for 'From' address
-                    $mail->addAddress($email);                                  // Add a recipient
-
-                    // Content
-                    $mail->isHTML(true);                                        // Set email format to HTML
-                    $mail->Subject = ($lang === 'cs' ? 'Reset hesla Tools4Friends' : 'Tools4Friends Password Reset');
-                    $mail->Body    = ($lang === 'cs' ?
-                        '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 1 hodinu.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
-                        '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 1 hour.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
-                    $mail->AltBody = ($lang === 'cs' ?
-                        'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 1 hodinu. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
-                        'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 1 hour. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
-
-                    $mail->send();
-                    $success = ($lang === 'cs' ? 'Odkaz pro resetování hesla byl odeslán na váš email.' : 'A password reset link has been sent to your email address.');
-                } catch (Exception $e) {
-                    $error = ($lang === 'cs' ? 'Nepodařilo se odeslat email. Chyba Maileru: ' : 'Could not send email. Mailer Error: ') . $mail->ErrorInfo;
-                }
-            } else {
-                $error = ($lang === 'cs' ? 'Chyba při generování odkazu pro resetování hesla.' : 'Error generating password reset link.');
-            }
-            $stmt_insert->close();
+        if (empty($email)) {
+            $error = ($lang === 'cs' ? 'Zadejte prosím svůj email.' : 'Please enter your email address.');
+        } elseif (!validateEmail($email)) {
+            $error = ($lang === 'cs' ? 'Neplatná emailová adresa.' : 'Invalid email address.');
         } else {
-            $error = ($lang === 'cs' ? 'Emailová adresa nebyla nalezena.' : 'Email address not found.');
+            // Rate limiting check
+            $rate_check = checkLoginAttempts($email);
+            if (!$rate_check['allowed']) {
+                $error = $rate_check['message'];
+                logSecurityEvent('Password reset rate limit exceeded', ['email' => $email]);
+            } else {
+                // 1. Check if email exists
+                $stmt = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    // 2. Generate a unique token
+                    $token = bin2hex(random_bytes(32));
+                    $expires_at = date('Y-m-d H:i:s', strtotime('+30 minutes')); // Reduced to 30 minutes
+
+                    // 3. Store token in database
+                    $stmt_invalidate = $conn->prepare("UPDATE password_resets SET used = TRUE WHERE email = ? AND used = FALSE");
+                    $stmt_invalidate->bind_param("s", $email);
+                    $stmt_invalidate->execute();
+                    $stmt_invalidate->close();
+
+                    $stmt_insert = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
+                    $stmt_insert->bind_param("sss", $email, $token, $expires_at);
+
+                    if ($stmt_insert->execute()) {
+                        // 4. Send email with reset link
+                        $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/Tools4Friends/public/reset_password.php?token=" . $token . "&lang=" . $lang;
+
+                        $mail = new PHPMailer(true);
+                        try {
+                            $mail->isSMTP();
+                            $mail->Host       = SMTP_HOST;
+                            $mail->SMTPAuth   = true;
+                            $mail->Username   = SMTP_USERNAME;
+                            $mail->Password   = SMTP_PASSWORD;
+                            $mail->SMTPSecure = SMTP_ENCRYPTION;
+                            $mail->Port       = SMTP_PORT;
+
+                            $mail->setFrom(SMTP_USERNAME, 'Tools4Friends No-Reply');
+                            $mail->addAddress($email);
+
+                            $mail->isHTML(true);
+                            $mail->Subject = ($lang === 'cs' ? 'Reset hesla Tools4Friends' : 'Tools4Friends Password Reset');
+                            $mail->Body    = ($lang === 'cs' ?
+                                '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 30 minut.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
+                                '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 30 minutes.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
+                            $mail->AltBody = ($lang === 'cs' ?
+                                'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 30 minut. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
+                                'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 30 minutes. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
+
+                            $mail->send();
+                            
+                            logSecurityEvent('Password reset requested', ['email' => $email]);
+                        } catch (Exception $e) {
+                            error_log("Email sending failed: " . $mail->ErrorInfo);
+                            $error = ($lang === 'cs' ? 'Nepodařilo se odeslat email. Zkuste to prosím později.' : 'Could not send email. Please try again later.');
+                        }
+                    } else {
+                        error_log("Password reset token generation failed: " . $conn->error);
+                        $error = ($lang === 'cs' ? 'Došlo k chybě. Zkuste to prosím později.' : 'An error occurred. Please try again later.');
+                    }
+                    $stmt_insert->close();
+                }
+                $stmt->close();
+                
+                // Always show success message to prevent user enumeration
+                $success = ($lang === 'cs' ? 'Pokud email existuje v našem systému, byl odeslán odkaz pro resetování hesla.' : 'If that email exists in our system, a password reset link has been sent.');
+                
+                // Record attempt for rate limiting
+                recordFailedLogin($email);
+            }
         }
-        $stmt->close();
     }
 }
 
-// Navbar variables (ensure these are set before including navbar.php)
+$csrf_token = generateCSRFToken();
+
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8">
@@ -147,9 +162,10 @@ if ($loggedIn) {
             <?php endif; ?>
 
             <form method="POST" class="form-card">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <div class="form-group">
                     <label for="email"><?php echo ($lang === 'cs' ? 'Zadejte svůj email:' : 'Enter your email address:'); ?></label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required maxlength="255">
                 </div>
                 <button type="submit" class="submit-button">
                     <?php echo ($lang === 'cs' ? 'Odeslat odkaz pro reset hesla' : 'Send Reset Link'); ?>
