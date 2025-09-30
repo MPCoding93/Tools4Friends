@@ -50,4 +50,5 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
         <button onclick="switchLanguage('en', '<?php echo $currentPageBasename; ?>')">English</button>
         <button onclick="switchLanguage('cs', '<?php echo $currentPageBasename; ?>')">Čeština</button>
     </div>
+    <div><h1>SITE UNDER CONSTRUCTION</h1></div>
 </nav>
