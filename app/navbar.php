@@ -49,6 +49,9 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
     <div class="nav-right language-toggle">
         <button onclick="switchLanguage('en', '<?php echo $currentPageBasename; ?>')">English</button>
         <button onclick="switchLanguage('cs', '<?php echo $currentPageBasename; ?>')">Čeština</button>
-    </div><br>
-    <div><h1>SITE UNDER CONSTRUCTION</h1></div>
+    </div>
 </nav>
+<br>
+    <div>
+        <h1>SITE UNDER CONSTRUCTION</h1>
+    </div>
