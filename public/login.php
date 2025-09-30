@@ -1,12 +1,16 @@
 <?php
-session_start();
-require_once __DIR__ . '/../app/db_connect.php'; // Path from public/login.php to app/db_connect.php
+require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/db_connect.php';
+
+startSecureSession();
 
 $error = '';
 $success = '';
-
-// Get selected language from URL or default to English
 $lang = $_GET['lang'] ?? 'en';
+
+if (isset($_GET['timeout'])) {
+    $error = $lang === 'cs' ? 'Vaše relace vypršela. Přihlaste se prosím znovu.' : 'Your session has expired. Please log in again.';
+}
 
 // Function to generate ownerID
 function generateOwnerID($firstname, $lastname) {
@@ -14,104 +18,142 @@ function generateOwnerID($firstname, $lastname) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'];
+    $action = $_POST['action'] ?? '';
 
     if ($action === 'login') {
-        $username = trim($_POST['username']); // This can be email or username
-        $password = $_POST['password'];
+        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            $error = "Security validation failed.";
+        } else {
+            $username = trim($_POST['username']);
+            $password = $_POST['password'] ?? '';
 
-        if (!empty($username) && !empty($password)) {
-            // LOGIN
-            // Prepare statement to fetch user by username or email
-            $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash FROM Users WHERE username = ? OR email = ?");
-            $stmt->bind_param("ss", $username, $username);
-            $stmt->execute();
-            $stmt->store_result();
-
-            if ($stmt->num_rows === 1) {
-                $stmt->bind_result($user_id, $db_firstname, $db_lastname, $password_hash);
-                $stmt->fetch();
-
-                if (password_verify($password, $password_hash)) {
-                    $_SESSION['user_id'] = $user_id;
-                    $_SESSION['firstname'] = $db_firstname;
-                    $_SESSION['lastname'] = $db_lastname;
-                    // Redirect to ../index.php with current language if available
-                    header("Location: ../index.php?lang=" . $lang); // Changed to ../index.php
-                    exit();
+            if (!empty($username) && !empty($password)) {
+                $rate_check = checkLoginAttempts($username);
+                if (!$rate_check['allowed']) {
+                    $error = $rate_check['message'];
                 } else {
-                    $error = "Invalid credentials.";
+                    $username = filter_var($username, FILTER_SANITIZE_STRING);
+
+                    $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash FROM Users WHERE username = ? OR email = ?");
+                    $stmt->bind_param("ss", $username, $username);
+                    $stmt->execute();
+                    $stmt->store_result();
+
+                    if ($stmt->num_rows === 1) {
+                        $stmt->bind_result($user_id, $db_firstname, $db_lastname, $password_hash);
+                        $stmt->fetch();
+
+                        if (password_verify($password, $password_hash)) {
+                            clearLoginAttempts($username);
+                            regenerateSession();
+                            
+                            $_SESSION['user_id'] = $user_id;
+                            $_SESSION['firstname'] = $db_firstname;
+                            $_SESSION['lastname'] = $db_lastname;
+                            $_SESSION['last_activity'] = time();
+                            
+                            logSecurityEvent('Successful login', ['user_id' => $user_id]);
+                            
+                            header("Location: ../index.php?lang=" . $lang);
+                            exit();
+                        } else {
+                            recordFailedLogin($username);
+                            $error = $lang === 'cs' ? 'Neplatné přihlašovací údaje.' : 'Invalid credentials.';
+                        }
+                    } else {
+                        recordFailedLogin($username);
+                        $error = $lang === 'cs' ? 'Neplatné přihlašovací údaje.' : 'Invalid credentials.';
+                    }
+
+                    $stmt->close();
                 }
             } else {
-                $error = "User  not found.";
+                $error = $lang === 'cs' ? 'Vyplňte prosím email a heslo.' : 'Please enter both email and password.';
             }
-
-            $stmt->close();
-        } else {
-            $error = "Please enter both email and password.";
         }
     } elseif ($action === 'register') {
-        $firstname = trim($_POST['firstname']);
-        $lastname = trim($_POST['lastname']);
-        $email = trim($_POST['email']);
-        $phone = trim($_POST['phone']); // This column should now exist
-        $password = $_POST['password'];
-        $confirm_password = $_POST['confirm_password'];
-
-        // Validate registration fields
-        if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
-            $error = "Please fill in all mandatory fields.";
-        } elseif ($password !== $confirm_password) {
-            $error = "Passwords do not match.";
+        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            $error = "Security validation failed.";
         } else {
-            // --- Email Uniqueness Check ---
-            $stmt_check_email = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
-            $stmt_check_email->bind_param("s", $email);
-            $stmt_check_email->execute();
-            $stmt_check_email->store_result();
+            $firstname = trim($_POST['firstname']);
+            $lastname = trim($_POST['lastname']);
+            $email = trim($_POST['email']);
+            $phone = trim($_POST['phone']);
+            $password = $_POST['password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
 
-            if ($stmt_check_email->num_rows > 0) {
-                $error = "Email address is already in use. Please use a different email or log in.";
-                $stmt_check_email->close();
+            if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
+                $error = $lang === 'cs' ? 'Vyplňte prosím všechna povinná pole.' : 'Please fill in all mandatory fields.';
+            } elseif (!validateEmail($email)) {
+                $error = $lang === 'cs' ? 'Neplatná emailová adresa.' : 'Invalid email address.';
+            } elseif ($password !== $confirm_password) {
+                $error = $lang === 'cs' ? 'Hesla se neshodují.' : 'Passwords do not match.';
+            } elseif (strlen($password) < 8) {
+                $error = $lang === 'cs' ? 'Heslo musí mít alespoň 8 znaků.' : 'Password must be at least 8 characters.';
             } else {
-                $stmt_check_email->close(); // Close the check statement
-
-                // Insert new user into the database
-                $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                $ownerID = generateOwnerID($firstname, $lastname); // Generate ownerID
-
-                $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash, ownerID) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt_insert->bind_param("ssssss", $firstname, $lastname, $email, $phone, $password_hash, $ownerID);
-
-                if ($stmt_insert->execute()) {
-                    // --- Automatic Login after successful registration ---
-                    $_SESSION['user_id'] = $stmt_insert->insert_id;
-                    $_SESSION['firstname'] = $firstname;
-                    $_SESSION['lastname'] = $lastname;
-
-                    // Redirect to ../index.php with current language if available
-                    header("Location: ../index.php?lang=" . $lang); // Changed to ../index.php
-                    exit();
-                } else {
-                    $error = "Registration failed. Please try again. " . $conn->error; // Added $conn->error for debugging
+                $firstname = filter_var($firstname, FILTER_SANITIZE_STRING);
+                $lastname = filter_var($lastname, FILTER_SANITIZE_STRING);
+                
+                if (!empty($phone)) {
+                    $phone = validatePhone($phone);
+                    if ($phone === false) {
+                        $error = $lang === 'cs' ? 'Neplatné telefonní číslo.' : 'Invalid phone number.';
+                    }
                 }
-                $stmt_insert->close();
+
+                if (empty($error)) {
+                    $stmt_check_email = $conn->prepare("SELECT user_id FROM Users WHERE email = ?");
+                    $stmt_check_email->bind_param("s", $email);
+                    $stmt_check_email->execute();
+                    $stmt_check_email->store_result();
+
+                    if ($stmt_check_email->num_rows > 0) {
+                        $error = $lang === 'cs' ? 'Email je již používán.' : 'Email address is already in use.';
+                        $stmt_check_email->close();
+                    } else {
+                        $stmt_check_email->close();
+
+                        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+                        $ownerID = generateOwnerID($firstname, $lastname);
+
+                        $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash, ownerID) VALUES (?, ?, ?, ?, ?, ?)");
+                        $stmt_insert->bind_param("ssssss", $firstname, $lastname, $email, $phone, $password_hash, $ownerID);
+
+                        if ($stmt_insert->execute()) {
+                            regenerateSession();
+                            
+                            $_SESSION['user_id'] = $stmt_insert->insert_id;
+                            $_SESSION['firstname'] = $firstname;
+                            $_SESSION['lastname'] = $lastname;
+                            $_SESSION['last_activity'] = time();
+                            
+                            logSecurityEvent('New user registration', ['user_id' => $_SESSION['user_id'], 'email' => $email]);
+
+                            header("Location: ../index.php?lang=" . $lang);
+                            exit();
+                        } else {
+                            error_log("Registration failed: " . $conn->error);
+                            $error = $lang === 'cs' ? 'Registrace se nezdařila. Zkuste to prosím znovu.' : 'Registration failed. Please try again.';
+                        }
+                        $stmt_insert->close();
+                    }
+                }
             }
         }
     }
 }
 
-// --- User Login Status for Navbar ---
-// These variables need to be defined BEFORE including navbar.php
+$csrf_token = generateCSRFToken();
+
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
-if ($loggedIn) { // Ensure fullName is set for the navbar after login/registration
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+if ($loggedIn) {
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>"> <!-- Added lang attribute -->
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8">
@@ -178,7 +220,7 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
             <div class="line-break"></div>
 
             <?php if ($error): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-message"><?php echo sanitizeOutput($error); ?></div>
             <?php endif; ?>
 
             <div class="form-toggle">
@@ -186,16 +228,17 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
                 <button class="toggle-button" onclick="toggleForm('register')">Register</button>
             </div>
 
-                <form id="login-form" method="POST" class="form-card" style="display: block;">
+            <form id="login-form" method="POST" class="form-card" style="display: block;">
                 <input type="hidden" name="action" value="login">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <label for="username">Email:</label>
-                <input type="text" name="username" required>
+                <input type="text" name="username" required maxlength="255">
                 <label for="password">Password:</label>
                 <input type="password" name="password" required>
                 <button type="submit" class="submit-button">Login</button>
             </form>
             <p style="text-align: center; margin-top: 15px;">
-                <a href="./forgot_password.php?lang=<?php echo $lang; ?>">
+                <a href="./forgot_password.php?lang=<?php echo sanitizeOutput($lang); ?>">
                     <?php echo ($lang === 'cs' ? 'Zapomenuté heslo?' : 'Forgot Password?'); ?>
                 </a>
             </p>
@@ -203,18 +246,20 @@ if ($loggedIn) { // Ensure fullName is set for the navbar after login/registrati
 
             <form id="register-form" method="POST" class="form-card" style="display: none;">
                 <input type="hidden" name="action" value="register">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <label for="firstname">First Name:</label>
-                <input type="text" name="firstname" required>
+                <input type="text" name="firstname" required maxlength="100">
                 <label for="lastname">Last Name:</label>
-                <input type="text" name="lastname" required>
+                <input type="text" name="lastname" required maxlength="100">
                 <label for="email">Email:</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" required maxlength="255">
                 <label for="phone">Phone:</label>
-                <input type="text" name="phone">
+                <input type="text" name="phone" maxlength="20">
                 <label for="password">Password:</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required minlength="8">
+                <small>Minimum 8 characters</small>
                 <label for="confirm_password">Confirm Password:</label>
-                <input type="password" name="confirm_password" required>
+                <input type="password" name="confirm_password" required minlength="8">
                 <button type="submit" class="submit-button">Register</button>
             </form>
         </main>
