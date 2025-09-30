@@ -11,11 +11,11 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
 }
-.UnderConstruction {
+
+.underconstruction h1 {
     background: Yellow;
     color: Red
 }
-
 
 h1, h2, h3 {
     color: #1F2D5A;
