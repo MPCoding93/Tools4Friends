@@ -126,7 +126,7 @@ if ($loggedIn) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo ($lang === 'cs' ? 'Zapomenuté heslo' : 'Forgot Password'); ?> - Tools4Friends</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon/favicon-dark.ico" /> <!-- Updated path -->
+    <link rel="icon" href="favicon/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -139,15 +139,15 @@ if ($loggedIn) {
     <div class="container">
         <header>
             <div class="banner">
-                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" /> <!-- Updated path -->
+                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
             </div>
         </header>
         <div class="line-break"></div>
-        <?php include __DIR__ . '/../app/navbar.php'; ?> <!-- Updated path -->
+        <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <main>
             <div style="margin-bottom: 20px;">
-                <a href="login.php?lang=<?php echo $lang; ?>" class="btn btn-blue">
+                <a href="login.php?lang=<?php echo sanitizeOutput($lang); ?>" class="btn btn-blue">
                     <?php echo $lang === 'cs' ? '← Zpět na Přihlášení' : '← Back to Login'; ?>
                 </a>
             </div>
@@ -155,10 +155,10 @@ if ($loggedIn) {
             <div class="line-break"></div>
 
             <?php if ($error): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-message"><?php echo sanitizeOutput($error); ?></div>
             <?php endif; ?>
             <?php if ($success): ?>
-                <div class="success-message"><?php echo htmlspecialchars($success); ?></div>
+                <div class="success-message"><?php echo sanitizeOutput($success); ?></div>
             <?php endif; ?>
 
             <form method="POST" class="form-card">
