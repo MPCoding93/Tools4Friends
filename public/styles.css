@@ -1002,7 +1002,7 @@ nav {
     font-weight: bold;
 }
 
-/* Today styling - must come after available/unavailable to override */
+/* Today styling - must override available/unavailable with !important */
 .calendar-day.today {
     background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
     color: #000 !important;
@@ -1010,7 +1010,7 @@ nav {
     font-weight: 700;
 }
 
-/* Selected date range styling */
+/* Selected date range styling - for the range classes used by JavaScript */
 .calendar-day.range-start,
 .calendar-day.range-end {
     background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%) !important;
