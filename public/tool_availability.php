@@ -1,11 +1,8 @@
 <?php
-// Start session at the very beginning of the file
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/db_connect.php';
 
-// Include database connection
-include __DIR__ . '/../app/db_connect.php'; // Path from public/tool_availability.php to app/db_connect.php
+startSecureSession();
 
 // Get tool ID and language
 $tool_id = isset($_GET['tool_id']) ? intval($_GET['tool_id']) : 0;
@@ -16,6 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     
     if ($_POST['action'] === 'add_to_cart') {
+        // Validate CSRF token
+        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            echo json_encode(['success' => false, 'message' => 'Security validation failed.']);
+            logSecurityEvent('CSRF validation failed on add to cart', [
+                'ip' => $_SERVER['REMOTE_ADDR'],
+                'tool_id' => $tool_id
+            ]);
+            exit;
+        }
+        
         $start_date = $_POST['start_date'] ?? '';
         $end_date = $_POST['end_date'] ?? '';
         
@@ -52,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
         
         // Check if this tool is already in cart for overlapping dates
-        $cart_key = $tool_id . '_' . $start_date . '_' . $end_date;
         $exists = false;
         
         foreach ($_SESSION['cart'] as $item) {
@@ -80,6 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             'end_date' => $end_date,
             'added_at' => date('Y-m-d H:i:s')
         ];
+        
+        logSecurityEvent('Tool added to cart', [
+            'user_id' => $_SESSION['user_id'] ?? 'guest',
+            'tool_id' => $tool_id,
+            'start_date' => $start_date,
+            'end_date' => $end_date
+        ]);
         
         echo json_encode(['success' => true, 'message' => $lang === 'cs' ? 'Přidáno do košíku!' : 'Added to cart!', 'cart_count' => count($_SESSION['cart'])]);
         exit;
@@ -114,32 +127,135 @@ $name = $lang === 'cs' && !empty($tool['name_cs']) ? $tool['name_cs'] : $tool['n
 $description = $lang === 'cs' && !empty($tool['description_cs']) ? $tool['description_cs'] : $tool['description'];
 $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
 
-// --- User Login Status for Navbar ---
-// These variables need to be defined BEFORE including navbar.php
+// User Login Status for Navbar
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
-    // Assuming 'firstname' and 'lastname' are stored in the session upon login
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 
 // Get cart count for display
 $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+
+// Generate CSRF token
+$csrf_token = generateCSRFToken();
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($name); ?> - <?php echo $lang === 'cs' ? 'Dostupnost' : 'Availability'; ?></title>
+    <title><?php echo sanitizeOutput($name); ?> - <?php echo $lang === 'cs' ? 'Dostupnost' : 'Availability'; ?></title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="favicon/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="script.js" defer></script>
+    <style>
+        .booking-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .date-selection-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .date-selection-info.active {
+            display: block;
+        }
+        
+        .date-selection-info h3 {
+            margin: 0 0 10px 0;
+            color: #1976D2;
+        }
+        
+        .booking-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .booking-form button {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .booking-form button:hover:not(:disabled) {
+            background: #45a049;
+        }
+        
+        .booking-form button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .calendar-day.range-start,
+        .calendar-day.range-end,
+        .calendar-day.range-middle {
+            background: #2196F3 !important;
+            color: white !important;
+        }
+        
+        .calendar-day.range-start {
+            border-top-left-radius: 50%;
+            border-bottom-left-radius: 50%;
+        }
+        
+        .calendar-day.range-end {
+            border-top-right-radius: 50%;
+            border-bottom-right-radius: 50%;
+        }
+        
+        .calendar-instructions {
+            margin: 15px 0;
+            padding: 12px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        
+        .calendar-instructions p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
@@ -151,12 +267,10 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
         </header>
         <div class="line-break"></div>
 
-        <?php
-        include __DIR__ . '/../app/navbar.php';
-        ?>
+        <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <!-- Cart Link -->
-        <a href="cart.php?lang=<?php echo $lang; ?>" class="cart-link">
+        <a href="cart.php?lang=<?php echo sanitizeOutput($lang); ?>" class="cart-link">
             🛒 <?php echo $lang === 'cs' ? 'Košík' : 'Cart'; ?>
             <?php if ($cart_count > 0): ?>
                 <span class="cart-count"><?php echo $cart_count; ?></span>
@@ -164,25 +278,34 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
         </a>
 
         <main>
-            <h1><?php echo htmlspecialchars($name); ?></h1>
+            <h1><?php echo sanitizeOutput($name); ?></h1>
             <div class="tool-details">
                 <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
-                    <?php echo htmlspecialchars($description); ?></p>
+                    <?php echo sanitizeOutput($description); ?></p>
                 <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
-                    <?php echo htmlspecialchars($tool['brand']); ?></p>
+                    <?php echo sanitizeOutput($tool['brand']); ?></p>
                 <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
-                    <?php echo htmlspecialchars($tool['model']); ?></p>
+                    <?php echo sanitizeOutput($tool['model']); ?></p>
                 <?php if (!empty($technical_data)): ?>
                     <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
-                        <?php echo htmlspecialchars($technical_data); ?></p>
+                        <?php echo sanitizeOutput($technical_data); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($tool['ownerID'])): ?>
                     <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
-                        <?php echo htmlspecialchars($tool['ownerID']); ?></p>
+                        <?php echo sanitizeOutput($tool['ownerID']); ?></p>
                 <?php endif; ?>
             </div>
 
             <h2><?php echo $lang === 'cs' ? 'Kalendář Dostupnosti' : 'Availability Calendar'; ?></h2>
+            
+            <div class="calendar-instructions">
+                <p><strong><?php echo $lang === 'cs' ? '📅 Jak vybrat období:' : '📅 How to select a date range:'; ?></strong></p>
+                <p><?php echo $lang === 'cs' ? '1. Klikněte na datum začátku' : '1. Click on the start date'; ?></p>
+                <p><?php echo $lang === 'cs' ? '2. Klikněte na datum konce (musí být po datu začátku)' : '2. Click on the end date (must be after start date)'; ?></p>
+                <p><?php echo $lang === 'cs' ? '3. Vybrané období se zvýrazní modře' : '3. Selected range will be highlighted in blue'; ?></p>
+                <p><?php echo $lang === 'cs' ? '4. Klikněte na "Přidat do košíku" pro rezervaci' : '4. Click "Add to Cart" to reserve'; ?></p>
+            </div>
+            
             <div class="calendar-container">
                 <div class="calendar-nav">
                     <button onclick="changeMonth(-1)">←
@@ -210,9 +333,28 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
                     </div>
                     <div class="legend-item">
                         <div class="legend-color selected"></div>
-                        <span><?php echo $lang === 'cs' ? 'Vybráno' : 'Selected'; ?></span>
+                        <span><?php echo $lang === 'cs' ? 'Vybrané období' : 'Selected Range'; ?></span>
                     </div>
                 </div>
+            </div>
+
+            <div class="booking-section">
+                <div id="date-selection-info" class="date-selection-info">
+                    <h3><?php echo $lang === 'cs' ? '📅 Vybrané období:' : '📅 Selected Period:'; ?></h3>
+                    <p id="selected-dates-text"></p>
+                </div>
+                
+                <div id="booking-alert" class="alert"></div>
+                
+                <form id="booking-form" class="booking-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" id="start-date" name="start_date">
+                    <input type="hidden" id="end-date" name="end_date">
+                    <input type="hidden" name="action" value="add_to_cart">
+                    <button type="submit" id="add-to-cart-btn" disabled>
+                        <?php echo $lang === 'cs' ? '🛒 Přidat do košíku' : '🛒 Add to Cart'; ?>
+                    </button>
+                </form>
             </div>
         </main>
         <footer>
@@ -221,11 +363,185 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
     </div>
 
     <script>
+        const toolId = <?php echo $tool_id; ?>;
+        const lang = '<?php echo $lang; ?>';
+        const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
+        const csrfToken = '<?php echo $csrf_token; ?>';
+        
+        let selectedStartDate = null;
+        let selectedEndDate = null;
+
         // Initialize calendar when page loads
         document.addEventListener('DOMContentLoaded', function () {
-            const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
             initializeCalendar(unavailableRanges);
+            initializeDateSelection();
         });
+
+        function initializeDateSelection() {
+            const calendar = document.getElementById('calendar');
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            const dateSelectionInfo = document.getElementById('date-selection-info');
+            const selectedDatesText = document.getElementById('selected-dates-text');
+            const bookingForm = document.getElementById('booking-form');
+            const bookingAlert = document.getElementById('booking-alert');
+
+            // Handle calendar day clicks
+            calendar.addEventListener('click', function(e) {
+                const dayEl = e.target;
+                
+                if (!dayEl.classList.contains('calendar-day') || 
+                    !dayEl.classList.contains('available') ||
+                    dayEl.classList.contains('unavailable') ||
+                    dayEl.classList.contains('past')) {
+                    return;
+                }
+
+                const clickedDate = dayEl.dataset.date;
+                if (!clickedDate) return;
+
+                if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+                    // Start new selection
+                    selectedStartDate = clickedDate;
+                    selectedEndDate = null;
+                } else {
+                    // Set end date
+                    const clickedDateTime = new Date(clickedDate);
+                    const startDateTime = new Date(selectedStartDate);
+                    
+                    if (clickedDateTime >= startDateTime) {
+                        selectedEndDate = clickedDate;
+                    } else {
+                        // Swap if clicked before start
+                        selectedEndDate = selectedStartDate;
+                        selectedStartDate = clickedDate;
+                    }
+                }
+
+                updateDateSelection();
+                updateCalendarHighlight();
+            });
+
+            function updateDateSelection() {
+                startDateInput.value = selectedStartDate || '';
+                endDateInput.value = selectedEndDate || '';
+
+                if (selectedStartDate && selectedEndDate) {
+                    const start = new Date(selectedStartDate);
+                    const end = new Date(selectedEndDate);
+                    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    const startFormatted = formatDate(start, lang);
+                    const endFormatted = formatDate(end, lang);
+                    
+                    selectedDatesText.textContent = lang === 'cs' 
+                        ? `${startFormatted} - ${endFormatted} (${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'})`
+                        : `${startFormatted} - ${endFormatted} (${days} ${days === 1 ? 'day' : 'days'})`;
+                    
+                    dateSelectionInfo.classList.add('active');
+                    addToCartBtn.disabled = false;
+                } else {
+                    dateSelectionInfo.classList.remove('active');
+                    addToCartBtn.disabled = true;
+                }
+            }
+
+            function updateCalendarHighlight() {
+                // Remove all selection classes
+                document.querySelectorAll('.calendar-day').forEach(day => {
+                    day.classList.remove('range-start', 'range-end', 'range-middle');
+                });
+
+                if (selectedStartDate && selectedEndDate) {
+                    const start = new Date(selectedStartDate);
+                    const end = new Date(selectedEndDate);
+                    
+                    document.querySelectorAll('.calendar-day').forEach(day => {
+                        if (!day.dataset.date) return;
+                        
+                        const dayDate = new Date(day.dataset.date);
+                        if (dayDate >= start && dayDate <= end) {
+                            if (dayDate.getTime() === start.getTime()) {
+                                day.classList.add('range-start');
+                            } else if (dayDate.getTime() === end.getTime()) {
+                                day.classList.add('range-end');
+                            } else {
+                                day.classList.add('range-middle');
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Handle form submission
+            bookingForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!selectedStartDate || !selectedEndDate) {
+                    showAlert('error', lang === 'cs' ? 'Vyberte prosím datum začátku a konce.' : 'Please select start and end dates.');
+                    return;
+                }
+
+                const formData = new FormData(bookingForm);
+
+                try {
+                    const response = await fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert('success', result.message);
+                        
+                        // Update cart count
+                        const cartCountEl = document.querySelector('.cart-count');
+                        if (cartCountEl) {
+                            cartCountEl.textContent = result.cart_count;
+                        } else if (result.cart_count > 0) {
+                            // Create cart count badge if it doesn't exist
+                            const cartLink = document.querySelector('.cart-link');
+                            if (cartLink) {
+                                const badge = document.createElement('span');
+                                badge.className = 'cart-count';
+                                badge.textContent = result.cart_count;
+                                cartLink.appendChild(badge);
+                            }
+                        }
+                        
+                        // Reset selection
+                        selectedStartDate = null;
+                        selectedEndDate = null;
+                        updateDateSelection();
+                        updateCalendarHighlight();
+                    } else {
+                        showAlert('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert('error', lang === 'cs' ? 'Došlo k chybě. Zkuste to prosím znovu.' : 'An error occurred. Please try again.');
+                }
+            });
+
+            function showAlert(type, message) {
+                bookingAlert.className = `alert ${type}`;
+                bookingAlert.textContent = message;
+                bookingAlert.style.display = 'block';
+                setTimeout(() => {
+                    bookingAlert.style.display = 'none';
+                }, 5000);
+            }
+
+            function formatDate(date, lang) {
+                return date.toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+        }
     </script>
 </body>
 
