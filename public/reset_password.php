@@ -1,6 +1,8 @@
 <?php
-session_start();
-require_once __DIR__ . '/../app/db_connect.php'; // Path from public/reset_password.php to app/db_connect.php
+require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/db_connect.php';
+
+startSecureSession();
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
@@ -38,54 +40,81 @@ if (!empty($token)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
-    $new_password = $_POST['new_password'];
-    $confirm_password = $_POST['confirm_password'];
-
-    if (empty($new_password) || empty($confirm_password)) {
-        $error = ($lang === 'cs' ? 'Vyplňte prosím obě pole pro heslo.' : 'Please fill in both password fields.');
-    } elseif ($new_password !== $confirm_password) {
-        $error = ($lang === 'cs' ? 'Hesla se neshodují.' : 'Passwords do not match.');
-    } elseif (strlen($new_password) < 8) {
-        $error = ($lang === 'cs' ? 'Heslo musí obsahovat alespoň 8 znaků.' : 'Password must be at least 8 characters.');
+    // Validate CSRF token
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error = "Security validation failed.";
+        logSecurityEvent('CSRF validation failed on password reset', [
+            'ip' => $_SERVER['REMOTE_ADDR']
+        ]);
     } else {
-        // 2. Update user's password
-        $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-        $stmt_update_pass = $conn->prepare("UPDATE Users SET password_hash = ? WHERE email = ?");
-        $stmt_update_pass->bind_param("ss", $password_hash, $user_email);
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
 
-        if ($stmt_update_pass->execute()) {
-            // 3. Mark token as used
-            $stmt_mark_used = $conn->prepare("UPDATE password_resets SET used = TRUE WHERE token = ?");
-            $stmt_mark_used->bind_param("s", $token);
-            $stmt_mark_used->execute();
-            $stmt_mark_used->close();
-
-            $success = ($lang === 'cs' ? 'Vaše heslo bylo úspěšně resetováno. Nyní se můžete přihlásit.' : 'Your password has been reset successfully. You can now log in.');
-            $valid_token = false; // Prevent form from showing again
+        if (empty($new_password) || empty($confirm_password)) {
+            $error = ($lang === 'cs' ? 'Vyplňte prosím obě pole pro heslo.' : 'Please fill in both password fields.');
+        } elseif ($new_password !== $confirm_password) {
+            $error = ($lang === 'cs' ? 'Hesla se neshodují.' : 'Passwords do not match.');
+        } elseif (strlen($new_password) < 8) {
+            $error = ($lang === 'cs' ? 'Heslo musí obsahovat alespoň 8 znaků.' : 'Password must be at least 8 characters.');
+        } elseif (!preg_match('/[A-Z]/', $new_password)) {
+            $error = ($lang === 'cs' ? 'Heslo musí obsahovat alespoň jedno velké písmeno.' : 'Password must contain at least one uppercase letter.');
+        } elseif (!preg_match('/[a-z]/', $new_password)) {
+            $error = ($lang === 'cs' ? 'Heslo musí obsahovat alespoň jedno malé písmeno.' : 'Password must contain at least one lowercase letter.');
+        } elseif (!preg_match('/[0-9]/', $new_password)) {
+            $error = ($lang === 'cs' ? 'Heslo musí obsahovat alespoň jedno číslo.' : 'Password must contain at least one number.');
         } else {
-            $error = ($lang === 'cs' ? 'Chyba při aktualizaci hesla.' : 'Error updating password.');
+            // 2. Update user's password
+            $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
+            $stmt_update_pass = $conn->prepare("UPDATE Users SET password_hash = ? WHERE email = ?");
+            $stmt_update_pass->bind_param("ss", $password_hash, $user_email);
+
+            if ($stmt_update_pass->execute()) {
+                // 3. Mark token as used
+                $stmt_mark_used = $conn->prepare("UPDATE password_resets SET used = TRUE WHERE token = ?");
+                $stmt_mark_used->bind_param("s", $token);
+                $stmt_mark_used->execute();
+                $stmt_mark_used->close();
+
+                // Regenerate session to prevent session fixation
+                regenerateSession();
+                
+                // Log the event
+                logSecurityEvent('Password reset completed', ['email' => $user_email]);
+                
+                // Invalidate all sessions for this user
+                session_unset();
+                session_destroy();
+
+                $success = ($lang === 'cs' ? 'Vaše heslo bylo úspěšně resetováno. Nyní se můžete přihlásit.' : 'Your password has been reset successfully. You can now log in.');
+                $valid_token = false; // Prevent form from showing again
+            } else {
+                error_log("Password update failed: " . $conn->error);
+                $error = ($lang === 'cs' ? 'Chyba při aktualizaci hesla.' : 'Error updating password.');
+            }
+            $stmt_update_pass->close();
         }
-        $stmt_update_pass->close();
     }
 }
+
+$csrf_token = generateCSRFToken();
 
 // Navbar variables (ensure these are set before including navbar.php)
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo ($lang === 'cs' ? 'Reset hesla' : 'Reset Password'); ?> - Tools4Friends</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon/favicon-dark.ico" /> <!-- Updated path -->
+    <link rel="icon" href="favicon/favicon-dark.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -98,15 +127,15 @@ if ($loggedIn) {
     <div class="container">
         <header>
             <div class="banner">
-                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" /> <!-- Updated path -->
+                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
             </div>
         </header>
         <div class="line-break"></div>
-        <?php include __DIR__ . '/../app/navbar.php'; ?> <!-- Updated path -->
+        <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <main>
             <div style="margin-bottom: 20px;">
-                <a href="login.php?lang=<?php echo $lang; ?>" class="btn btn-blue">
+                <a href="login.php?lang=<?php echo sanitizeOutput($lang); ?>" class="btn btn-blue">
                     <?php echo $lang === 'cs' ? '← Zpět na Přihlášení' : '← Back to Login'; ?>
                 </a>
             </div>
@@ -114,24 +143,25 @@ if ($loggedIn) {
             <div class="line-break"></div>
 
             <?php if ($error): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-message"><?php echo sanitizeOutput($error); ?></div>
             <?php endif; ?>
             <?php if ($success): ?>
-                <div class="success-message"><?php echo htmlspecialchars($success); ?></div>
-                <p><a href="login.php?lang=<?php echo $lang; ?>"><?php echo ($lang === 'cs' ? 'Přejít na přihlášení' : 'Go to Login'); ?></a></p>
+                <div class="success-message"><?php echo sanitizeOutput($success); ?></div>
+                <p><a href="login.php?lang=<?php echo sanitizeOutput($lang); ?>"><?php echo ($lang === 'cs' ? 'Přejít na přihlášení' : 'Go to Login'); ?></a></p>
             <?php endif; ?>
 
             <?php if ($valid_token && empty($success)): // Only show form if token is valid and no success message yet ?>
                 <form method="POST" class="form-card">
-                    <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="token" value="<?php echo sanitizeOutput($token); ?>">
                     <div class="form-group">
                         <label for="new_password"><?php echo ($lang === 'cs' ? 'Nové heslo:' : 'New Password:'); ?></label>
-                        <input type="password" id="new_password" name="new_password" required>
-                        <small><?php echo ($lang === 'cs' ? 'Heslo musí obsahovat alespoň 8 znaků.' : 'Password must be at least 8 characters.'); ?></small>
+                        <input type="password" id="new_password" name="new_password" required minlength="8">
+                        <small><?php echo ($lang === 'cs' ? 'Heslo musí obsahovat alespoň 8 znaků, velké a malé písmeno a číslo.' : 'Password must be at least 8 characters with uppercase, lowercase, and number.'); ?></small>
                     </div>
                     <div class="form-group">
                         <label for="confirm_password"><?php echo ($lang === 'cs' ? 'Potvrďte nové heslo:' : 'Confirm New Password:'); ?></label>
-                        <input type="password" id="confirm_password" name="confirm_password" required>
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
                     </div>
                     <button type="submit" class="submit-button">
                         <?php echo ($lang === 'cs' ? 'Resetovat heslo' : 'Reset Password'); ?>
