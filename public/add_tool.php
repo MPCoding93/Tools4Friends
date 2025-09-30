@@ -1,14 +1,14 @@
 <?php
-session_start();
-require_once __DIR__ . '/../app/db_connect.php'; // Path from public/add_tool.php to app/db_connect.php
+require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/db_connect.php';
 
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php?lang=" . ($_GET['lang'] ?? 'en'));
-    exit();
-}
+startSecureSession();
 
 $lang = $_GET['lang'] ?? 'en';
+
+// Redirect if not logged in
+requireLogin($lang);
+
 $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
@@ -23,75 +23,88 @@ $ownerID = $user_owner_data['ownerID'];
 $stmt_owner->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $name_cs = trim($_POST['name_cs']);
-    $description = trim($_POST['description']);
-    $description_cs = trim($_POST['description_cs']);
-    $brand = trim($_POST['brand']);
-    $model = trim($_POST['model']);
-    $technical_data = trim($_POST['technical_data']);
-    $technical_data_cs = trim($_POST['technical_data_cs']);
-    $picture_path = ''; // Default empty path
+    // Validate CSRF token
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error = "Security validation failed.";
+    } else {
+        $name = trim($_POST['name']);
+        $name_cs = trim($_POST['name_cs']);
+        $description = trim($_POST['description']);
+        $description_cs = trim($_POST['description_cs']);
+        $brand = trim($_POST['brand']);
+        $model = trim($_POST['model']);
+        $technical_data = trim($_POST['technical_data']);
+        $technical_data_cs = trim($_POST['technical_data_cs']);
+        $picture_path = '';
 
-    // Handle image upload
-    if (isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
-        $target_dir = "uploads/tools/"; // New path for tool uploads
-        // Ensure the uploads directory exists
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
+        // Validate required fields
+        if (empty($name) || empty($description) || empty($brand) || empty($model)) {
+            $error = ($lang === 'cs' ? 'Vyplňte prosím všechna povinná pole (Název, Popis, Značka, Model).' : 'Please fill in all required fields (Name, Description, Brand, Model).');
         }
 
-        $image_file_type = strtolower(pathinfo($_FILES['picture']['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = array("jpg", "jpeg", "png", "gif");
+        // Handle secure image upload
+        if (empty($error) && isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
+            $validation = validateFileUpload($_FILES['picture']);
+            
+            if ($validation['valid']) {
+                $target_dir = "uploads/tools/";
+                if (!is_dir($target_dir)) {
+                    mkdir($target_dir, 0755, true);
+                }
 
-        if (in_array($image_file_type, $allowed_extensions)) {
-            $unique_filename = uniqid() . "." . $image_file_type;
-            $target_file = $target_dir . $unique_filename;
+                $secure_filename = generateSecureFilename($validation['ext']);
+                $target_file = $target_dir . $secure_filename;
 
-            if (move_uploaded_file($_FILES['picture']['tmp_name'], $target_file)) {
-                $picture_path = $target_file;
+                if (move_uploaded_file($_FILES['picture']['tmp_name'], $target_file)) {
+                    $picture_path = $target_file;
+                    logSecurityEvent('File uploaded', ['user_id' => $user_id, 'filename' => $secure_filename]);
+                } else {
+                    $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Error uploading image.');
+                }
             } else {
-                $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Error uploading image.');
+                $error = ($lang === 'cs' ? 'Chyba nahrávání: ' : 'Upload error: ') . $validation['error'];
             }
-        } else {
-            $error = ($lang === 'cs' ? 'Pouze soubory JPG, JPEG, PNG a GIF jsou povoleny.' : 'Only JPG, JPEG, PNG & GIF files are allowed.');
+        } else if (isset($_FILES['picture']) && $_FILES['picture']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Image upload error.');
         }
-    } else if ($_FILES['picture']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku: ' : 'Image upload error: ') . $_FILES['picture']['error'];
-    }
 
-    // If no picture was uploaded and no error occurred, set a default picture
-    if (empty($picture_path) && empty($error)) {
-        $picture_path = 'uploads/tools/default_tool.png'; // Ensure you have a default_tool.png in your uploads/tools folder
-    }
-
-    if (empty($name) || empty($description) || empty($brand) || empty($model)) {
-        $error = ($lang === 'cs' ? 'Vyplňte prosím všechna povinná pole (Název, Popis, Značka, Model).' : 'Please fill in all required fields (Name, Description, Brand, Model).');
-    }
-
-    if (empty($error)) {
-        $stmt_insert = $conn->prepare("INSERT INTO Tools (name, name_cs, description, description_cs, brand, model, technical_data, technical_data_cs, picture, ownerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt_insert->bind_param("ssssssssss", $name, $name_cs, $description, $description_cs, $brand, $model, $technical_data, $technical_data_cs, $picture_path, $ownerID);
-
-        if ($stmt_insert->execute()) {
-            $success = ($lang === 'cs' ? 'Nářadí bylo úspěšně přidáno!' : 'Tool added successfully!');
-            // Optionally redirect after success
-            header("Location: myprofile.php?lang=" . $lang . "&success=" . urlencode($success));
-            exit();
-        } else {
-            $error = ($lang === 'cs' ? 'Chyba při přidávání nářadí: ' : 'Error adding tool: ') . $conn->error;
+        // Set default picture if none uploaded
+        if (empty($picture_path) && empty($error)) {
+            $picture_path = 'uploads/tools/default_tool.png';
         }
-        $stmt_insert->close();
+
+        if (empty($error)) {
+            // Sanitize inputs
+            $name = filter_var($name, FILTER_SANITIZE_STRING);
+            $name_cs = filter_var($name_cs, FILTER_SANITIZE_STRING);
+            $brand = filter_var($brand, FILTER_SANITIZE_STRING);
+            $model = filter_var($model, FILTER_SANITIZE_STRING);
+
+            $stmt_insert = $conn->prepare("INSERT INTO Tools (name, name_cs, description, description_cs, brand, model, technical_data, technical_data_cs, picture, ownerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt_insert->bind_param("ssssssssss", $name, $name_cs, $description, $description_cs, $brand, $model, $technical_data, $technical_data_cs, $picture_path, $ownerID);
+
+            if ($stmt_insert->execute()) {
+                $success = ($lang === 'cs' ? 'Nářadí bylo úspěšně přidáno!' : 'Tool added successfully!');
+                logSecurityEvent('Tool added', ['user_id' => $user_id, 'tool_id' => $stmt_insert->insert_id]);
+                header("Location: myprofile.php?lang=" . $lang . "&success=" . urlencode($success));
+                exit();
+            } else {
+                error_log("Error adding tool: " . $conn->error);
+                $error = ($lang === 'cs' ? 'Chyba při přidávání nářadí.' : 'Error adding tool.');
+            }
+            $stmt_insert->close();
+        }
     }
 }
 
-// Navbar variables (ensure these are set before including navbar.php)
+$csrf_token = generateCSRFToken();
+
 $loggedIn = true;
-$fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+$fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8">
@@ -127,54 +140,55 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
             <div class="line-break"></div>
 
             <?php if ($error): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-message"><?php echo sanitizeOutput($error); ?></div>
             <?php endif; ?>
             <?php if ($success): ?>
-                <div class="success-message"><?php echo htmlspecialchars($success); ?></div>
+                <div class="success-message"><?php echo sanitizeOutput($success); ?></div>
             <?php endif; ?>
 
             <form method="POST" enctype="multipart/form-data" class="form-card">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <div class="form-group">
                     <label for="name"><?php echo ($lang === 'cs' ? 'Název (Anglicky):' : 'Name (English):'); ?></label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" required maxlength="200">
                 </div>
                 <div class="form-group">
                     <label for="name_cs"><?php echo ($lang === 'cs' ? 'Název (Česky):' : 'Name (Czech):'); ?></label>
-                    <input type="text" id="name_cs" name="name_cs">
+                    <input type="text" id="name_cs" name="name_cs" maxlength="200">
                 </div>
 
                 <div class="form-group">
                     <label for="description"><?php echo ($lang === 'cs' ? 'Popis (Anglicky):' : 'Description (English):'); ?></label>
-                    <textarea id="description" name="description" rows="4" required></textarea>
+                    <textarea id="description" name="description" rows="4" required maxlength="1000"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="description_cs"><?php echo ($lang === 'cs' ? 'Popis (Česky):' : 'Description (Czech):'); ?></label>
-                    <textarea id="description_cs" name="description_cs" rows="4"></textarea>
+                    <textarea id="description_cs" name="description_cs" rows="4" maxlength="1000"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="brand"><?php echo ($lang === 'cs' ? 'Značka:' : 'Brand:'); ?></label>
-                    <input type="text" id="brand" name="brand" required>
+                    <input type="text" id="brand" name="brand" required maxlength="100">
                 </div>
 
                 <div class="form-group">
                     <label for="model"><?php echo ($lang === 'cs' ? 'Model:' : 'Model:'); ?></label>
-                    <input type="text" id="model" name="model" required>
+                    <input type="text" id="model" name="model" required maxlength="100">
                 </div>
 
                 <div class="form-group">
                     <label for="technical_data"><?php echo ($lang === 'cs' ? 'Technické Detaily (Anglicky):' : 'Technical Details (English):'); ?></label>
-                    <textarea id="technical_data" name="technical_data" rows="4"></textarea>
+                    <textarea id="technical_data" name="technical_data" rows="4" maxlength="1000"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="technical_data_cs"><?php echo ($lang === 'cs' ? 'Technické Detaily (Česky):' : 'Technical Details (Czech):'); ?></label>
-                    <textarea id="technical_data_cs" name="technical_data_cs" rows="4"></textarea>
+                    <textarea id="technical_data_cs" name="technical_data_cs" rows="4" maxlength="1000"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="picture"><?php echo ($lang === 'cs' ? 'Obrázek Nářadí:' : 'Tool Picture:'); ?></label>
-                    <input type="file" id="picture" name="picture" accept="image/*">
-                    <small><?php echo ($lang === 'cs' ? 'Pokud není nahrán žádný obrázek, použije se výchozí.' : 'If no image is uploaded, a default will be used.'); ?></small>
+                    <input type="file" id="picture" name="picture" accept="image/jpeg,image/png,image/gif">
+                    <small><?php echo ($lang === 'cs' ? 'Max 5MB. Pouze JPG, PNG, GIF. Pokud není nahrán, použije se výchozí.' : 'Max 5MB. Only JPG, PNG, GIF. If not uploaded, default will be used.'); ?></small>
                 </div>
 
                 <button type="submit" class="submit-button">
