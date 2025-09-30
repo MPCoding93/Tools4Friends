@@ -27,32 +27,6 @@ h1 {
 }
 
 /* ====================== */
-/* UNDER CONSTRUCTION SECTION */
-/* ====================== */
-.underconstruction {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: yellow;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-.underconstruction h1 {
-    color: red;
-    background: yellow;
-    text-align: center;
-    padding: 40px;
-    margin: 0;
-    font-size: 3em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-/* ====================== */
 /* LAYOUT COMPONENTS */
 /* ====================== */
 .container {
@@ -333,7 +307,31 @@ nav {
     color: #1F2D5A;
     font-weight: 600;
 }
+/* ====================== */
+/* UNDER CONSTRUCTION SECTION */
+/* ====================== */
+.underconstruction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: yellow;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
 
+.underconstruction h1 {
+    color: red;
+    background: yellow;
+    text-align: center;
+    padding: 40px;
+    margin: 0;
+    font-size: 3em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
 
 /* ====================== */
 /* BUTTONS */
