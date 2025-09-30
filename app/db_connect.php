@@ -1,14 +1,27 @@
 <?php
-$servername = "sql5.webzdarma.cz";
-$username = "pauwelsrenti1221";
-$password = "Micha3l-";
-$dbname = "pauwelsrenti1221";
+/**
+ * Secure Database Connection
+ */
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once __DIR__ . '/../config/env_loader.php';
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$servername = DB_HOST;
+$username = DB_USER;
+$password = DB_PASS;
+$dbname = DB_NAME;
+
+try {
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        error_log("Database connection failed: " . $conn->connect_error);
+        die("Database connection error. Please contact administrator.");
+    }
+    
+    $conn->set_charset("utf8mb4");
+    
+} catch (Exception $e) {
+    error_log("Database connection exception: " . $e->getMessage());
+    die("Database connection error. Please contact administrator.");
 }
 ?>
