@@ -1,22 +1,18 @@
 <?php
-// Start session at the very beginning of the file
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/app/security.php';
 
-// Get selected language from URL or default to English
+startSecureSession();
+
 $lang = $_GET['lang'] ?? 'en';
 
-// --- User Login Status for Navbar ---
-// These variables need to be defined BEFORE including navbar.php
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -108,7 +104,7 @@ if ($loggedIn) {
           data-cs='Pro více informací nás prosím kontaktujte <a href="public/contacts.php?lang=<?php echo $lang; ?>">zde</a>'
         >
           For more information please contact us
-          <a href="public/contacts.php?lang=<?php echo $lang; ?>">here</a>
+          <a href="public/contacts.php?lang=<?php echo sanitizeOutput($lang); ?>">here</a>
         </p>
       </main>
       <footer>
