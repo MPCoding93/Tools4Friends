@@ -52,6 +52,4 @@ $currentPageBasename = basename($_SERVER['PHP_SELF']);
     </div>
 </nav>
 <br>
-    <div class="=uUnderconstruction">
-        <h1>SITE UNDER CONSTRUCTION</h1>
-    </div>
+<div class="underconstruction"><h1>SITE UNDER CONSTRUCTION</h1></div>
