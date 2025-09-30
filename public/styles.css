@@ -12,11 +12,6 @@ body {
     min-height: 100vh;
 }
 
-.underconstruction h1 {
-    background: Yellow;
-    color: Red
-}
-
 h1, h2, h3 {
     color: #1F2D5A;
     font-weight: 700;
@@ -29,6 +24,32 @@ h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+/* ====================== */
+/* UNDER CONSTRUCTION SECTION */
+/* ====================== */
+.underconstruction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: yellow;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.underconstruction h1 {
+    color: red;
+    background: yellow;
+    text-align: center;
+    padding: 40px;
+    margin: 0;
+    font-size: 3em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* ====================== */
