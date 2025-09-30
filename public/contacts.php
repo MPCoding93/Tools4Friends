@@ -71,7 +71,7 @@ if ($loggedIn) {
           <div class="profile">
             <img src="https://i.ibb.co/qZd1jR0/No-Profile-Picture.jpg" alt="Pavel Eleder" class="profile-pic">
             <div>
-              <h3>Pavel Eleder</h3>
+              <h3>Pavel E.</h3>
             </div>
           </div>
 
