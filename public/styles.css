@@ -1002,22 +1002,38 @@ nav {
     font-weight: bold;
 }
 
-.calendar-day.selected {
-    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%);
-    color: white;
+/* Today styling - must come after available/unavailable to override */
+.calendar-day.today {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+    color: #000 !important;
+    border-left: 4px solid #e0a800 !important;
+    font-weight: 700;
+}
+
+/* Selected date range styling */
+.calendar-day.range-start,
+.calendar-day.range-end {
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%) !important;
+    color: white !important;
     box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
     transform: scale(1.05);
+    border-left: 4px solid #1F2D5A !important;
+    font-weight: 700;
 }
 
-.calendar-day.today {
-  background-color: yellow !important; /* or your preferred shade */
-  color: #222; /* for contrast */
+.calendar-day.range-middle {
+    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%) !important;
+    color: #1976d2 !important;
+    border-left: 4px solid #4a90e2 !important;
 }
 
+/* Legacy selected class for backwards compatibility */
 .calendar-day.selected {
-  background-color: #0074D9 !important; /* blue, or your chosen color */
-  color: #fff;
-  border: 2px solid #005fa3;
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    transform: scale(1.05);
+    border-left: 4px solid #1F2D5A !important;
 }
 
 .calendar-legend {
