@@ -315,23 +315,26 @@ nav {
     justify-content: center;
     align-items: center;
     min-height: 100px;
-    /*background: yellow;*/
+    background: yellow;
     width: 100%;
     margin: 0;
     padding: 0;
 }
 
 .underconstruction h1 {
-    color: red;
-    background: yellow;
+    color: #b30000;
+    background-color: #fff3cd;
     text-align: center;
-    padding: 10px;
+    padding: 20px;
     margin: 0;
-    font-size: 3em;
-    font-weight: 200;
+    font-size: 2.5em;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
+    border: 2px dashed #b30000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 
 /* ====================== */
 /* BUTTONS */
