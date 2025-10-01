@@ -157,13 +157,7 @@ $csrf_token = generateCSRFToken();
 </head>
 
 <body>
-    <!-- Cart Link - Outside container for fixed positioning -->
-    <a href="cart.php?lang=<?php echo sanitizeOutput($lang); ?>" class="cart-link">
-        🛒 <?php echo $lang === 'cs' ? 'Košík' : 'Cart'; ?>
-        <?php if ($cart_count > 0): ?>
-            <span class="cart-count"><?php echo $cart_count; ?></span>
-        <?php endif; ?>
-    </a>
+    <?php include __DIR__ . '/../app/cart_icon.php'; ?>
 
     <div class="container">
         <header>
