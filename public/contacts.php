@@ -41,6 +41,8 @@ if ($loggedIn) {
   </head>
 
   <body>
+    <?php include __DIR__ . '/../app/cart_icon.php'; ?>
+    
     <div class="container">
       <header>
         <div class="banner">
@@ -69,7 +71,7 @@ if ($loggedIn) {
           </div>
 
           <div class="profile">
-            <img src="https://i.ibb.co/qZd1jR0/No-Profile-Picture.jpg" alt="Pavel Eleder" class="profile-pic">
+            <img src="https://i.ibb.co/qZd1jR0/No-Profile-Picture.jpg" alt="Pavel E." class="profile-pic">
             <div>
               <h3>Pavel E.</h3>
             </div>
