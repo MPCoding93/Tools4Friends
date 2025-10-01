@@ -35,6 +35,8 @@ if ($loggedIn) {
     <title>Tools4Friends</title>
   </head>
   <body>
+    <?php include 'app/cart_icon.php'; ?>
+    
     <div class="container">
       <header>
         <div class="banner">
