@@ -170,36 +170,6 @@ if ($loggedIn) {
         rel="stylesheet" />
     <script src="script.js" defer></script> <!-- Changed to relative path -->
     <title>Login / Register</title>
-    <script>
-        function toggleForm(action) {
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
-            const loginButton = document.querySelector('.form-toggle button:nth-child(1)');
-            const registerButton = document.querySelector('.form-toggle button:nth-child(2)');
-
-            if (action === 'login') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                loginButton.classList.add('active');
-                registerButton.classList.remove('active');
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                loginButton.classList.remove('active');
-                registerButton.classList.add('active');
-            }
-        }
-
-        // Set initial active state for login/register toggle buttons on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('login-form');
-            if (loginForm && loginForm.style.display === 'block') {
-                document.querySelector('.form-toggle button:nth-child(1)').classList.add('active');
-            } else {
-                document.querySelector('.form-toggle button:nth-child(2)').classList.add('active');
-            }
-        });
-    </script>
 </head>
 
 <body>
