@@ -1170,7 +1170,7 @@ nav {
 
 .cart-link {
     position: fixed;
-    top: 20px;
+    bottom: 20px;
     right: 20px;
     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
     color: white;
@@ -1228,8 +1228,8 @@ nav {
 /* Responsive adjustments for mobile */
 @media (max-width: 768px) {
     .cart-link {
-        top: 10px;
-        right: 10px;
+        bottom: 15px;
+        right: 15px;
         padding: 10px 16px;
         font-size: 14px;
     }
@@ -1244,6 +1244,8 @@ nav {
 
 @media (max-width: 480px) {
     .cart-link {
+        bottom: 10px;
+        right: 10px;
         padding: 8px 12px;
         font-size: 13px;
     }
