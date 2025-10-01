@@ -1248,6 +1248,100 @@ nav {
 
 
 /* ====================== */
+/* BOOKING & AVAILABILITY STYLES */
+/* ====================== */
+.booking-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.date-selection-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    border-radius: 4px;
+    display: none;
+}
+
+.date-selection-info.active {
+    display: block;
+}
+
+.date-selection-info h3 {
+    margin: 0 0 10px 0;
+    color: #1976D2;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.booking-form button {
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.booking-form button:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.booking-form button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.calendar-instructions {
+    margin: 15px 0;
+    padding: 12px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+}
+
+.calendar-instructions p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* ====================== */
+/* MY ORDERS PAGE STYLES */
+/* ====================== */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-planned {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-completed {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* ====================== */
 /* FOOTER */
 /* ====================== */
 footer {
