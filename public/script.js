@@ -324,7 +324,253 @@ function initializeBookingFunctionality(toolId, lang) {
   }
 }
 
+// Login/Register form toggle function
+function toggleForm(action) {
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const loginButton = document.querySelector('.form-toggle button:nth-child(1)');
+  const registerButton = document.querySelector('.form-toggle button:nth-child(2)');
+
+  if (action === 'login') {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    loginButton.classList.add('active');
+    registerButton.classList.remove('active');
+  } else {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    loginButton.classList.remove('active');
+    registerButton.classList.add('active');
+  }
+}
+
+// Initialize login/register form toggle on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    if (loginForm.style.display === 'block') {
+      const loginBtn = document.querySelector('.form-toggle button:nth-child(1)');
+      if (loginBtn) loginBtn.classList.add('active');
+    } else {
+      const registerBtn = document.querySelector('.form-toggle button:nth-child(2)');
+      if (registerBtn) registerBtn.classList.add('active');
+    }
+  }
+});
+
+// Tool availability page - date selection functionality
+function initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfToken) {
+  let selectedStartDate = null;
+  let selectedEndDate = null;
+
+  const calendar = document.getElementById('calendar');
+  const startDateInput = document.getElementById('start-date');
+  const endDateInput = document.getElementById('end-date');
+  const addToCartBtn = document.getElementById('add-to-cart-btn');
+  const dateSelectionInfo = document.getElementById('date-selection-info');
+  const selectedDatesText = document.getElementById('selected-dates-text');
+  const bookingForm = document.getElementById('booking-form');
+  const bookingAlert = document.getElementById('booking-alert');
+
+  if (!calendar) return;
+
+  // Handle calendar day clicks
+  calendar.addEventListener('click', function(e) {
+    const dayEl = e.target;
+    
+    if (!dayEl.classList.contains('calendar-day') || 
+        !dayEl.classList.contains('available') ||
+        dayEl.classList.contains('unavailable') ||
+        dayEl.classList.contains('past')) {
+      return;
+    }
+
+    const clickedDate = dayEl.dataset.date;
+    if (!clickedDate) return;
+
+    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+      // Start new selection
+      selectedStartDate = clickedDate;
+      selectedEndDate = null;
+    } else {
+      // Set end date
+      const clickedDateTime = new Date(clickedDate);
+      const startDateTime = new Date(selectedStartDate);
+      
+      if (clickedDateTime >= startDateTime) {
+        selectedEndDate = clickedDate;
+      } else {
+        // Swap if clicked before start
+        selectedEndDate = selectedStartDate;
+        selectedStartDate = clickedDate;
+      }
+    }
+
+    updateDateSelection();
+    updateCalendarHighlight();
+  });
+
+  function updateDateSelection() {
+    if (startDateInput) startDateInput.value = selectedStartDate || '';
+    if (endDateInput) endDateInput.value = selectedEndDate || '';
+
+    if (selectedStartDate && selectedEndDate) {
+      const start = new Date(selectedStartDate);
+      const end = new Date(selectedEndDate);
+      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      
+      const startFormatted = formatDate(start, lang);
+      const endFormatted = formatDate(end, lang);
+      
+      if (selectedDatesText) {
+        selectedDatesText.textContent = lang === 'cs' 
+          ? `${startFormatted} - ${endFormatted} (${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'})`
+          : `${startFormatted} - ${endFormatted} (${days} ${days === 1 ? 'day' : 'days'})`;
+      }
+      
+      if (dateSelectionInfo) dateSelectionInfo.classList.add('active');
+      if (addToCartBtn) addToCartBtn.disabled = false;
+    } else {
+      if (dateSelectionInfo) dateSelectionInfo.classList.remove('active');
+      if (addToCartBtn) addToCartBtn.disabled = true;
+    }
+  }
+
+  function updateCalendarHighlight() {
+    // Remove all selection classes
+    document.querySelectorAll('.calendar-day').forEach(day => {
+      day.classList.remove('range-start', 'range-end', 'range-middle');
+    });
+
+    if (selectedStartDate && selectedEndDate) {
+      const start = new Date(selectedStartDate);
+      const end = new Date(selectedEndDate);
+      
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        if (!day.dataset.date) return;
+        
+        const dayDate = new Date(day.dataset.date);
+        if (dayDate >= start && dayDate <= end) {
+          if (dayDate.getTime() === start.getTime()) {
+            day.classList.add('range-start');
+          } else if (dayDate.getTime() === end.getTime()) {
+            day.classList.add('range-end');
+          } else {
+            day.classList.add('range-middle');
+          }
+        }
+      });
+    }
+  }
+
+  // Handle form submission
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (!selectedStartDate || !selectedEndDate) {
+        showAlert('error', lang === 'cs' ? 'Vyberte prosím datum začátku a konce.' : 'Please select start and end dates.');
+        return;
+      }
+
+      const formData = new FormData(bookingForm);
+
+      try {
+        const response = await fetch(window.location.href, {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('success', result.message);
+          
+          // Update cart count
+          const cartCountEl = document.querySelector('.cart-count');
+          if (cartCountEl) {
+            cartCountEl.textContent = result.cart_count;
+          } else if (result.cart_count > 0) {
+            // Create cart count badge if it doesn't exist
+            const cartLink = document.querySelector('.cart-link');
+            if (cartLink) {
+              const badge = document.createElement('span');
+              badge.className = 'cart-count';
+              badge.textContent = result.cart_count;
+              cartLink.appendChild(badge);
+            }
+          }
+          
+          // Reset selection
+          selectedStartDate = null;
+          selectedEndDate = null;
+          updateDateSelection();
+          updateCalendarHighlight();
+        } else {
+          showAlert('error', result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showAlert('error', lang === 'cs' ? 'Došlo k chybě. Zkuste to prosím znovu.' : 'An error occurred. Please try again.');
+      }
+    });
+  }
+
+  function showAlert(type, message) {
+    if (!bookingAlert) return;
+    bookingAlert.className = `alert ${type}`;
+    bookingAlert.textContent = message;
+    bookingAlert.style.display = 'block';
+    setTimeout(() => {
+      bookingAlert.style.display = 'none';
+    }, 5000);
+  }
+
+  function formatDate(date, lang) {
+    return date.toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+}
+
+// My Orders page - cancel reservation function
+function cancelReservation(availabilityId, lang) {
+  const confirmMessage = lang === 'cs' 
+    ? 'Opravdu chcete zrušit tuto rezervaci?' 
+    : 'Are you sure you want to cancel this reservation?';
+    
+  if (confirm(confirmMessage)) {
+    fetch('cancel_reservation.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `availability_id=${availabilityId}&lang=${lang}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message);
+        location.reload();
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      const errorMessage = lang === 'cs' 
+        ? 'Chyba při komunikaci se serverem' 
+        : 'Error communicating with server';
+      alert(errorMessage);
+    });
+  }
+}
+
 // Export functions to window
 window.switchLanguage = switchLanguage;
 window.changeMonth = changeMonth;
 window.goToToday = goToToday;
+window.toggleForm = toggleForm;
+window.initializeToolAvailabilityPage = initializeToolAvailabilityPage;
+window.cancelReservation = cancelReservation;
