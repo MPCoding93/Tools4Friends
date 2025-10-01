@@ -157,6 +157,14 @@ $csrf_token = generateCSRFToken();
 </head>
 
 <body>
+    <!-- Cart Link - Outside container for fixed positioning -->
+    <a href="cart.php?lang=<?php echo sanitizeOutput($lang); ?>" class="cart-link">
+        🛒 <?php echo $lang === 'cs' ? 'Košík' : 'Cart'; ?>
+        <?php if ($cart_count > 0): ?>
+            <span class="cart-count"><?php echo $cart_count; ?></span>
+        <?php endif; ?>
+    </a>
+
     <div class="container">
         <header>
             <div class="banner">
@@ -166,14 +174,6 @@ $csrf_token = generateCSRFToken();
         <div class="line-break"></div>
 
         <?php include __DIR__ . '/../app/navbar.php'; ?>
-
-        <!-- Cart Link -->
-        <a href="cart.php?lang=<?php echo sanitizeOutput($lang); ?>" class="cart-link">
-            🛒 <?php echo $lang === 'cs' ? 'Košík' : 'Cart'; ?>
-            <?php if ($cart_count > 0): ?>
-                <span class="cart-count"><?php echo $cart_count; ?></span>
-            <?php endif; ?>
-        </a>
 
         <main>
             <h1><?php echo sanitizeOutput($name); ?></h1>
