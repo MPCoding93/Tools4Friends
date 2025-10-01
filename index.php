@@ -109,10 +109,6 @@ if ($loggedIn) {
       </main>
       <footer>
         <p>© <span id="year"></span> Tools4Friends</p>
-        <script>
-          document.getElementById("year").textContent =
-            new Date().getFullYear();
-        </script>
       </footer>
     </div>
   </body>
