@@ -1,4 +1,7 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -76,6 +79,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         
+        // Fetch cart items with details for email
+        $cart_items_for_email = [];
+        foreach ($_SESSION['cart'] as $item) {
+            $tool_id = intval($item['tool_id']);
+            $stmt = $conn->prepare("
+                SELECT t.*, u.firstname, u.lastname 
+                FROM Tools t 
+                LEFT JOIN Users u ON t.ownerID = u.ownerID 
+                WHERE t.tool_id = ?
+            ");
+            $stmt->bind_param("i", $tool_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($tool = $result->fetch_assoc()) {
+                $tool['start_date'] = $item['start_date'];
+                $tool['end_date'] = $item['end_date'];
+                
+                $start = new DateTime($item['start_date']);
+                $end = new DateTime($item['end_date']);
+                $tool['duration'] = $start->diff($end)->days + 1;
+                
+                $cart_items_for_email[] = $tool;
+            }
+        }
+        
         // Begin transaction
         $conn->begin_transaction();
         
@@ -143,6 +172,208 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Commit transaction
             $conn->commit();
+            
+            // Send email notification
+            $customer_email = $_SESSION['email'] ?? '';
+            $customer_name = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
+            
+            // Build the order details for email
+            $order_details_html = '';
+            $order_details_text = '';
+            
+            foreach ($cart_items_for_email as $item) {
+                $tool_name = $lang === 'cs' && !empty($item['name_cs']) ? $item['name_cs'] : $item['name'];
+                $start_formatted = date('d.m.Y', strtotime($item['start_date']));
+                $end_formatted = date('d.m.Y', strtotime($item['end_date']));
+                
+                $order_details_html .= "
+                    <tr>
+                        <td style='padding: 10px; border: 1px solid #ddd;'>{$tool_name}</td>
+                        <td style='padding: 10px; border: 1px solid #ddd;'>{$item['brand']} {$item['model']}</td>
+                        <td style='padding: 10px; border: 1px solid #ddd;'>{$start_formatted} - {$end_formatted}</td>
+                        <td style='padding: 10px; border: 1px solid #ddd;'>{$item['duration']} " . 
+                        ($lang === 'cs' ? 'dní' : 'days') . "</td>
+                    </tr>";
+                
+                $order_details_text .= "- {$tool_name} ({$item['brand']} {$item['model']})\n";
+                $order_details_text .= "  Period: {$start_formatted} - {$end_formatted} ({$item['duration']} days)\n\n";
+            }
+            
+            $mail = new PHPMailer(true);
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host       = SMTP_HOST;
+                $mail->SMTPAuth   = true;
+                $mail->Username   = SMTP_USERNAME;
+                $mail->Password   = SMTP_PASSWORD;
+                $mail->SMTPSecure = SMTP_ENCRYPTION;
+                $mail->Port       = SMTP_PORT;
+            
+                // Recipients
+                $mail->setFrom(SMTP_USERNAME, 'Tools4Friends');
+                $mail->addAddress(SMTP_USERNAME); // To: Your company email
+                if (!empty($customer_email)) {
+                    $mail->addCC($customer_email); // CC: Customer email
+                }
+            
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = $lang === 'cs' 
+                    ? "Nová objednávka nářadí - {$customer_name}" 
+                    : "New Tool Rental Order - {$customer_name}";
+                
+                $mail->Body = $lang === 'cs' ? "
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                            .header { background: linear-gradient(135deg, #1F2D5A 0%, #4a90e2 100%); color: white; padding: 20px; text-align: center; }
+                            .content { padding: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th { background-color: #1F2D5A; color: white; padding: 12px; text-align: left; }
+                            td { padding: 10px; border: 1px solid #ddd; }
+                            .footer { background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class='header'>
+                            <h1>🛒 Nová objednávka nářadí</h1>
+                        </div>
+                        <div class='content'>
+                            <h2>Detaily objednávky</h2>
+                            <p><strong>Zákazník:</strong> {$customer_name}</p>
+                            <p><strong>Email:</strong> {$customer_email}</p>
+                            <p><strong>Datum objednávky:</strong> " . date('d.m.Y H:i') . "</p>
+                            <p><strong>ID uživatele:</strong> {$user_id}</p>
+                            
+                            <h3>Objednané položky:</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nářadí</th>
+                                        <th>Značka/Model</th>
+                                        <th>Období výpůjčky</th>
+                                        <th>Délka</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {$order_details_html}
+                                </tbody>
+                            </table>
+                            
+                            <p><strong>Celkem položek:</strong> {$success_count}</p>
+                            <p><strong>Celkem dní:</strong> " . array_sum(array_column($cart_items_for_email, 'duration')) . "</p>
+                        </div>
+                        <div class='footer'>
+                            <p>Toto je automaticky generovaný email z Tools4Friends systému.</p>
+                            <p>&copy; " . date('Y') . " Tools4Friends</p>
+                        </div>
+                    </body>
+                    </html>
+                " : "
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                            .header { background: linear-gradient(135deg, #1F2D5A 0%, #4a90e2 100%); color: white; padding: 20px; text-align: center; }
+                            .content { padding: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th { background-color: #1F2D5A; color: white; padding: 12px; text-align: left; }
+                            td { padding: 10px; border: 1px solid #ddd; }
+                            .footer { background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class='header'>
+                            <h1>🛒 New Tool Rental Order</h1>
+                        </div>
+                        <div class='content'>
+                            <h2>Order Details</h2>
+                            <p><strong>Customer:</strong> {$customer_name}</p>
+                            <p><strong>Email:</strong> {$customer_email}</p>
+                            <p><strong>Order Date:</strong> " . date('d.m.Y H:i') . "</p>
+                            <p><strong>User ID:</strong> {$user_id}</p>
+                            
+                            <h3>Ordered Items:</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tool</th>
+                                        <th>Brand/Model</th>
+                                        <th>Rental Period</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {$order_details_html}
+                                </tbody>
+                            </table>
+                            
+                            <p><strong>Total Items:</strong> {$success_count}</p>
+                            <p><strong>Total Days:</strong> " . array_sum(array_column($cart_items_for_email, 'duration')) . "</p>
+                        </div>
+                        <div class='footer'>
+                            <p>This is an automatically generated email from the Tools4Friends system.</p>
+                            <p>&copy; " . date('Y') . " Tools4Friends</p>
+                        </div>
+                    </body>
+                    </html>
+                ";
+                
+                // Plain text alternative
+                $mail->AltBody = $lang === 'cs' ? "
+Nová objednávka nářadí
+
+Zákazník: {$customer_name}
+Email: {$customer_email}
+Datum objednávky: " . date('d.m.Y H:i') . "
+ID uživatele: {$user_id}
+
+Objednané položky:
+{$order_details_text}
+
+Celkem položek: {$success_count}
+Celkem dní: " . array_sum(array_column($cart_items_for_email, 'duration')) . "
+
+---
+Toto je automaticky generovaný email z Tools4Friends systému.
+© " . date('Y') . " Tools4Friends
+                " : "
+New Tool Rental Order
+
+Customer: {$customer_name}
+Email: {$customer_email}
+Order Date: " . date('d.m.Y H:i') . "
+User ID: {$user_id}
+
+Ordered Items:
+{$order_details_text}
+
+Total Items: {$success_count}
+Total Days: " . array_sum(array_column($cart_items_for_email, 'duration')) . "
+
+---
+This is an automatically generated email from the Tools4Friends system.
+© " . date('Y') . " Tools4Friends
+                ";
+            
+                $mail->send();
+                
+                logSecurityEvent('Order confirmation email sent', [
+                    'user_id' => $user_id,
+                    'customer_email' => $customer_email,
+                    'items_count' => $success_count
+                ]);
+                
+            } catch (Exception $e) {
+                // Log email error but don't fail the order
+                error_log("Order confirmation email failed: " . $mail->ErrorInfo);
+                logSecurityEvent('Order confirmation email failed', [
+                    'user_id' => $user_id,
+                    'error' => $mail->ErrorInfo
+                ]);
+            }
             
             // Clear cart after successful checkout
             $_SESSION['cart'] = [];
@@ -532,237 +763,3 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
             .btn-secondary,
             .btn-danger {
                 width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <div class="banner">
-                <img src="images/banners/tools4friends_dark_Banner_2000x400.png" alt="Company Logo" />
-            </div>
-        </header>
-        <div class="line-break"></div>
-        <?php include __DIR__ . '/../app/navbar.php'; ?>
-
-        <main>
-            <div class="cart-container">
-                <div class="cart-header">
-                    <h1>🛒 <?php echo $lang === 'cs' ? 'Váš košík' : 'Your Cart'; ?></h1>
-                    <?php if (!empty($cart_items)): ?>
-                        <div class="cart-count-badge">
-                            <?php 
-                            $count = count($cart_items);
-                            echo $count . ' ' . ($lang === 'cs' 
-                                ? ($count === 1 ? 'položka' : ($count < 5 ? 'položky' : 'položek'))
-                                : ($count === 1 ? 'item' : 'items'));
-                            ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div id="cart-alert" class="alert"></div>
-
-                <?php if (empty($cart_items)): ?>
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">🛒</div>
-                        <h2><?php echo $lang === 'cs' ? 'Váš košík je prázdný' : 'Your cart is empty'; ?></h2>
-                        <p><?php echo $lang === 'cs' 
-                            ? 'Přidejte nějaké nářadí do košíku a začněte rezervovat!' 
-                            : 'Add some tools to your cart to get started!'; ?></p>
-                        <div style="margin-top: 30px;">
-                            <a href="tools.php?lang=<?php echo $lang; ?>" class="btn-primary">
-                                <?php echo $lang === 'cs' ? '🔧 Procházet nářadí' : '🔧 Browse Tools'; ?>
-                            </a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="cart-items">
-                        <?php foreach ($cart_items as $item): 
-                            $tool_name = $lang === 'cs' && !empty($item['name_cs']) ? $item['name_cs'] : $item['name'];
-                            $description = $lang === 'cs' && !empty($item['description_cs']) ? $item['description_cs'] : $item['description'];
-                        ?>
-                            <div class="cart-item" data-index="<?php echo $item['cart_index']; ?>">
-                                <img src="<?php echo htmlspecialchars($item['picture']); ?>" 
-                                     alt="<?php echo htmlspecialchars($tool_name); ?>" 
-                                     class="cart-item-image">
-                                
-                                <div class="cart-item-details">
-                                    <h3 class="cart-item-title">
-                                        <?php echo htmlspecialchars($tool_name); ?>
-                                        <span class="duration-badge">
-                                            <?php echo $item['duration'] . ' ' . ($lang === 'cs' 
-                                                ? ($item['duration'] === 1 ? 'den' : ($item['duration'] < 5 ? 'dny' : 'dní'))
-                                                : ($item['duration'] === 1 ? 'day' : 'days')); ?>
-                                        </span>
-                                    </h3>
-                                    
-                                    <div class="cart-item-info">
-                                        <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong> 
-                                            <?php echo htmlspecialchars($item['brand']); ?></p>
-                                        <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong> 
-                                            <?php echo htmlspecialchars($item['model']); ?></p>
-                                        <?php if (!empty($item['firstname']) && !empty($item['lastname'])): ?>
-                                            <p><strong><?php echo $lang === 'cs' ? 'Vlastník:' : 'Owner:'; ?></strong> 
-                                                <?php echo htmlspecialchars($item['firstname'] . ' ' . $item['lastname']); ?></p>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <div class="cart-item-dates">
-                                        <p style="margin: 0;">
-                                            <strong>📅 <?php echo $lang === 'cs' ? 'Období výpůjčky:' : 'Rental Period:'; ?></strong><br>
-                                            <?php 
-                                            echo date('d.m.Y', strtotime($item['start_date'])) . ' - ' . 
-                                                 date('d.m.Y', strtotime($item['end_date'])); 
-                                            ?>
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <div class="cart-item-actions">
-                                    <button class="btn-remove" onclick="removeItem(<?php echo $item['cart_index']; ?>)">
-                                        🗑️ <?php echo $lang === 'cs' ? 'Odstranit' : 'Remove'; ?>
-                                    </button>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <div class="cart-summary">
-                        <h2><?php echo $lang === 'cs' ? 'Souhrn objednávky' : 'Order Summary'; ?></h2>
-                        <div class="summary-row">
-                            <span><?php echo $lang === 'cs' ? 'Celkem položek:' : 'Total Items:'; ?></span>
-                            <strong><?php echo count($cart_items); ?></strong>
-                        </div>
-                        <div class="summary-row">
-                            <span><?php echo $lang === 'cs' ? 'Celkem dní:' : 'Total Days:'; ?></span>
-                            <strong><?php echo array_sum(array_column($cart_items, 'duration')); ?></strong>
-                        </div>
-                        <div class="summary-row total">
-                            <span><?php echo $lang === 'cs' ? 'Připraveno k rezervaci' : 'Ready to Reserve'; ?></span>
-                            <span>✓</span>
-                        </div>
-                    </div>
-
-                    <div class="cart-actions">
-                        <a href="tools.php?lang=<?php echo $lang; ?>" class="btn-secondary">
-                            ← <?php echo $lang === 'cs' ? 'Pokračovat v nákupu' : 'Continue Shopping'; ?>
-                        </a>
-                        <button class="btn-danger" onclick="clearCart()">
-                            🗑️ <?php echo $lang === 'cs' ? 'Vyprázdnit košík' : 'Clear Cart'; ?>
-                        </button>
-                        <button class="btn-primary" onclick="checkout()">
-                            ✓ <?php echo $lang === 'cs' ? 'Dokončit objednávku' : 'Complete Order'; ?>
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </main>
-
-        <footer>
-            <p>&copy; <span id="year"></span> Tools4Friends</p>
-        </footer>
-    </div>
-
-    <script>
-        const lang = '<?php echo $lang; ?>';
-        const csrfToken = '<?php echo $csrf_token; ?>';
-
-        function showAlert(type, message) {
-            const alert = document.getElementById('cart-alert');
-            alert.className = `alert ${type}`;
-            alert.textContent = message;
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-            
-            // Scroll to alert
-            alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        async function removeItem(index) {
-            if (!confirm(lang === 'cs' 
-                ? 'Opravdu chcete odstranit tuto položku z košíku?' 
-                : 'Are you sure you want to remove this item from the cart?')) {
-                return;
-            }
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'remove_item');
-                formData.append('index', index);
-                formData.append('csrf_token', csrfToken);
-
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showAlert('success', result.message);
-                    
-                    // Remove item from DOM
-                    const itemElement = document.querySelector(`[data-index="${index}"]`);
-                    if (itemElement) {
-                        itemElement.style.transition = 'all 0.3s ease';
-                        itemElement.style.opacity = '0';
-                        itemElement.style.transform = 'translateX(-100%)';
-                        
-                        setTimeout(() => {
-                            location.reload();
-                        }, 300);
-                    }
-                } else {
-                    showAlert('error', result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('error', lang === 'cs' 
-                    ? 'Došlo k chybě. Zkuste to prosím znovu.' 
-                    : 'An error occurred. Please try again.');
-            }
-        }
-
-        async function clearCart() {
-            if (!confirm(lang === 'cs' 
-                ? 'Opravdu chcete vyprázdnit celý košík?' 
-                : 'Are you sure you want to clear the entire cart?')) {
-                return;
-            }
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'clear_cart');
-                formData.append('csrf_token', csrfToken);
-
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showAlert('success', result.message);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    showAlert('error', result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('error', lang === 'cs' 
-                    ? 'Došlo k chybě. Zkuste to prosím znovu.' 
-                    : 'An error occurred. Please try again.');
-            }
-        }
-
-        async function checkout() {
-            if (!confirm(lang === 'cs' 
-                ? 'Dokončit objednávku a rezervovat vybrané nářadí
