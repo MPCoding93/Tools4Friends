@@ -79,6 +79,8 @@ if ($loggedIn) {
 </head>
 
 <body>
+    <?php include __DIR__ . '/../app/cart_icon.php'; ?>
+    
     <div class="container">
         <header>
             <div class="banner">
