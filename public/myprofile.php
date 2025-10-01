@@ -124,6 +124,8 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
     <script src="script.js" defer></script>
 </head>
 <body>
+    <?php include __DIR__ . '/../app/cart_icon.php'; ?>
+    
     <div class="container">
         <header>
             <div class="banner">
