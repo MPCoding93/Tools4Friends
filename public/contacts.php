@@ -1,8 +1,7 @@
 <?php
-// Start session at the very beginning of the file
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../app/security.php';
+
+startSecureSession();
 
 // Get selected language from URL or default to English
 $lang = $_GET['lang'] ?? 'en';
@@ -13,11 +12,11 @@ $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
     // Assuming 'firstname' and 'lastname' are stored in the session upon login
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -1,8 +1,7 @@
 <?php
-// Start session at the very beginning of the file
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../app/security.php';
+
+startSecureSession();
 
 // Include database connection
 include __DIR__ . '/../app/db_connect.php'; // Path from public/tools.php to app/db_connect.php
@@ -53,12 +52,12 @@ $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
     // Assuming 'firstname' and 'lastname' are stored in the session upon login
-    $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+    $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo sanitizeOutput($lang); ?>">
 
 <head>
     <meta charset="UTF-8" />
@@ -96,7 +95,7 @@ if ($loggedIn) {
 
             <nav class="category-nav">
                 <!-- Add "All" category option with relative path -->
-                <a href="./tools.php?category=All&lang=<?php echo $lang; ?>"
+                <a href="./tools.php?category=All&lang=<?php echo sanitizeOutput($lang); ?>"
                     class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
                     <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                 </a>
@@ -108,9 +107,9 @@ if ($loggedIn) {
                 }
 
                 while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo $lang; ?>"
+                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo sanitizeOutput($lang); ?>"
                         class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
-                        <?php echo htmlspecialchars($category_row['category_name']); ?>
+                        <?php echo sanitizeOutput($category_row['category_name']); ?>
                     </a>
                 <?php endwhile; ?>
             </nav>
@@ -122,25 +121,25 @@ if ($loggedIn) {
                     $technical_data = $lang === 'cs' && !empty($tool['technical_data_cs']) ? $tool['technical_data_cs'] : $tool['technical_data'];
                     ?>
                     <div class="tool-block">
-                        <img src="<?php echo htmlspecialchars($tool['picture']); ?>"
-                            alt="<?php echo htmlspecialchars($name); ?>">
-                        <h3><?php echo htmlspecialchars($name); ?></h3>
+                        <img src="<?php echo sanitizeOutput($tool['picture']); ?>"
+                            alt="<?php echo sanitizeOutput($name); ?>">
+                        <h3><?php echo sanitizeOutput($name); ?></h3>
                         <div class="left-text">
                             <p><strong><?php echo $lang === 'cs' ? 'Popis:' : 'Description:'; ?></strong>
-                                <?php echo htmlspecialchars($description); ?></p>
+                                <?php echo sanitizeOutput($description); ?></p>
                             <p><strong><?php echo $lang === 'cs' ? 'Značka:' : 'Brand:'; ?></strong>
-                                <?php echo htmlspecialchars($tool['brand']); ?></p>
+                                <?php echo sanitizeOutput($tool['brand']); ?></p>
                             <p><strong><?php echo $lang === 'cs' ? 'Model:' : 'Model:'; ?></strong>
-                                <?php echo htmlspecialchars($tool['model']); ?></p>
+                                <?php echo sanitizeOutput($tool['model']); ?></p>
                             <p><strong><?php echo $lang === 'cs' ? 'Technické Detaily:' : 'Technical Details:'; ?></strong>
-                                <?php echo htmlspecialchars($technical_data); ?></p>
+                                <?php echo sanitizeOutput($technical_data); ?></p>
                             <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong>
-                                <?php echo htmlspecialchars($tool['manipulation_fee']); ?>Kc</p>
+                                <?php echo sanitizeOutput($tool['manipulation_fee']); ?>Kc</p>
                             <p><strong><?php echo $lang === 'cs' ? 'Majitel:' : 'Owner:'; ?></strong>
-                                <?php echo htmlspecialchars($tool['ownerID']); ?></p>
+                                <?php echo sanitizeOutput($tool['ownerID']); ?></p>
                         </div>
                         <div>
-                            <a href="./tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo $lang; ?>"
+                            <a href="./tool_availability.php?tool_id=<?php echo $tool['tool_id']; ?>&lang=<?php echo sanitizeOutput($lang); ?>"
                                 class="availability-button">
                                 <?php echo $lang === 'cs' ? 'Zkontrolovat Dostupnost' : 'Check Availability'; ?>
                             </a>
