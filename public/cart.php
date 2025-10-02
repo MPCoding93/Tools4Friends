@@ -1,8 +1,11 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-session_start();
+
+require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
+
+startSecureSession();
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -18,57 +21,47 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Handle add to cart
+// Handle remove from cart
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'add' && isset($_POST['tool_id'])) {
-        $tool_id = intval($_POST['tool_id']);
-        $start_date = $_POST['start_date'] ?? '';
-        $end_date = $_POST['end_date'] ?? '';
-        
-        // Add to cart session
-        $_SESSION['cart'][$tool_id] = [
-            'tool_id' => $tool_id,
-            'start_date' => $start_date,
-            'end_date' => $end_date
-        ];
-        
-        header("Location: cart.php?lang=" . $lang);
-        exit();
-    }
-    
-    if ($_POST['action'] === 'remove' && isset($_POST['tool_id'])) {
-        $tool_id = intval($_POST['tool_id']);
-        unset($_SESSION['cart'][$tool_id]);
+    if ($_POST['action'] === 'remove' && isset($_POST['cart_index'])) {
+        $cart_index = intval($_POST['cart_index']);
+        if (isset($_SESSION['cart'][$cart_index])) {
+            array_splice($_SESSION['cart'], $cart_index, 1);
+        }
         
         header("Location: cart.php?lang=" . $lang);
         exit();
     }
     
     if ($_POST['action'] === 'checkout') {
-        // Process checkout - create availability records
-        $success = true;
-        $conn->begin_transaction();
-        
-        try {
-            foreach ($_SESSION['cart'] as $item) {
-                $stmt = $conn->prepare("
-                    INSERT INTO Availability (tool_id, user_id, start_date, end_date, status, created_at)
-                    VALUES (?, ?, ?, ?, 'reserved', NOW())
-                ");
-                $stmt->bind_param("iiss", $item['tool_id'], $user_id, $item['start_date'], $item['end_date']);
-                $stmt->execute();
+        // Validate CSRF token
+        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            $error_message = $lang === 'cs' ? 'Bezpečnostní ověření selhalo' : 'Security validation failed';
+        } else {
+            // Process checkout - create availability records
+            $conn->begin_transaction();
+            
+            try {
+                foreach ($_SESSION['cart'] as $item) {
+                    $stmt = $conn->prepare("
+                        INSERT INTO Availability (tool_id, user_id, start_date, end_date, status, created_at)
+                        VALUES (?, ?, ?, ?, 'reserved', NOW())
+                    ");
+                    $stmt->bind_param("iiss", $item['tool_id'], $user_id, $item['start_date'], $item['end_date']);
+                    $stmt->execute();
+                }
+                
+                $conn->commit();
+                $_SESSION['cart'] = []; // Clear cart
+                $_SESSION['checkout_success'] = true;
+                
+                header("Location: myorders.php?lang=" . $lang);
+                exit();
+                
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error_message = $lang === 'cs' ? 'Chyba při zpracování objednávky: ' . $e->getMessage() : 'Error processing order: ' . $e->getMessage();
             }
-            
-            $conn->commit();
-            $_SESSION['cart'] = []; // Clear cart
-            $_SESSION['checkout_success'] = true;
-            
-            header("Location: myorders.php?lang=" . $lang);
-            exit();
-            
-        } catch (Exception $e) {
-            $conn->rollback();
-            $error_message = $lang === 'cs' ? 'Chyba při zpracování objednávky' : 'Error processing order';
         }
     }
 }
@@ -76,39 +69,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // Fetch cart items details
 $cart_items = [];
 if (!empty($_SESSION['cart'])) {
-    $tool_ids = array_keys($_SESSION['cart']);
-    $placeholders = implode(',', array_fill(0, count($tool_ids), '?'));
-    
-    $query = $conn->prepare("
-        SELECT 
-            t.tool_id,
-            t.name,
-            t.name_cs,
-            t.picture,
-            t.manipulation_fee,
-            t.ownerID,
-            u.firstname AS owner_firstname,
-            u.lastname AS owner_lastname
-        FROM Tools t
-        JOIN Users u ON t.ownerID = u.ownerID
-        WHERE t.tool_id IN ($placeholders)
-    ");
-    
-    $types = str_repeat('i', count($tool_ids));
-    $query->bind_param($types, ...$tool_ids);
-    $query->execute();
-    $result = $query->get_result();
-    
-    while ($tool = $result->fetch_assoc()) {
-        $tool['start_date'] = $_SESSION['cart'][$tool['tool_id']]['start_date'];
-        $tool['end_date'] = $_SESSION['cart'][$tool['tool_id']]['end_date'];
+    foreach ($_SESSION['cart'] as $index => $item) {
+        $tool_id = $item['tool_id'];
         
-        // Calculate days and total fee
-        $days = (strtotime($tool['end_date']) - strtotime($tool['start_date'])) / (60 * 60 * 24) + 1;
-        $tool['days'] = $days;
-        $tool['total_fee'] = $tool['manipulation_fee'] * $days;
+        $query = $conn->prepare("
+            SELECT 
+                t.tool_id,
+                t.name,
+                t.name_cs,
+                t.picture,
+                t.manipulation_fee,
+                t.ownerID,
+                u.firstname AS owner_firstname,
+                u.lastname AS owner_lastname
+            FROM Tools t
+            JOIN Users u ON t.ownerID = u.ownerID
+            WHERE t.tool_id = ?
+        ");
         
-        $cart_items[] = $tool;
+        $query->bind_param("i", $tool_id);
+        $query->execute();
+        $result = $query->get_result();
+        
+        if ($tool = $result->fetch_assoc()) {
+            $tool['cart_index'] = $index;
+            $tool['start_date'] = $item['start_date'];
+            $tool['end_date'] = $item['end_date'];
+            
+            // Calculate days and total fee
+            $start = new DateTime($tool['start_date']);
+            $end = new DateTime($tool['end_date']);
+            $days = $start->diff($end)->days + 1;
+            
+            $tool['days'] = $days;
+            $tool['total_fee'] = $tool['manipulation_fee'] * $days;
+            
+            $cart_items[] = $tool;
+        }
     }
 }
 
@@ -121,6 +118,9 @@ foreach ($cart_items as $item) {
 // Navbar variables
 $loggedIn = true;
 $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+
+// Generate CSRF token
+$csrf_token = generateCSRFToken();
 ?>
 
 <!DOCTYPE html>
@@ -304,7 +304,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                             </p>
                             <form method="POST" style="margin-top: 10px;">
                                 <input type="hidden" name="action" value="remove">
-                                <input type="hidden" name="tool_id" value="<?php echo $item['tool_id']; ?>">
+                                <input type="hidden" name="cart_index" value="<?php echo $item['cart_index']; ?>">
                                 <button type="submit" class="btn-remove">
                                     <?php echo $lang === 'cs' ? 'Odebrat' : 'Remove'; ?>
                                 </button>
@@ -322,6 +322,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                     </div>
                     
                     <form method="POST">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <input type="hidden" name="action" value="checkout">
                         <button type="submit" class="btn-checkout">
                             <?php echo $lang === 'cs' ? 'Dokončit objednávku' : 'Complete Order'; ?>
