@@ -43,7 +43,12 @@ $logoutLink = $inPublicFolder ? './logout.php' : './public/logout.php';
                     </a>
                     <a href="<?php echo $myordersLink; ?>?lang=<?php echo sanitizeOutput($lang); ?>" data-en="My Orders" data-cs="Moje Objednávky">
                         <?php echo $lang === 'cs' ? 'Moje Objednávky' : 'My Orders'; ?>
-                    </a>    
+                    </a>
+                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
+                        <a href="<?php echo $inPublicFolder ? './admin_orders.php' : './public/admin_orders.php'; ?>?lang=<?php echo sanitizeOutput($lang); ?>" data-en="Admin Panel" data-cs="Administrace">
+                            <?php echo $lang === 'cs' ? 'Administrace' : 'Admin Panel'; ?>
+                        </a>
+                    <?php endif; ?>
                     <a href="<?php echo $logoutLink; ?>?lang=<?php echo sanitizeOutput($lang); ?>" data-en="Log Out" data-cs="Odhlásit se">
                         <?php echo $lang === 'cs' ? 'Odhlásit se' : 'Log Out'; ?>
                     </a>

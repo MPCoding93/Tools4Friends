@@ -38,17 +38,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
             $error_message = $lang === 'cs' ? 'Bezpečnostní ověření selhalo' : 'Security validation failed';
         } else {
-            // Process checkout - create availability records
+            // Process checkout - create order and availability records
             $conn->begin_transaction();
             
             try {
+                // Calculate totals for the order
+                $total_amount = 0;
+                $total_deposit = 0;
+                
+                // First, get tool details including deposit
+                $cart_with_details = [];
                 foreach ($_SESSION['cart'] as $item) {
-                    $stmt = $conn->prepare("
-                        INSERT INTO Availability (tool_id, user_id, start_date, end_date, status, created_at)
-                        VALUES (?, ?, ?, ?, 'reserved', NOW())
+                    $tool_query = $conn->prepare("
+                        SELECT tool_id, manipulation_fee, deposit 
+                        FROM Tools 
+                        WHERE tool_id = ?
                     ");
-                    $stmt->bind_param("iiss", $item['tool_id'], $user_id, $item['start_date'], $item['end_date']);
-                    $stmt->execute();
+                    $tool_query->bind_param("i", $item['tool_id']);
+                    $tool_query->execute();
+                    $tool_result = $tool_query->get_result();
+                    $tool_data = $tool_result->fetch_assoc();
+                    
+                    if ($tool_data) {
+                        $total_amount += $tool_data['manipulation_fee'];
+                        $total_deposit += $tool_data['deposit'];
+                        
+                        $cart_with_details[] = [
+                            'tool_id' => $item['tool_id'],
+                            'start_date' => $item['start_date'],
+                            'end_date' => $item['end_date'],
+                            'fee' => $tool_data['manipulation_fee'],
+                            'deposit' => $tool_data['deposit']
+                        ];
+                    }
+                }
+                
+                // Create the Order record
+                $order_stmt = $conn->prepare("
+                    INSERT INTO Orders (user_id, order_date, status, total_amount, total_deposit)
+                    VALUES (?, NOW(), 'pending', ?, ?)
+                ");
+                $order_stmt->bind_param("idd", $user_id, $total_amount, $total_deposit);
+                $order_stmt->execute();
+                $order_id = $conn->insert_id;
+                
+                // Create Availability records linked to this order
+                foreach ($cart_with_details as $item) {
+                    $avail_stmt = $conn->prepare("
+                        INSERT INTO Availability (tool_id, user_id, start_date, end_date, status, order_id, created_at)
+                        VALUES (?, ?, ?, ?, 'pending', ?, NOW())
+                    ");
+                    $avail_stmt->bind_param("iissi", 
+                        $item['tool_id'], 
+                        $user_id, 
+                        $item['start_date'], 
+                        $item['end_date'],
+                        $order_id
+                    );
+                    $avail_stmt->execute();
                 }
                 
                 $conn->commit();
@@ -79,6 +126,7 @@ if (!empty($_SESSION['cart'])) {
                 t.name_cs,
                 t.picture,
                 t.manipulation_fee,
+                t.deposit,
                 t.ownerID,
                 u.firstname AS owner_firstname,
                 u.lastname AS owner_lastname
@@ -103,16 +151,19 @@ if (!empty($_SESSION['cart'])) {
             
             $tool['days'] = $days;
             $tool['total_fee'] = $tool['manipulation_fee'];
+            $tool['deposit_amount'] = $tool['deposit'];
             
             $cart_items[] = $tool;
         }
     }
 }
 
-// Calculate total
+// Calculate totals
 $total_amount = 0;
+$total_deposit = 0;
 foreach ($cart_items as $item) {
     $total_amount += $item['total_fee'];
+    $total_deposit += $item['deposit_amount'];
 }
 
 // Navbar variables
@@ -299,6 +350,9 @@ $csrf_token = generateCSRFToken();
                             <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong> 
                                 <?php echo $item['manipulation_fee']; ?> Kč
                             </p>
+                            <p><strong><?php echo $lang === 'cs' ? 'Záloha:' : 'Deposit:'; ?></strong> 
+                                <?php echo $item['deposit_amount']; ?> Kč
+                            </p>
                             <p><strong><?php echo $lang === 'cs' ? 'Celkem:' : 'Total:'; ?></strong> 
                                 <?php echo $item['total_fee']; ?> Kč
                             </p>
@@ -316,9 +370,19 @@ $csrf_token = generateCSRFToken();
                 <!-- Cart Summary -->
                 <div class="cart-summary">
                     <h2><?php echo $lang === 'cs' ? 'Souhrn objednávky' : 'Order Summary'; ?></h2>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span><?php echo $lang === 'cs' ? 'Celkový poplatek:' : 'Total Fee:'; ?></span>
+                            <span><?php echo $total_amount; ?> Kč</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span><?php echo $lang === 'cs' ? 'Celková záloha:' : 'Total Deposit:'; ?></span>
+                            <span><?php echo $total_deposit; ?> Kč</span>
+                        </div>
+                    </div>
                     <div class="total-row">
-                        <span><?php echo $lang === 'cs' ? 'Celková částka:' : 'Total Amount:'; ?></span>
-                        <span><?php echo $total_amount; ?> Kč</span>
+                        <span><?php echo $lang === 'cs' ? 'Celkem k zaplacení:' : 'Total to Pay:'; ?></span>
+                        <span><?php echo ($total_amount + $total_deposit); ?> Kč</span>
                     </div>
                     
                     <form method="POST">

@@ -34,13 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $username = filter_var($username, FILTER_SANITIZE_STRING);
 
-                    $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash FROM Users WHERE username = ? OR email = ?");
+                    $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash, admin FROM Users WHERE username = ? OR email = ?");
                     $stmt->bind_param("ss", $username, $username);
                     $stmt->execute();
                     $stmt->store_result();
 
                     if ($stmt->num_rows === 1) {
-                        $stmt->bind_result($user_id, $db_firstname, $db_lastname, $password_hash);
+                        $stmt->bind_result($user_id, $db_firstname, $db_lastname, $password_hash, $admin);
                         $stmt->fetch();
 
                         if (password_verify($password, $password_hash)) {
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['user_id'] = $user_id;
                             $_SESSION['firstname'] = $db_firstname;
                             $_SESSION['lastname'] = $db_lastname;
+                            $_SESSION['admin'] = $admin;
                             $_SESSION['last_activity'] = time();
                             
                             logSecurityEvent('Successful login', ['user_id' => $user_id]);
@@ -125,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['user_id'] = $stmt_insert->insert_id;
                             $_SESSION['firstname'] = $firstname;
                             $_SESSION['lastname'] = $lastname;
+                            $_SESSION['admin'] = 0; // New users are not admins by default
                             $_SESSION['last_activity'] = time();
                             
                             logSecurityEvent('New user registration', ['user_id' => $_SESSION['user_id'], 'email' => $email]);

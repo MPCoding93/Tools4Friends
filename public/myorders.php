@@ -17,7 +17,7 @@ $lang = $_GET['lang'] ?? 'en';
 $user_id = $_SESSION['user_id'];
 $current_date = date('Y-m-d');
 
-// Fetch all reservations (availability records) for the current user
+// Fetch all orders and their items for the current user
 $query = $conn->prepare("
     SELECT 
         a.availability_id,
@@ -25,33 +25,51 @@ $query = $conn->prepare("
         a.start_date,
         a.end_date,
         a.status,
+        a.order_id,
         a.created_at,
         t.name,
         t.name_cs,
         t.picture,
         t.ownerID,
         u.firstname AS owner_firstname,
-        u.lastname AS owner_lastname
+        u.lastname AS owner_lastname,
+        o.order_date,
+        o.denial_reason,
+        o.invoice_number
     FROM Availability a
     JOIN Tools t ON a.tool_id = t.tool_id
     JOIN Users u ON t.ownerID = u.ownerID
+    LEFT JOIN Orders o ON a.order_id = o.order_id
     WHERE a.user_id = ?
-    ORDER BY a.start_date DESC
+    ORDER BY a.created_at DESC
 ");
 $query->bind_param("i", $user_id);
 $query->execute();
 $result = $query->get_result();
 
-// Categorize reservations
+// Categorize reservations by status
+$pending_availabilities = [];
+$approved_availabilities = [];
+$denied_availabilities = [];
 $current_availabilities = [];
-$planned_availabilities = [];
 $historical_availabilities = [];
 
 while ($avail = $result->fetch_assoc()) {
-    if ($avail['end_date'] < $current_date) {
+    if ($avail['status'] === 'pending') {
+        $pending_availabilities[] = $avail;
+    } elseif ($avail['status'] === 'denied') {
+        $denied_availabilities[] = $avail;
+    } elseif ($avail['status'] === 'approved') {
+        // Check if it's current or future
+        if ($avail['start_date'] > $current_date) {
+            $approved_availabilities[] = $avail;
+        } elseif ($avail['end_date'] >= $current_date) {
+            $current_availabilities[] = $avail;
+        } else {
+            $historical_availabilities[] = $avail;
+        }
+    } elseif ($avail['end_date'] < $current_date) {
         $historical_availabilities[] = $avail;
-    } elseif ($avail['start_date'] > $current_date) {
-        $planned_availabilities[] = $avail;
     } else {
         $current_availabilities[] = $avail;
     }
@@ -160,7 +178,69 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
             <h1><?php echo $lang === 'cs' ? 'Moje objednávky' : 'My Orders'; ?></h1>
             <div class="line-break"></div>
 
-            <!-- Current Reservations Section -->
+            <!-- Pending Orders Section -->
+            <section class="orders-section">
+                <h2><?php echo $lang === 'cs' ? '⏳ Čekající na schválení' : '⏳ Waiting for Approval'; ?></h2>
+                <?php if (empty($pending_availabilities)): ?>
+                    <p><?php echo $lang === 'cs' ? 'Nemáte žádné čekající objednávky.' : 'You have no pending orders.'; ?></p>
+                <?php else: ?>
+                    <?php foreach ($pending_availabilities as $avail): 
+                        $tool_name = $lang === 'cs' && !empty($avail['name_cs']) ? $avail['name_cs'] : $avail['name'];
+                    ?>
+                        <div class="order-card">
+                            <img src="<?php echo htmlspecialchars($avail['picture']); ?>" alt="<?php echo htmlspecialchars($tool_name); ?>" class="order-image">
+                            <div class="order-details">
+                                <h3><?php echo htmlspecialchars($tool_name); ?></h3>
+                                <p><strong><?php echo $lang === 'cs' ? 'Vlastník:' : 'Owner:'; ?></strong> <?php echo htmlspecialchars($avail['owner_firstname'] . ' ' . $avail['owner_lastname']); ?></p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Období výpůjčky:' : 'Rental period:'; ?></strong> 
+                                    <?php echo date('d.m.Y', strtotime($avail['start_date'])) . ' - ' . date('d.m.Y', strtotime($avail['end_date'])); ?>
+                                </p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Objednáno:' : 'Ordered:'; ?></strong> 
+                                    <?php echo date('d.m.Y H:i', strtotime($avail['order_date'])); ?>
+                                </p>
+                                <span class="status-badge status-planned"><?php echo $lang === 'cs' ? 'Čeká na schválení' : 'Pending Approval'; ?></span>
+                                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                    <?php echo $lang === 'cs' ? 'Vaše objednávka čeká na schválení administrátorem. Obdržíte email s fakturou po schválení.' : 'Your order is waiting for admin approval. You will receive an email with invoice once approved.'; ?>
+                                </p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </section>
+
+            <!-- Approved (Upcoming) Reservations Section -->
+            <section class="orders-section">
+                <h2><?php echo $lang === 'cs' ? '✓ Schválené výpůjčky' : '✓ Approved Rentals'; ?></h2>
+                <?php if (empty($approved_availabilities)): ?>
+                    <p><?php echo $lang === 'cs' ? 'Nemáte žádné schválené budoucí výpůjčky.' : 'You have no approved upcoming rentals.'; ?></p>
+                <?php else: ?>
+                    <?php foreach ($approved_availabilities as $avail): 
+                        $tool_name = $lang === 'cs' && !empty($avail['name_cs']) ? $avail['name_cs'] : $avail['name'];
+                    ?>
+                        <div class="order-card">
+                            <img src="<?php echo htmlspecialchars($avail['picture']); ?>" alt="<?php echo htmlspecialchars($tool_name); ?>" class="order-image">
+                            <div class="order-details">
+                                <h3><?php echo htmlspecialchars($tool_name); ?></h3>
+                                <p><strong><?php echo $lang === 'cs' ? 'Vlastník:' : 'Owner:'; ?></strong> <?php echo htmlspecialchars($avail['owner_firstname'] . ' ' . $avail['owner_lastname']); ?></p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Období výpůjčky:' : 'Rental period:'; ?></strong> 
+                                    <?php echo date('d.m.Y', strtotime($avail['start_date'])) . ' - ' . date('d.m.Y', strtotime($avail['end_date'])); ?>
+                                </p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Dny do začátku:' : 'Days until start:'; ?></strong> 
+                                    <?php echo (strtotime($avail['start_date']) - strtotime($current_date)) / (60 * 60 * 24); ?>
+                                </p>
+                                <?php if ($avail['invoice_number']): ?>
+                                    <p><strong><?php echo $lang === 'cs' ? 'Faktura:' : 'Invoice:'; ?></strong> 
+                                        <?php echo htmlspecialchars($avail['invoice_number']); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <span class="status-badge status-active"><?php echo $lang === 'cs' ? 'Schváleno' : 'Approved'; ?></span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </section>
+
+            <!-- Current (Active) Reservations Section -->
             <section class="orders-section">
                 <h2><?php echo $lang === 'cs' ? 'Aktivní výpůjčky' : 'Active Rentals'; ?></h2>
                 <?php if (empty($current_availabilities)): ?>
@@ -187,13 +267,13 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                 <?php endif; ?>
             </section>
 
-            <!-- Planned Reservations Section -->
+            <!-- Denied Orders Section -->
             <section class="orders-section">
-                <h2><?php echo $lang === 'cs' ? 'Plánované výpůjčky' : 'Upcoming Rentals'; ?></h2>
-                <?php if (empty($planned_availabilities)): ?>
-                    <p><?php echo $lang === 'cs' ? 'Nemáte žádné plánované výpůjčky.' : 'You have no upcoming rentals.'; ?></p>
+                <h2><?php echo $lang === 'cs' ? '✗ Zamítnuté objednávky' : '✗ Denied Orders'; ?></h2>
+                <?php if (empty($denied_availabilities)): ?>
+                    <p><?php echo $lang === 'cs' ? 'Nemáte žádné zamítnuté objednávky.' : 'You have no denied orders.'; ?></p>
                 <?php else: ?>
-                    <?php foreach ($planned_availabilities as $avail): 
+                    <?php foreach ($denied_availabilities as $avail): 
                         $tool_name = $lang === 'cs' && !empty($avail['name_cs']) ? $avail['name_cs'] : $avail['name'];
                     ?>
                         <div class="order-card">
@@ -201,18 +281,16 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                             <div class="order-details">
                                 <h3><?php echo htmlspecialchars($tool_name); ?></h3>
                                 <p><strong><?php echo $lang === 'cs' ? 'Vlastník:' : 'Owner:'; ?></strong> <?php echo htmlspecialchars($avail['owner_firstname'] . ' ' . $avail['owner_lastname']); ?></p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Období výpůjčky:' : 'Rental period:'; ?></strong> 
+                                <p><strong><?php echo $lang === 'cs' ? 'Požadované období:' : 'Requested period:'; ?></strong> 
                                     <?php echo date('d.m.Y', strtotime($avail['start_date'])) . ' - ' . date('d.m.Y', strtotime($avail['end_date'])); ?>
                                 </p>
-                                <p><strong><?php echo $lang === 'cs' ? 'Dny do začátku:' : 'Days until start:'; ?></strong> 
-                                    <?php echo (strtotime($avail['start_date']) - strtotime($current_date)) / (60 * 60 * 24); ?>
-                                </p>
-                                <span class="status-badge status-planned"><?php echo $lang === 'cs' ? 'Plánované' : 'Planned'; ?></span>
-                                <div style="margin-top: 10px;">
-                                    <button class="btn btn-blue" onclick="cancelReservation(<?php echo $avail['availability_id']; ?>)">
-                                        <?php echo $lang === 'cs' ? 'Zrušit rezervaci' : 'Cancel reservation'; ?>
-                                    </button>
-                                </div>
+                                <span class="status-badge status-completed"><?php echo $lang === 'cs' ? 'Zamítnuto' : 'Denied'; ?></span>
+                                <?php if ($avail['denial_reason']): ?>
+                                    <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                                        <strong><?php echo $lang === 'cs' ? 'Důvod zamítnutí:' : 'Denial Reason:'; ?></strong>
+                                        <p style="margin: 5px 0 0 0;"><?php echo htmlspecialchars($avail['denial_reason']); ?></p>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
