@@ -1,8 +1,11 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-session_start();
+
+require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
+
+startSecureSession();
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {

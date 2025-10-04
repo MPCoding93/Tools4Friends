@@ -102,7 +102,7 @@ if (!empty($_SESSION['cart'])) {
             $days = $start->diff($end)->days + 1;
             
             $tool['days'] = $days;
-            $tool['total_fee'] = $tool['manipulation_fee'] * $days;
+            $tool['total_fee'] = $tool['manipulation_fee'];
             
             $cart_items[] = $tool;
         }
@@ -296,7 +296,7 @@ $csrf_token = generateCSRFToken();
                             <p><strong><?php echo $lang === 'cs' ? 'Počet dní:' : 'Number of days:'; ?></strong> 
                                 <?php echo $item['days']; ?>
                             </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Poplatek za den:' : 'Fee per day:'; ?></strong> 
+                            <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong> 
                                 <?php echo $item['manipulation_fee']; ?> Kč
                             </p>
                             <p><strong><?php echo $lang === 'cs' ? 'Celkem:' : 'Total:'; ?></strong> 
