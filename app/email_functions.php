@@ -199,7 +199,7 @@ function sendApprovalEmail($order_id, $conn, $lang = 'en') {
     // Build email content
     $subject = $lang === 'cs' 
         ? 'Vaše objednávka byla schválena - ' . $order['invoice_number']
-        : 'Your order has been approved - ' . $order['invoice_number'];
+        : 'Your order has been Confirmed - ' . $order['invoice_number'];
     
     $message = buildApprovalEmailHTML($order, $items, $settings, $lang);
     
@@ -279,7 +279,7 @@ function buildApprovalEmailHTML($order, $items, $settings, $lang) {
     
     $intro = $lang === 'cs'
         ? "Vaše objednávka byla schválena! Níže naleznete detaily vaší objednávky."
-        : "Your order has been approved! Below you will find the details of your order.";
+        : "Your order has been confirmed! Below you will find the details of your order.";
     
     $html = "
     <!DOCTYPE html>
@@ -456,7 +456,7 @@ function buildDenialEmailHTML($order, $items, $denial_reason, $settings, $lang) 
     
     $apology = $lang === 'cs'
         ? "Omlouváme se, ale vaše objednávka nemohla být schválena."
-        : "We apologize, but your order could not be approved.";
+        : "We apologize, but your order could not be Confirmed.";
     
     $html = "
     <!DOCTYPE html>
