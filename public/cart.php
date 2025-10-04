@@ -21,12 +21,28 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Handle remove from cart
+// Handle cart actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'remove' && isset($_POST['cart_index'])) {
         $cart_index = intval($_POST['cart_index']);
         if (isset($_SESSION['cart'][$cart_index])) {
             array_splice($_SESSION['cart'], $cart_index, 1);
+        }
+        
+        header("Location: cart.php?lang=" . $lang);
+        exit();
+    }
+    
+    if ($_POST['action'] === 'update_dates' && isset($_POST['cart_index'])) {
+        $cart_index = intval($_POST['cart_index']);
+        $new_start = $_POST['start_date'] ?? '';
+        $new_end = $_POST['end_date'] ?? '';
+        
+        if (isset($_SESSION['cart'][$cart_index]) && validateDate($new_start) && validateDate($new_end)) {
+            if ($new_end >= $new_start) {
+                $_SESSION['cart'][$cart_index]['start_date'] = $new_start;
+                $_SESSION['cart'][$cart_index]['end_date'] = $new_end;
+            }
         }
         
         header("Location: cart.php?lang=" . $lang);
@@ -341,26 +357,53 @@ $csrf_token = generateCSRFToken();
                             <p><strong><?php echo $lang === 'cs' ? 'Vlastník:' : 'Owner:'; ?></strong> 
                                 <?php echo htmlspecialchars($item['owner_firstname'] . ' ' . $item['owner_lastname']); ?>
                             </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Období výpůjčky:' : 'Rental period:'; ?></strong> 
-                                <?php echo date('d.m.Y', strtotime($item['start_date'])) . ' - ' . date('d.m.Y', strtotime($item['end_date'])); ?>
-                            </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Počet dní:' : 'Number of days:'; ?></strong> 
-                                <?php echo $item['days']; ?>
-                            </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong> 
-                                <?php echo $item['manipulation_fee']; ?> Kč
-                            </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Záloha:' : 'Deposit:'; ?></strong> 
-                                <?php echo $item['deposit_amount']; ?> Kč
-                            </p>
-                            <p><strong><?php echo $lang === 'cs' ? 'Celkem:' : 'Total:'; ?></strong> 
-                                <?php echo $item['total_fee']; ?> Kč
-                            </p>
                             <form method="POST" style="margin-top: 10px;">
+                                <input type="hidden" name="action" value="update_dates">
+                                <input type="hidden" name="cart_index" value="<?php echo $item['cart_index']; ?>">
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 5px;">
+                                        <?php echo $lang === 'cs' ? 'Datum od:' : 'Start Date:'; ?>
+                                    </label>
+                                    <input type="date" name="start_date" value="<?php echo $item['start_date']; ?>" 
+                                           min="<?php echo date('Y-m-d'); ?>" required
+                                           style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 5px;">
+                                        <?php echo $lang === 'cs' ? 'Datum do:' : 'End Date:'; ?>
+                                    </label>
+                                    <input type="date" name="end_date" value="<?php echo $item['end_date']; ?>" 
+                                           min="<?php echo $item['start_date']; ?>" required
+                                           style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                                
+                                <p><strong><?php echo $lang === 'cs' ? 'Počet dní:' : 'Number of days:'; ?></strong> 
+                                    <?php echo $item['days']; ?>
+                                </p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Poplatek:' : 'Fee:'; ?></strong> 
+                                    <?php echo $item['manipulation_fee']; ?> Kč
+                                </p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Záloha:' : 'Deposit:'; ?></strong> 
+                                    <?php echo $item['deposit_amount']; ?> Kč
+                                </p>
+                                <p><strong><?php echo $lang === 'cs' ? 'Celkem:' : 'Total:'; ?></strong> 
+                                    <?php echo $item['total_fee']; ?> Kč
+                                </p>
+                                
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button type="submit" class="btn-update" style="flex: 1; background-color: #4a90e2; color: white; padding: 8px; border: none; border-radius: 4px; cursor: pointer;">
+                                        <?php echo $lang === 'cs' ? '🔄 Aktualizovat' : '🔄 Update'; ?>
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <form method="POST" style="margin-top: 5px;">
                                 <input type="hidden" name="action" value="remove">
                                 <input type="hidden" name="cart_index" value="<?php echo $item['cart_index']; ?>">
-                                <button type="submit" class="btn-remove">
-                                    <?php echo $lang === 'cs' ? 'Odebrat' : 'Remove'; ?>
+                                <button type="submit" class="btn-remove" style="width: 100%;">
+                                    <?php echo $lang === 'cs' ? '🗑️ Odebrat' : '🗑️ Remove'; ?>
                                 </button>
                             </form>
                         </div>

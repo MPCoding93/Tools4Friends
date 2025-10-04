@@ -4,6 +4,150 @@
  */
 
 /**
+ * Generate invoice PDF and return file path
+ */
+function generateInvoicePDF($order_id, $conn) {
+    // Check if FPDF is available
+    $fpdf_path = __DIR__ . '/../vendor/fpdf/fpdf.php';
+    if (!file_exists($fpdf_path)) {
+        return ['success' => false, 'message' => 'FPDF library not found'];
+    }
+    
+    require_once $fpdf_path;
+    
+    // Fetch order details (same as generate_invoice.php)
+    $order_query = $conn->prepare("
+        SELECT 
+            o.*,
+            u.firstname,
+            u.lastname,
+            u.email,
+            u.phone
+        FROM Orders o
+        JOIN Users u ON o.user_id = u.user_id
+        WHERE o.order_id = ? AND o.status = 'approved'
+    ");
+    $order_query->bind_param("i", $order_id);
+    $order_query->execute();
+    $order = $order_query->get_result()->fetch_assoc();
+    
+    if (!$order) {
+        return ['success' => false, 'message' => 'Order not found'];
+    }
+    
+    // Fetch order items
+    $items_query = $conn->prepare("
+        SELECT 
+            a.start_date,
+            a.end_date,
+            t.name,
+            t.name_cs,
+            t.manipulation_fee,
+            t.deposit
+        FROM Availability a
+        JOIN Tools t ON a.tool_id = t.tool_id
+        WHERE a.order_id = ?
+    ");
+    $items_query->bind_param("i", $order_id);
+    $items_query->execute();
+    $items_result = $items_query->get_result();
+    
+    $items = [];
+    while ($item = $items_result->fetch_assoc()) {
+        $items[] = $item;
+    }
+    
+    // Fetch company settings
+    $settings_query = $conn->query("SELECT * FROM Company_Settings LIMIT 1");
+    $settings = $settings_query->fetch_assoc();
+    
+    // Create PDF (simplified version)
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->Cell(0, 10, 'INVOICE / FAKTURA', 0, 1, 'C');
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(0, 8, 'Invoice Number: ' . $order['invoice_number'], 0, 1, 'C');
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->Cell(0, 6, 'Date: ' . date('d.m.Y', strtotime($order['approved_date'])), 0, 1, 'C');
+    $pdf->Ln(10);
+    
+    // Company and Customer info
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->Cell(95, 7, 'From / Od:', 0, 0);
+    $pdf->Cell(95, 7, 'To / Pro:', 0, 1);
+    $pdf->SetFont('Arial', '', 10);
+    
+    $y_start = $pdf->GetY();
+    $pdf->MultiCell(95, 6, 
+        ($settings['company_name'] ?? 'Tools4Friends') . "\n" .
+        ($settings['company_email'] ?? '') . "\n" .
+        ($settings['company_phone'] ?? ''), 
+        0, 'L');
+    
+    $pdf->SetXY(105, $y_start);
+    $pdf->MultiCell(95, 6,
+        $order['firstname'] . ' ' . $order['lastname'] . "\n" .
+        $order['email'] . "\n" .
+        ($order['phone'] ?? ''),
+        0, 'L');
+    
+    $pdf->Ln(5);
+    
+    // Items table
+    $pdf->SetFillColor(31, 45, 90);
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(80, 8, 'Tool / Nastroj', 1, 0, 'L', true);
+    $pdf->Cell(40, 8, 'Period / Obdobi', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Fee / Poplatek', 1, 0, 'R', true);
+    $pdf->Cell(30, 8, 'Deposit / Zaloha', 1, 1, 'R', true);
+    
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetFont('Arial', '', 9);
+    
+    foreach ($items as $item) {
+        $tool_name = $item['name'];
+        $period = date('d.m.Y', strtotime($item['start_date'])) . ' - ' . date('d.m.Y', strtotime($item['end_date']));
+        
+        $start = new DateTime($item['start_date']);
+        $end = new DateTime($item['end_date']);
+        $days = $start->diff($end)->days + 1;
+        
+        $pdf->Cell(80, 7, $tool_name, 1, 0, 'L');
+        $pdf->Cell(40, 7, $period . ' (' . $days . 'd)', 1, 0, 'C');
+        $pdf->Cell(30, 7, number_format($item['manipulation_fee'], 2) . ' CZK', 1, 0, 'R');
+        $pdf->Cell(30, 7, number_format($item['deposit'], 2) . ' CZK', 1, 1, 'R');
+    }
+    
+    // Totals
+    $pdf->Ln(2);
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(120, 7, 'Total Fee / Celkovy Poplatek:', 0, 0, 'R');
+    $pdf->Cell(30, 7, number_format($order['total_amount'], 2) . ' CZK', 1, 1, 'R');
+    $pdf->Cell(120, 7, 'Total Deposit / Celkova Zaloha:', 0, 0, 'R');
+    $pdf->Cell(30, 7, number_format($order['total_deposit'], 2) . ' CZK', 1, 1, 'R');
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(120, 8, 'TOTAL TO PAY / CELKEM K ZAPLACENI:', 0, 0, 'R');
+    $pdf->SetFillColor(31, 45, 90);
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->Cell(30, 8, number_format($order['total_amount'] + $order['total_deposit'], 2) . ' CZK', 1, 1, 'R', true);
+    
+    // Save PDF to temp file
+    $temp_dir = __DIR__ . '/../public/uploads/temp/';
+    if (!is_dir($temp_dir)) {
+        mkdir($temp_dir, 0755, true);
+    }
+    
+    $filename = 'Invoice_' . $order['invoice_number'] . '_' . time() . '.pdf';
+    $filepath = $temp_dir . $filename;
+    
+    $pdf->Output('F', $filepath);
+    
+    return ['success' => true, 'filepath' => $filepath, 'filename' => 'Invoice_' . $order['invoice_number'] . '.pdf'];
+}
+
+/**
  * Send order approval email with invoice
  */
 function sendApprovalEmail($order_id, $conn, $lang = 'en') {
@@ -59,13 +203,61 @@ function sendApprovalEmail($order_id, $conn, $lang = 'en') {
     
     $message = buildApprovalEmailHTML($order, $items, $settings, $lang);
     
-    // Email headers
-    $headers = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: " . ($settings['company_email'] ?? 'noreply@tools4friends.com') . "\r\n";
+    // Generate PDF invoice
+    $pdf_result = generateInvoicePDF($order_id, $conn);
+    
+    if (!$pdf_result['success']) {
+        // Send email without attachment if PDF generation fails
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: " . ($settings['company_email'] ?? 'noreply@tools4friends.com') . "\r\n";
+        
+        $sent = mail($order['email'], $subject, $message, $headers);
+        
+        if ($sent) {
+            return ['success' => true, 'message' => 'Email sent (without PDF attachment)'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to send email'];
+        }
+    }
+    
+    // Prepare email with PDF attachment
+    $filepath = $pdf_result['filepath'];
+    $filename = $pdf_result['filename'];
+    
+    // Read PDF file
+    $file_content = file_get_contents($filepath);
+    $file_content = chunk_split(base64_encode($file_content));
+    
+    // Generate boundary
+    $boundary = md5(time());
+    
+    // Email headers with attachment
+    $headers = "From: " . ($settings['company_email'] ?? 'noreply@tools4friends.com') . "\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n";
+    
+    // Email body
+    $email_body = "--{$boundary}\r\n";
+    $email_body .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $email_body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+    $email_body .= $message . "\r\n\r\n";
+    
+    // PDF attachment
+    $email_body .= "--{$boundary}\r\n";
+    $email_body .= "Content-Type: application/pdf; name=\"{$filename}\"\r\n";
+    $email_body .= "Content-Transfer-Encoding: base64\r\n";
+    $email_body .= "Content-Disposition: attachment; filename=\"{$filename}\"\r\n\r\n";
+    $email_body .= $file_content . "\r\n\r\n";
+    $email_body .= "--{$boundary}--";
     
     // Send email
-    $sent = mail($order['email'], $subject, $message, $headers);
+    $sent = mail($order['email'], $subject, $email_body, $headers);
+    
+    // Delete temporary PDF file
+    if (file_exists($filepath)) {
+        unlink($filepath);
+    }
     
     if ($sent) {
         return ['success' => true, 'message' => 'Email sent successfully'];
