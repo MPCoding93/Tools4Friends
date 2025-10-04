@@ -19,6 +19,13 @@ document.addEventListener("DOMContentLoaded", function() {
   if (typeof toolId !== 'undefined') {
     initializeBookingFunctionality(toolId, document.documentElement.lang || 'en');
   }
+  
+  // Initialize tool availability page if data is available
+  if (window.toolAvailabilityData) {
+    const { toolId, lang, unavailableRanges, csrfToken } = window.toolAvailabilityData;
+    initializeCalendar(unavailableRanges);
+    initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfToken);
+  }
 });
 
 // Language functions
@@ -332,13 +339,13 @@ function toggleForm(action) {
   const registerButton = document.querySelector('.form-toggle button:nth-child(2)');
 
   if (action === 'login') {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
+    loginForm.classList.remove('form-hidden');
+    registerForm.classList.add('form-hidden');
     loginButton.classList.add('active');
     registerButton.classList.remove('active');
   } else {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
+    loginForm.classList.add('form-hidden');
+    registerForm.classList.remove('form-hidden');
     loginButton.classList.remove('active');
     registerButton.classList.add('active');
   }
@@ -348,7 +355,7 @@ function toggleForm(action) {
 document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
-    if (loginForm.style.display === 'block') {
+    if (!loginForm.classList.contains('form-hidden')) {
       const loginBtn = document.querySelector('.form-toggle button:nth-child(1)');
       if (loginBtn) loginBtn.classList.add('active');
     } else {

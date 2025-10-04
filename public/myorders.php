@@ -92,72 +92,6 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="script.js" defer></script>
-    <style>
-        /* Add custom styles for the orders page */
-        .orders-section {
-            margin-bottom: 40px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .orders-section h2 {
-            color: #1F2D5A;
-            border-bottom: 2px solid #4a90e2;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .order-card {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            border-left: 4px solid #4a90e2;
-        }
-        
-        .order-image {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        
-        .order-details {
-            flex: 1;
-        }
-        
-        .order-details h3 {
-            margin-top: 0;
-            color: #1F2D5A;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .status-active {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .status-planned {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-        
-        .status-completed {
-            background-color: #e2e3e5;
-            color: #383d41;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -170,7 +104,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
         <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <main>
-            <div style="margin-bottom: 20px;">
+            <div class="mb-20">
                 <a href="myprofile.php?lang=<?php echo $lang; ?>" class="btn btn-blue">
                     <?php echo $lang === 'cs' ? '← Zpět na Můj Profil' : '← Back to My Profile'; ?>
                 </a>
@@ -199,7 +133,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                                     <?php echo date('d.m.Y H:i', strtotime($avail['order_date'])); ?>
                                 </p>
                                 <span class="status-badge status-planned"><?php echo $lang === 'cs' ? 'Čeká na schválení' : 'Pending Approval'; ?></span>
-                                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                <p class="order-pending-note">
                                     <?php echo $lang === 'cs' ? 'Vaše objednávka čeká na schválení administrátorem. Obdržíte email s fakturou po schválení.' : 'Your order is waiting for admin approval. You will receive an email with invoice once approved.'; ?>
                                 </p>
                             </div>
@@ -286,9 +220,9 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                                 </p>
                                 <span class="status-badge status-completed"><?php echo $lang === 'cs' ? 'Zamítnuto' : 'Denied'; ?></span>
                                 <?php if ($avail['denial_reason']): ?>
-                                    <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                                    <div class="denial-reason-box">
                                         <strong><?php echo $lang === 'cs' ? 'Důvod zamítnutí:' : 'Denial Reason:'; ?></strong>
-                                        <p style="margin: 5px 0 0 0;"><?php echo htmlspecialchars($avail['denial_reason']); ?></p>
+                                        <p><?php echo htmlspecialchars($avail['denial_reason']); ?></p>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -329,33 +263,5 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
             <p>&copy; <span id="year"></span> Tools4Friends</p>
         </footer>
     </div>
-    <script>
-        function cancelReservation(availabilityId) {
-            if (confirm('<?php echo $lang === 'cs' ? 'Opravdu chcete zrušit tuto rezervaci?' : 'Are you sure you want to cancel this reservation?'; ?>')) {
-                fetch('cancel_reservation.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `availability_id=${availabilityId}&lang=<?php echo $lang; ?>`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    alert('<?php echo $lang === 'cs' ? 'Chyba při komunikaci se serverem' : 'Error communicating with server'; ?>');
-                });
-            }
-        }
-
-        // Display current year in footer
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
 </body>
 </html>

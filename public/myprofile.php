@@ -187,7 +187,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                             <div class="error-message"><?php echo htmlspecialchars($profile_error); ?></div>
                         <?php endif; ?>
 
-                        <button type="submit" name="update_profile" class="submit-button" style="margin-top: 20px;">
+                        <button type="submit" name="update_profile" class="submit-button mt-20">
                             <?php echo ($lang === 'cs' ? 'Aktualizovat Profil' : 'Update Profile'); ?>
                         </button>
                     </form>

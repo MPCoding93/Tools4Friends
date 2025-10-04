@@ -200,7 +200,7 @@ if ($loggedIn) {
                 <button class="toggle-button" onclick="toggleForm('register')">Register</button>
             </div>
 
-            <form id="login-form" method="POST" class="form-card" style="display: block;">
+            <form id="login-form" method="POST" class="form-card">
                 <input type="hidden" name="action" value="login">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <label for="username">Email:</label>
@@ -209,14 +209,14 @@ if ($loggedIn) {
                 <input type="password" name="password" required>
                 <button type="submit" class="submit-button">Login</button>
             </form>
-            <p style="text-align: center; margin-top: 15px;">
+            <p class="text-center mt-15">
                 <a href="./forgot_password.php?lang=<?php echo sanitizeOutput($lang); ?>">
                     <?php echo ($lang === 'cs' ? 'Zapomenuté heslo?' : 'Forgot Password?'); ?>
                 </a>
             </p>
 
 
-            <form id="register-form" method="POST" class="form-card" style="display: none;">
+            <form id="register-form" method="POST" class="form-card form-hidden">
                 <input type="hidden" name="action" value="register">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <label for="firstname">First Name:</label>

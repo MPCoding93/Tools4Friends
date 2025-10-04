@@ -255,16 +255,13 @@ $csrf_token = generateCSRFToken();
     </div>
 
     <script>
-        // Initialize tool availability page functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const toolId = <?php echo $tool_id; ?>;
-            const lang = '<?php echo $lang; ?>';
-            const unavailableRanges = <?php echo json_encode($unavailable_ranges); ?>;
-            const csrfToken = '<?php echo $csrf_token; ?>';
-            
-            initializeCalendar(unavailableRanges);
-            initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfToken);
-        });
+        // Pass PHP data to JavaScript
+        window.toolAvailabilityData = {
+            toolId: <?php echo $tool_id; ?>,
+            lang: '<?php echo $lang; ?>',
+            unavailableRanges: <?php echo json_encode($unavailable_ranges); ?>,
+            csrfToken: '<?php echo $csrf_token; ?>'
+        };
     </script>
 </body>
 
