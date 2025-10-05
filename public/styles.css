@@ -1428,6 +1428,11 @@ nav {
     color: #383d41;
 }
 
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
 .denial-reason-box {
     margin-top: 10px;
     padding: 10px;
@@ -1632,6 +1637,38 @@ footer {
 
 .btn-checkout:hover {
     background-color: #218838;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-cancel:active {
+    transform: translateY(0);
+}
+
+.cancellation-notice {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border-left: 4px solid #ffc107;
+    font-size: 0.9em;
+    margin: 10px 0 0 0;
 }
 
 /* ====================== */

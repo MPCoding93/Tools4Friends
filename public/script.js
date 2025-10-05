@@ -541,14 +541,20 @@ function initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfTok
   }
 }
 
-// My Orders page - cancel reservation function
-function cancelReservation(availabilityId, lang) {
+// My Orders page - cancel order function
+function cancelOrder(availabilityId, lang) {
   const confirmMessage = lang === 'cs' 
-    ? 'Opravdu chcete zrušit tuto rezervaci?' 
-    : 'Are you sure you want to cancel this reservation?';
+    ? 'Opravdu chcete zrušit tuto objednávku? Tato akce je nevratná.' 
+    : 'Are you sure you want to cancel this order? This action cannot be undone.';
     
   if (confirm(confirmMessage)) {
-    fetch('cancel_reservation.php', {
+    // Show loading state (optional - you could add a loading indicator)
+    const button = event.target;
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = lang === 'cs' ? 'Ruším...' : 'Cancelling...';
+    
+    fetch('cancel_order.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -562,15 +568,27 @@ function cancelReservation(availabilityId, lang) {
         location.reload();
       } else {
         alert(data.message);
+        // Re-enable button on error
+        button.disabled = false;
+        button.textContent = originalText;
       }
     })
     .catch(error => {
+      console.error('Error:', error);
       const errorMessage = lang === 'cs' 
-        ? 'Chyba při komunikaci se serverem' 
-        : 'Error communicating with server';
+        ? 'Chyba při komunikaci se serverem. Zkuste to prosím znovu.' 
+        : 'Error communicating with server. Please try again.';
       alert(errorMessage);
+      // Re-enable button on error
+      button.disabled = false;
+      button.textContent = originalText;
     });
   }
+}
+
+// Legacy function for backwards compatibility
+function cancelReservation(availabilityId, lang) {
+  cancelOrder(availabilityId, lang);
 }
 
 // Export functions to window
@@ -579,4 +597,5 @@ window.changeMonth = changeMonth;
 window.goToToday = goToToday;
 window.toggleForm = toggleForm;
 window.initializeToolAvailabilityPage = initializeToolAvailabilityPage;
+window.cancelOrder = cancelOrder;
 window.cancelReservation = cancelReservation;
