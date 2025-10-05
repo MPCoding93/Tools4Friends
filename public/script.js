@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function() {
   
   // Initialize language
   initializeLanguage();
-  updateNavigationLinks();
   
   // Initialize calendar and booking functionality
   if (typeof unavailableRanges !== 'undefined') {

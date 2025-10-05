@@ -20,12 +20,16 @@ Fatal error: Unknown column 'phone_number' in 'field list'
 ### 2. Calendar Not Visible on Tool Availability Page (FIXED)
 **Issue**: Calendar not displaying when viewing tool availability page
 
-**Root Cause**: Missing CSS classes for calendar controls (`.calendar-controls` and `.today-btn`)
+**Root Causes**: 
+1. Missing CSS classes for calendar controls (`.calendar-controls` and `.today-btn`)
+2. Undefined function `updateNavigationLinks()` being called in script.js causing script execution to fail
 
-**Fix Applied**:
+**Fixes Applied**:
 - Added `.calendar-controls` class with flexbox layout
 - Added `.today-btn` class with proper styling
-- File: `Tools4Friends/public/styles.css`
+- Removed undefined `updateNavigationLinks()` function call from DOMContentLoaded
+- Calendar now initializes automatically when `window.toolAvailabilityData` is present
+- Files: `Tools4Friends/public/styles.css`, `Tools4Friends/public/script.js`
 
 **Status**: ✅ RESOLVED
 
