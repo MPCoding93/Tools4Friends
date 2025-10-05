@@ -908,6 +908,34 @@ nav {
     box-shadow: 0 4px 15px rgba(31, 45, 90, 0.1);
 }
 
+.calendar-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-controls h3 {
+    margin: 0;
+}
+
+.today-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #4a90e2 0%, #1F2D5A 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.today-btn:hover {
+    background: linear-gradient(135deg, #5a9ee2 0%, #2a3f6b 100%);
+    transform: translateY(-2px);
+}
+
 .calendar-nav button {
     padding: 12px 20px;
     background: linear-gradient(135deg, #1F2D5A 0%, #2a3f6b 100%);

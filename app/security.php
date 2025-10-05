@@ -16,7 +16,36 @@ function startSecureSession() {
         session_start();
     }
     
+    // Set security headers
+    setSecurityHeaders();
+    
     checkSessionTimeout();
+}
+
+function setSecurityHeaders() {
+    // Prevent clickjacking
+    header("X-Frame-Options: SAMEORIGIN");
+    
+    // Prevent MIME type sniffing
+    header("X-Content-Type-Options: nosniff");
+    
+    // Enable XSS protection
+    header("X-XSS-Protection: 1; mode=block");
+    
+    // Referrer policy
+    header("Referrer-Policy: strict-origin-when-cross-origin");
+    
+    // Permissions policy
+    header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+    
+    // Content Security Policy - allowing inline scripts for now due to tool_availability.php data passing
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';");
+    
+    // Strict Transport Security (HSTS) - only in production with HTTPS
+    if (defined('APP_ENV') && APP_ENV === 'production' && 
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+    }
 }
 
 function checkSessionTimeout() {

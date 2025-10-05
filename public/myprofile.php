@@ -32,13 +32,13 @@ $stmt_user->close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $firstname = trim($_POST['firstname']);
     $lastname = trim($_POST['lastname']);
-    $phone = trim($_POST['phone']); // This will be saved to phone_number column
+    $phone = trim($_POST['phone']);
 
     if (empty($firstname) || empty($lastname)) {
         $profile_error = ($lang === 'cs' ? 'Jméno a příjmení jsou povinné.' : 'First name and last name are required.');
     } else {
-        // Update user data
-        $stmt_update = $conn->prepare("UPDATE Users SET firstname = ?, lastname = ?, phone_number = ? WHERE user_id = ?");
+        // Update user data - using 'phone' column name
+        $stmt_update = $conn->prepare("UPDATE Users SET firstname = ?, lastname = ?, phone = ? WHERE user_id = ?");
         $stmt_update->bind_param("sssi", $firstname, $lastname, $phone, $user_id);
         if ($stmt_update->execute()) {
             // Update session variables immediately
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             // Re-fetch user data to ensure form fields are updated if needed
             $user['firstname'] = $firstname;
             $user['lastname'] = $lastname;
-            $user['phone_number'] = $phone;
+            $user['phone'] = $phone;
 
             $success = ($lang === 'cs' ? 'Profil byl úspěšně aktualizován.' : 'Profile updated successfully.');
         } else {
@@ -180,7 +180,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
 
                         <div class="form-group">
                             <label for="phone"><?php echo ($lang === 'cs' ? 'Telefon:' : 'Phone:'); ?></label>
-                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone_number'] ?? ''); ?>">
+                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                         </div>
 
                         <?php if ($profile_error): ?>
