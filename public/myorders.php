@@ -1,7 +1,7 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+define('APP_INIT', true);
 
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
 
@@ -17,37 +17,7 @@ $lang = $_GET['lang'] ?? 'en';
 $user_id = $_SESSION['user_id'];
 $current_date = date('Y-m-d');
 
-// Fetch all orders and their items for the current user
-$query = $conn->prepare("
-    SELECT 
-        a.availability_id,
-        a.tool_id,
-        a.start_date,
-        a.end_date,
-        a.status,
-        a.order_id,
-        a.created_at,
-        t.name,
-        t.name_cs,
-        t.picture,
-        t.ownerID,
-        u.firstname AS owner_firstname,
-        u.lastname AS owner_lastname,
-        o.order_date,
-        o.denial_reason,
-        o.invoice_number
-    FROM Availability a
-    JOIN Tools t ON a.tool_id = t.tool_id
-    JOIN Users u ON t.ownerID = u.ownerID
-    LEFT JOIN Orders o ON a.order_id = o.order_id
-    WHERE a.user_id = ?
-    ORDER BY a.created_at DESC
-");
-$query->bind_param("i", $user_id);
-$query->execute();
-$result = $query->get_result();
-
-// Categorize reservations by status
+// Initialize arrays
 $pending_availabilities = [];
 $approved_availabilities = [];
 $denied_availabilities = [];
@@ -55,27 +25,88 @@ $cancelled_availabilities = [];
 $current_availabilities = [];
 $historical_availabilities = [];
 
-while ($avail = $result->fetch_assoc()) {
-    if ($avail['status'] === 'pending') {
-        $pending_availabilities[] = $avail;
-    } elseif ($avail['status'] === 'denied') {
-        $denied_availabilities[] = $avail;
-    } elseif ($avail['status'] === 'cancelled') {
-        $cancelled_availabilities[] = $avail;
-    } elseif ($avail['status'] === 'approved') {
-        // Check if it's current or future
-        if ($avail['start_date'] > $current_date) {
-            $approved_availabilities[] = $avail;
-        } elseif ($avail['end_date'] >= $current_date) {
-            $current_availabilities[] = $avail;
-        } else {
-            $historical_availabilities[] = $avail;
-        }
-    } elseif ($avail['end_date'] < $current_date) {
-        $historical_availabilities[] = $avail;
-    } else {
-        $current_availabilities[] = $avail;
+try {
+    // Check if database connection exists
+    if (!isset($conn) || $conn->connect_error) {
+        throw new Exception('Database connection failed');
     }
+
+    // Fetch all orders and their items for the current user
+    $query = $conn->prepare("
+        SELECT 
+            a.availability_id,
+            a.tool_id,
+            a.start_date,
+            a.end_date,
+            a.status,
+            a.order_id,
+            a.created_at,
+            t.name,
+            t.name_cs,
+            t.picture,
+            t.ownerID,
+            u.firstname AS owner_firstname,
+            u.lastname AS owner_lastname,
+            o.order_date,
+            o.denial_reason,
+            o.invoice_number
+        FROM Availability a
+        JOIN Tools t ON a.tool_id = t.tool_id
+        JOIN Users u ON t.ownerID = u.ownerID
+        LEFT JOIN Orders o ON a.order_id = o.order_id
+        WHERE a.user_id = ?
+        ORDER BY a.created_at DESC
+    ");
+    
+    if (!$query) {
+        throw new Exception('Failed to prepare database query: ' . $conn->error);
+    }
+    
+    $query->bind_param("i", $user_id);
+    
+    if (!$query->execute()) {
+        throw new Exception('Failed to execute database query: ' . $query->error);
+    }
+    
+    $result = $query->get_result();
+    
+    if (!$result) {
+        throw new Exception('Failed to get query results: ' . $query->error);
+    }
+
+    // Categorize reservations by status
+    while ($avail = $result->fetch_assoc()) {
+        if ($avail['status'] === 'pending') {
+            $pending_availabilities[] = $avail;
+        } elseif ($avail['status'] === 'denied') {
+            $denied_availabilities[] = $avail;
+        } elseif ($avail['status'] === 'cancelled') {
+            $cancelled_availabilities[] = $avail;
+        } elseif ($avail['status'] === 'approved') {
+            // Check if it's current or future
+            if ($avail['start_date'] > $current_date) {
+                $approved_availabilities[] = $avail;
+            } elseif ($avail['end_date'] >= $current_date) {
+                $current_availabilities[] = $avail;
+            } else {
+                $historical_availabilities[] = $avail;
+            }
+        } elseif ($avail['end_date'] < $current_date) {
+            $historical_availabilities[] = $avail;
+        } else {
+            $current_availabilities[] = $avail;
+        }
+    }
+    
+    $query->close();
+    
+} catch (Exception $e) {
+    // Log the error
+    error_log('Error in myorders.php: ' . $e->getMessage());
+    
+    // Redirect to database error page
+    header("Location: error_database.php?lang=" . $lang);
+    exit();
 }
 
 // Navbar variables

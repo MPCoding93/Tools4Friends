@@ -1,16 +1,32 @@
 <?php
+define('APP_INIT', true);
+
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
 
 startSecureSession();
 
 // Load credentials
-require_once __DIR__ . '/../config/config.credentials.php';
+require_once __DIR__ . '/../config/config_credentials.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+// Check if PHPMailer is available
+$phpmailer_available = false;
+$autoload_path = __DIR__ . '/vendor/autoload.php';
 
-require 'vendor/autoload.php';
+if (file_exists($autoload_path)) {
+    require $autoload_path;
+    
+    // Check if PHPMailer classes exist
+    if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        $phpmailer_available = true;
+    }
+}
+
+// If PHPMailer is not available, log error and show message
+if (!$phpmailer_available) {
+    error_log('PHPMailer not found. Please install it using: composer require phpmailer/phpmailer');
+}
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
@@ -60,41 +76,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($stmt_insert->execute()) {
                         // 4. Send email with reset link
-                        $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/Tools4Friends/public/reset_password.php?token=" . $token . "&lang=" . $lang;
+                        if (!$phpmailer_available) {
+                            error_log("Cannot send password reset email: PHPMailer not installed");
+                            $error = ($lang === 'cs' ? 
+                                'Email systém není dostupný. Kontaktujte prosím administrátora.' : 
+                                'Email system is not available. Please contact the administrator.');
+                        } else {
+                            $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/Tools4Friends/public/reset_password.php?token=" . $token . "&lang=" . $lang;
 
-                        $mail = new PHPMailer(true);
-                        try {
-                            $mail->isSMTP();
-                            $mail->Host       = SMTP_HOST;
-                            $mail->SMTPAuth   = true;
-                            $mail->Username   = SMTP_USERNAME;
-                            $mail->Password   = SMTP_PASSWORD;
-                            $mail->SMTPSecure = SMTP_ENCRYPTION;
-                            $mail->Port       = SMTP_PORT;
+                            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+                            try {
+                                // Check if SMTP settings are configured
+                                if (!defined('SMTP_HOST') || !defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD')) {
+                                    throw new Exception('SMTP settings not configured');
+                                }
+                                
+                                $mail->isSMTP();
+                                $mail->Host       = SMTP_HOST;
+                                $mail->SMTPAuth   = true;
+                                $mail->Username   = SMTP_USERNAME;
+                                $mail->Password   = SMTP_PASSWORD;
+                                $mail->SMTPSecure = SMTP_ENCRYPTION;
+                                $mail->Port       = SMTP_PORT;
 
-                            // Use proper from address to avoid "unverified" warning
-                            $from_email = defined('COMPANY_EMAIL') ? COMPANY_EMAIL : SMTP_USERNAME;
-                            $from_name = defined('COMPANY_NAME') ? COMPANY_NAME : 'Tools4Friends';
-                            
-                            $mail->setFrom($from_email, $from_name);
-                            $mail->addReplyTo($from_email, $from_name);
-                            $mail->addAddress($email);
+                                // Use proper from address to avoid "unverified" warning
+                                $from_email = defined('COMPANY_EMAIL') ? COMPANY_EMAIL : SMTP_USERNAME;
+                                $from_name = defined('COMPANY_NAME') ? COMPANY_NAME : 'Tools4Friends';
+                                
+                                $mail->setFrom($from_email, $from_name);
+                                $mail->addReplyTo($from_email, $from_name);
+                                $mail->addAddress($email);
 
-                            $mail->isHTML(true);
-                            $mail->Subject = ($lang === 'cs' ? 'Reset hesla Tools4Friends' : 'Tools4Friends Password Reset');
-                            $mail->Body    = ($lang === 'cs' ?
-                                '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 30 minut.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
-                                '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 30 minutes.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
-                            $mail->AltBody = ($lang === 'cs' ?
-                                'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 30 minut. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
-                                'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 30 minutes. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
+                                $mail->isHTML(true);
+                                $mail->Subject = ($lang === 'cs' ? 'Reset hesla Tools4Friends' : 'Tools4Friends Password Reset');
+                                $mail->Body    = ($lang === 'cs' ?
+                                    '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 30 minut.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
+                                    '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 30 minutes.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
+                                $mail->AltBody = ($lang === 'cs' ?
+                                    'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 30 minut. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
+                                    'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 30 minutes. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
 
-                            $mail->send();
-                            
-                            logSecurityEvent('Password reset requested', ['email' => $email]);
-                        } catch (Exception $e) {
-                            error_log("Email sending failed: " . $mail->ErrorInfo);
-                            $error = ($lang === 'cs' ? 'Nepodařilo se odeslat email. Zkuste to prosím později.' : 'Could not send email. Please try again later.');
+                                $mail->send();
+                                
+                                logSecurityEvent('Password reset email sent', ['email' => $email]);
+                            } catch (\Exception $e) {
+                                error_log("Email sending failed: " . $mail->ErrorInfo . " | Exception: " . $e->getMessage());
+                                $error = ($lang === 'cs' ? 'Nepodařilo se odeslat email. Zkuste to prosím později.' : 'Could not send email. Please try again later.');
+                            }
                         }
                     } else {
                         error_log("Password reset token generation failed: " . $conn->error);

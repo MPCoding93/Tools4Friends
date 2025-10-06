@@ -75,10 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($error)) {
             // Sanitize inputs
-            $name = filter_var($name, FILTER_SANITIZE_STRING);
-            $name_cs = filter_var($name_cs, FILTER_SANITIZE_STRING);
-            $brand = filter_var($brand, FILTER_SANITIZE_STRING);
-            $model = filter_var($model, FILTER_SANITIZE_STRING);
+            $name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+            $name_cs = htmlspecialchars($name_cs, ENT_QUOTES, 'UTF-8');
+            $brand = htmlspecialchars($brand, ENT_QUOTES, 'UTF-8');
+            $model = htmlspecialchars($model, ENT_QUOTES, 'UTF-8');
 
             $stmt_insert = $conn->prepare("INSERT INTO Tools (name, name_cs, description, description_cs, brand, model, technical_data, technical_data_cs, picture, ownerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt_insert->bind_param("ssssssssss", $name, $name_cs, $description, $description_cs, $brand, $model, $technical_data, $technical_data_cs, $picture_path, $ownerID);

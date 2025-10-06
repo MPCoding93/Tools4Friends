@@ -1,6 +1,10 @@
 DirectoryIndex index.php index.html index.htm
 Options -Indexes
 
+# Custom Error Pages
+ErrorDocument 404 /Tools4Friends/public/error_404.php
+ErrorDocument 500 /Tools4Friends/public/error_500.php
+
 # Force HTTPS (uncomment when SSL is ready)
 # RewriteEngine On
 # RewriteCond %{HTTPS} off
@@ -14,6 +18,7 @@ Options -Indexes
     Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: http:;"
 </IfModule>
 
+# Protect sensitive files
 <FilesMatch "^\.env$">
     Order allow,deny
     Deny from all
@@ -23,3 +28,15 @@ Options -Indexes
     Order allow,deny
     Deny from all
 </FilesMatch>
+
+# Protect config directory
+<DirectoryMatch "^.*/config">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# Protect logs directory
+<DirectoryMatch "^.*/logs">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
