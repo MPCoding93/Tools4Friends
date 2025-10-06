@@ -19,7 +19,7 @@ $cartLink = $inPublicFolder ? './cart.php' : './public/cart.php';
 ?>
 
 <!-- Fixed Cart Icon - Always visible in bottom right -->
-<a href="<?php echo $cartLink; ?>?lang=<?php echo sanitizeOutput($lang); ?>" class="cart-link">
+<a href="<?php echo $cartLink; ?>?lang=<?php echo htmlspecialchars($lang, ENT_QUOTES, 'UTF-8'); ?>" class="cart-link">
     🛒 <?php echo $lang === 'cs' ? 'Košík' : 'Cart'; ?>
     <?php if ($cart_count > 0): ?>
         <span class="cart-count"><?php echo $cart_count; ?></span>
