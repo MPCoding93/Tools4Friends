@@ -1,7 +1,4 @@
 <?php
-define('APP_INIT', true);
-
-require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
 

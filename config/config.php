@@ -4,8 +4,9 @@
  * This file contains non-sensitive configuration data
  */
 
-// Prevent direct access
-if (!defined('APP_INIT')) {
+// Only prevent direct access if this file is accessed directly via browser
+// Allow inclusion from other PHP files
+if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
     die('Direct access not permitted');
 }
 
