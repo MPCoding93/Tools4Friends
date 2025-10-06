@@ -18,10 +18,8 @@ define('APP_INCLUDES', APP_ROOT . '/app');
 define('APP_LOGS', APP_ROOT . '/logs');
 define('APP_UPLOADS', APP_PUBLIC . '/uploads');
 
-// URL Base Paths
-// Since your site is at https://tools4friends.kvalitne.cz/ (root of domain)
-// BASE_URL should be empty or just '/'
-define('BASE_URL', '');
+// URL Base Paths (adjust based on your hosting)
+define('BASE_URL', '/Tools4Friends');
 define('PUBLIC_URL', BASE_URL . '/public');
 define('UPLOADS_URL', PUBLIC_URL . '/uploads');
 

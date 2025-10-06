@@ -55,7 +55,7 @@ function checkSessionTimeout() {
         (time() - $_SESSION['last_activity'] > $timeout)) {
         session_unset();
         session_destroy();
-        header("Location: /public/login.php?timeout=1");
+        header("Location: /Tools4Friends/public/login.php?timeout=1");
         exit();
     }
     $_SESSION['last_activity'] = time();
@@ -208,7 +208,7 @@ function logSecurityEvent($event, $details = []) {
 
 function requireLogin($lang = 'en') {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /public/login.php?lang=" . $lang);
+        header("Location: /Tools4Friends/public/login.php?lang=" . $lang);
         exit();
     }
 }

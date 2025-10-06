@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 'Email systém není dostupný. Kontaktujte prosím administrátora.' : 
                                 'Email system is not available. Please contact the administrator.');
                         } else {
-                            $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/public/reset_password.php?token=" . $token . "&lang=" . $lang;
+                            $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/Tools4Friends/public/reset_password.php?token=" . $token . "&lang=" . $lang;
 
                             $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
                             try {
