@@ -1,15 +1,10 @@
 <?php
 /**
  * Secure Configuration Credentials
- * This file contains sensitive configuration data
+ * This file contains SMTP email configuration only
+ * Database credentials are in .env file
  * Make sure this file is NOT accessible via web browser
  */
-
-// Database Configuration
-define('DB_HOST', 'localhost'); // Update with your database host
-define('DB_USER', 'your_database_user'); // Update with your database username
-define('DB_PASS', 'your_database_password'); // Update with your database password
-define('DB_NAME', 'your_database_name'); // Update with your database name
 
 // Gmail SMTP Settings (for sending emails)
 // IMPORTANT: Replace with your actual Gmail credentials
