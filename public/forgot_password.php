@@ -72,7 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $mail->SMTPSecure = SMTP_ENCRYPTION;
                             $mail->Port       = SMTP_PORT;
 
-                            $mail->setFrom(SMTP_USERNAME, 'Tools4Friends No-Reply');
+                            // Use proper from address to avoid "unverified" warning
+                            $from_email = defined('COMPANY_EMAIL') ? COMPANY_EMAIL : SMTP_USERNAME;
+                            $from_name = defined('COMPANY_NAME') ? COMPANY_NAME : 'Tools4Friends';
+                            
+                            $mail->setFrom($from_email, $from_name);
+                            $mail->addReplyTo($from_email, $from_name);
                             $mail->addAddress($email);
 
                             $mail->isHTML(true);
