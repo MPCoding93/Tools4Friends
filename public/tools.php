@@ -91,27 +91,44 @@ if ($loggedIn) {
         <?php include __DIR__ . '/../app/navbar.php'; ?>
 
         <main>
-            <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
+            <div class="tools-header">
+                <h1 class="page_title"><?php echo $lang === 'cs' ? 'Nářadí' : 'Tools'; ?></h1>
+                
+                <!-- Hamburger button for mobile/tablet -->
+                <button class="category-hamburger" id="categoryToggle" aria-label="Toggle category menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-            <nav class="category-nav">
-                <!-- Add "All" category option with relative path -->
-                <a href="./tools.php?category=All&lang=<?php echo sanitizeOutput($lang); ?>"
-                    class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
-                    <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
-                </a>
-
-                <?php
-                // Reset result pointer if needed
-                if ($category_result->num_rows > 0) {
-                    $category_result->data_seek(0);
-                }
-
-                while ($category_row = $category_result->fetch_assoc()): ?>
-                    <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo sanitizeOutput($lang); ?>"
-                        class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
-                        <?php echo sanitizeOutput($category_row['category_name']); ?>
+            <!-- Category navigation with hamburger functionality -->
+            <nav class="category-nav" id="categoryNav">
+                <div class="category-nav-header">
+                    <h3><?php echo $lang === 'cs' ? 'Kategorie' : 'Categories'; ?></h3>
+                    <button class="category-close" id="categoryClose" aria-label="Close menu">&times;</button>
+                </div>
+                
+                <div class="category-links">
+                    <!-- Add "All" category option with relative path -->
+                    <a href="./tools.php?category=All&lang=<?php echo sanitizeOutput($lang); ?>"
+                        class="<?php echo $selected_category === 'All' ? 'active' : ''; ?>">
+                        <?php echo $lang === 'cs' ? 'Vše' : 'All'; ?>
                     </a>
-                <?php endwhile; ?>
+
+                    <?php
+                    // Reset result pointer if needed
+                    if ($category_result->num_rows > 0) {
+                        $category_result->data_seek(0);
+                    }
+
+                    while ($category_row = $category_result->fetch_assoc()): ?>
+                        <a href="./tools.php?category=<?php echo urlencode($category_row['category_name']); ?>&lang=<?php echo sanitizeOutput($lang); ?>"
+                            class="<?php echo $selected_category === $category_row['category_name'] ? 'active' : ''; ?>">
+                            <?php echo sanitizeOutput($category_row['category_name']); ?>
+                        </a>
+                    <?php endwhile; ?>
+                </div>
             </nav>
 
             <div class="tool-list">

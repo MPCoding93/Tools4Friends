@@ -25,7 +25,78 @@ document.addEventListener("DOMContentLoaded", function() {
     initializeCalendar(unavailableRanges);
     initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfToken);
   }
+  
+  // Initialize category hamburger menu
+  initializeCategoryMenu();
 });
+
+// Category hamburger menu functionality
+function initializeCategoryMenu() {
+  const hamburger = document.getElementById('categoryToggle');
+  const categoryNav = document.getElementById('categoryNav');
+  const closeBtn = document.getElementById('categoryClose');
+  
+  if (!hamburger || !categoryNav) return;
+  
+  // Create overlay element
+  const overlay = document.createElement('div');
+  overlay.className = 'category-overlay';
+  overlay.id = 'categoryOverlay';
+  document.body.appendChild(overlay);
+  
+  // Toggle menu function
+  function toggleMenu() {
+    const isActive = categoryNav.classList.contains('active');
+    
+    if (isActive) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  }
+  
+  function openMenu() {
+    categoryNav.classList.add('active');
+    hamburger.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+  }
+  
+  function closeMenu() {
+    categoryNav.classList.remove('active');
+    hamburger.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+  
+  // Event listeners
+  hamburger.addEventListener('click', toggleMenu);
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMenu);
+  }
+  
+  overlay.addEventListener('click', closeMenu);
+  
+  // Close menu when clicking a category link
+  categoryNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+  
+  // Close menu on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && categoryNav.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+  
+  // Close menu when window is resized to desktop size
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 900 && categoryNav.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+}
 
 // Language functions
 function initializeLanguage() {
