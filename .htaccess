@@ -29,12 +29,6 @@ ErrorDocument 500 /Tools4Friends/public/error_500.php
     Deny from all
 </FilesMatch>
 
-# Protect config directory
-<DirectoryMatch "^.*/config">
-    Order allow,deny
-    Deny from all
-</DirectoryMatch>
-
 # Protect logs directory
 <DirectoryMatch "^.*/logs">
     Order allow,deny
