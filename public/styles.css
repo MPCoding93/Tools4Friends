@@ -803,7 +803,12 @@ nav {
 }
 
 .category-nav-header {
-    display: none; /* Hidden on desktop */
+    display: none !important; /* Hidden on desktop - force hide */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #1F2D5A;
 }
 
 .category-nav-header h3 {
@@ -812,7 +817,7 @@ nav {
 }
 
 .category-close {
-    display: none;
+    display: none !important; /* Hidden on desktop - force hide */
     background: none;
     border: none;
     font-size: 32px;
@@ -1953,11 +1958,11 @@ footer {
     }
     
     .category-nav-header {
-        display: flex;
+        display: flex !important; /* Show on mobile/tablet */
     }
     
     .category-close {
-        display: block;
+        display: block !important; /* Show on mobile/tablet */
     }
     
     .category-links {
