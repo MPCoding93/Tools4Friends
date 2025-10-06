@@ -23,7 +23,15 @@ if (!isset($_SESSION['cart'])) {
 
 // Handle cart actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'remove' && isset($_POST['cart_index'])) {
+    // Validate CSRF token for all cart actions
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error_message = $lang === 'cs' ? 'Bezpečnostní ověření selhalo' : 'Security validation failed';
+        logSecurityEvent('CSRF validation failed on cart action', [
+            'user_id' => $user_id,
+            'action' => $_POST['action'] ?? 'unknown',
+            'ip' => $_SERVER['REMOTE_ADDR']
+        ]);
+    } else if ($_POST['action'] === 'remove' && isset($_POST['cart_index'])) {
         $cart_index = intval($_POST['cart_index']);
         if (isset($_SESSION['cart'][$cart_index])) {
             array_splice($_SESSION['cart'], $cart_index, 1);
@@ -31,9 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         header("Location: cart.php?lang=" . $lang);
         exit();
-    }
-    
-    if ($_POST['action'] === 'update_dates' && isset($_POST['cart_index'])) {
+    } else if ($_POST['action'] === 'update_dates' && isset($_POST['cart_index'])) {
         $cart_index = intval($_POST['cart_index']);
         $new_start = $_POST['start_date'] ?? '';
         $new_end = $_POST['end_date'] ?? '';
@@ -252,6 +258,7 @@ $csrf_token = generateCSRFToken();
                                 <?php echo htmlspecialchars($item['owner_firstname'] . ' ' . $item['owner_lastname']); ?>
                             </p>
                             <form method="POST" class="mt-10">
+                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <input type="hidden" name="action" value="update_dates">
                                 <input type="hidden" name="cart_index" value="<?php echo $item['cart_index']; ?>">
                                 
@@ -294,6 +301,7 @@ $csrf_token = generateCSRFToken();
                             </form>
                             
                             <form method="POST" class="mt-10">
+                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <input type="hidden" name="action" value="remove">
                                 <input type="hidden" name="cart_index" value="<?php echo $item['cart_index']; ?>">
                                 <button type="submit" class="btn-remove w-100">

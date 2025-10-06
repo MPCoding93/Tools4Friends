@@ -1,6 +1,7 @@
 <?php
 // This file assumes session_start() has already been called in the main script
-// and $lang variable is set.
+// Ensure $lang variable is set with fallback
+$lang = $lang ?? $_GET['lang'] ?? 'en';
 
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
