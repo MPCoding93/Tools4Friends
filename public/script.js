@@ -613,26 +613,38 @@ function initializeToolAvailabilityPage(toolId, lang, unavailableRanges, csrfTok
 }
 
 // My Orders page - cancel order function
-function cancelOrder(availabilityId, lang) {
+function cancelOrder(availabilityId, lang, buttonElement) {
   const confirmMessage = lang === 'cs' 
     ? 'Opravdu chcete zrušit tuto objednávku? Tato akce je nevratná.' 
     : 'Are you sure you want to cancel this order? This action cannot be undone.';
     
   if (confirm(confirmMessage)) {
-    // Show loading state (optional - you could add a loading indicator)
-    const button = event.target;
-    const originalText = button.textContent;
-    button.disabled = true;
-    button.textContent = lang === 'cs' ? 'Ruším...' : 'Cancelling...';
+    // Show loading state if button element is provided
+    let originalText = '';
+    if (buttonElement) {
+      originalText = buttonElement.textContent;
+      buttonElement.disabled = true;
+      buttonElement.textContent = lang === 'cs' ? 'Ruším...' : 'Cancelling...';
+    }
+    
+    // Create form data
+    const formData = new URLSearchParams();
+    formData.append('availability_id', availabilityId);
+    formData.append('lang', lang);
     
     fetch('cancel_order.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `availability_id=${availabilityId}&lang=${lang}`
+      body: formData.toString()
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         alert(data.message);
@@ -640,8 +652,10 @@ function cancelOrder(availabilityId, lang) {
       } else {
         alert(data.message);
         // Re-enable button on error
-        button.disabled = false;
-        button.textContent = originalText;
+        if (buttonElement) {
+          buttonElement.disabled = false;
+          buttonElement.textContent = originalText;
+        }
       }
     })
     .catch(error => {
@@ -651,8 +665,10 @@ function cancelOrder(availabilityId, lang) {
         : 'Error communicating with server. Please try again.';
       alert(errorMessage);
       // Re-enable button on error
-      button.disabled = false;
-      button.textContent = originalText;
+      if (buttonElement) {
+        buttonElement.disabled = false;
+        buttonElement.textContent = originalText;
+      }
     });
   }
 }

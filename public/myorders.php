@@ -183,7 +183,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
                                 
                                 <div class="mt-15">
                                     <?php if ($can_cancel): ?>
-                                        <button onclick="cancelOrder(<?php echo $avail['availability_id']; ?>, '<?php echo $lang; ?>')" class="btn btn-cancel">
+                                        <button onclick="cancelOrder(<?php echo $avail['availability_id']; ?>, '<?php echo $lang; ?>', this)" class="btn btn-cancel">
                                             <?php echo $lang === 'cs' ? '✗ Zrušit objednávku' : '✗ Cancel Order'; ?>
                                         </button>
                                     <?php else: ?>
