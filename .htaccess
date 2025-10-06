@@ -2,8 +2,9 @@ DirectoryIndex index.php index.html index.htm
 Options -Indexes
 
 # Custom Error Pages
-ErrorDocument 404 /Tools4Friends/public/error_404.php
-ErrorDocument 500 /Tools4Friends/public/error_500.php
+# Since your site is at root domain (tools4friends.kvalitne.cz)
+ErrorDocument 404 /public/error_404.php
+ErrorDocument 500 /public/error_500.php
 
 # Force HTTPS (uncomment when SSL is ready)
 # RewriteEngine On
