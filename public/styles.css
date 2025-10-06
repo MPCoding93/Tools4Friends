@@ -752,9 +752,9 @@ nav {
     margin: 0;
 }
 
-/* Hamburger button - hidden on desktop */
+/* Hamburger button - hidden on desktop, shown on tablet/mobile */
 .category-hamburger {
-    display: none;
+    display: none; /* Hidden by default on desktop */
     flex-direction: column;
     justify-content: space-around;
     width: 40px;
@@ -793,23 +793,17 @@ nav {
     transform: rotate(-45deg) translate(7px, -7px);
 }
 
-/* Category Navigation */
+/* Category Navigation - Desktop Style (default) */
 .category-nav {
     margin: 30px 0;
     padding: 20px;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(31, 45, 90, 0.1);
-    transition: all 0.3s ease;
 }
 
 .category-nav-header {
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #1F2D5A;
+    display: none; /* Hidden on desktop */
 }
 
 .category-nav-header h3 {
