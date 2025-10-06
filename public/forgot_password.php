@@ -5,11 +5,12 @@ require_once __DIR__ . '/../app/db_connect.php';
 startSecureSession();
 
 // Load credentials
-require_once __DIR__ . '/../config/config_credentials.php';
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../config/config.credentials.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
 
 $lang = $_GET['lang'] ?? 'en';
 $error = '';
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($result->num_rows > 0) {
                     // 2. Generate a unique token
                     $token = bin2hex(random_bytes(32));
-                    $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                    $expires_at = date('Y-m-d H:i:s', strtotime('+30 minutes')); // Reduced to 30 minutes
 
                     // 3. Store token in database
                     $stmt_invalidate = $conn->prepare("UPDATE password_resets SET used = TRUE WHERE email = ? AND used = FALSE");
@@ -71,26 +72,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $mail->SMTPSecure = SMTP_ENCRYPTION;
                             $mail->Port       = SMTP_PORT;
 
-                            // Use proper from address to avoid "unverified" warning
-                            $from_email = defined('COMPANY_EMAIL') ? COMPANY_EMAIL : SMTP_USERNAME;
-                            $from_name = defined('COMPANY_NAME') ? COMPANY_NAME : 'Tools4Friends';
-                            
-                            $mail->setFrom($from_email, $from_name);
-                            $mail->addReplyTo($from_email, $from_name);
+                            $mail->setFrom(SMTP_USERNAME, 'Tools4Friends No-Reply');
                             $mail->addAddress($email);
 
                             $mail->isHTML(true);
                             $mail->Subject = ($lang === 'cs' ? 'Reset hesla Tools4Friends' : 'Tools4Friends Password Reset');
                             $mail->Body    = ($lang === 'cs' ?
-                                '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 1 hodinu.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
-                                '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 1 hour.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
+                                '<p>Dobrý den,</p><p>Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends.</p><p>Pro resetování hesla klikněte na následující odkaz:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>Tento odkaz vyprší za 30 minut.</p><p>Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat.</p><p>S pozdravem,<br>Tým Tools4Friends</p>' :
+                                '<p>Hello,</p><p>We received a request to reset the password for your Tools4Friends account.</p><p>To reset your password, please click on the following link:</p><p><a href="' . $reset_link . '">' . $reset_link . '</a></p><p>This link will expire in 30 minutes.</p><p>If you did not request a password reset, please ignore this email.</p><p>Sincerely,<br>The Tools4Friends Team</p>');
                             $mail->AltBody = ($lang === 'cs' ?
-                                'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 1 hodinu. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
-                                'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 1 hour. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
+                                'Dobrý den, Obdrželi jsme požadavek na resetování hesla pro váš účet Tools4Friends. Pro resetování hesla klikněte na následující odkaz: ' . $reset_link . ' Tento odkaz vyprší za 30 minut. Pokud jste o reset hesla nežádali, můžete tuto zprávu ignorovat. S pozdravem, Tým Tools4Friends' :
+                                'Hello, We received a request to reset the password for your Tools4Friends account. To reset your password, please click on the following link: ' . $reset_link . ' This link will expire in 30 minutes. If you did not request a password reset, please ignore this email. Sincerely, The Tools4Friends Team');
 
                             $mail->send();
                             
-                            logSecurityEvent('Password reset email sent', ['email' => $email]);
+                            logSecurityEvent('Password reset requested', ['email' => $email]);
                         } catch (Exception $e) {
                             error_log("Email sending failed: " . $mail->ErrorInfo);
                             $error = ($lang === 'cs' ? 'Nepodařilo se odeslat email. Zkuste to prosím později.' : 'Could not send email. Please try again later.');

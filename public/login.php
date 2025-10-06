@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$rate_check['allowed']) {
                     $error = $rate_check['message'];
                 } else {
-                    $username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+                    $username = filter_var($username, FILTER_SANITIZE_STRING);
 
                     $stmt = $conn->prepare("SELECT user_id, firstname, lastname, password_hash, admin FROM Users WHERE username = ? OR email = ?");
                     $stmt->bind_param("ss", $username, $username);
@@ -92,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (strlen($password) < 8) {
                 $error = $lang === 'cs' ? 'Heslo musí mít alespoň 8 znaků.' : 'Password must be at least 8 characters.';
             } else {
-                $firstname = htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8');
-                $lastname = htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8');
+                $firstname = filter_var($firstname, FILTER_SANITIZE_STRING);
+                $lastname = filter_var($lastname, FILTER_SANITIZE_STRING);
                 
                 if (!empty($phone)) {
                     $phone = validatePhone($phone);

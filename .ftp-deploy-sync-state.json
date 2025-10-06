@@ -1,0 +1,533 @@
+{
+    "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
+    "version": "1.0.0",
+    "generatedTime": 1759660354453,
+    "data": [
+        {
+            "type": "file",
+            "name": ".env",
+            "size": 93,
+            "hash": "43876fdaa750f4165a09490d3e7f1a9d5b912b1320ea2d2d73a4a743461ef897"
+        },
+        {
+            "type": "file",
+            "name": ".htaccess",
+            "size": 897,
+            "hash": "f7af0a55eccba5e273dae462211a03b2c2b37cdb6391cf3f15e859d6c284b2c2"
+        },
+        {
+            "type": "file",
+            "name": "BUGS_FIXED.md",
+            "size": 3430,
+            "hash": "2a57d0bb0c703678905cfda64018794429d717e2c37735b81c8a2a3e96ce0eb8"
+        },
+        {
+            "type": "file",
+            "name": "REFACTORING_SUMMARY.md",
+            "size": 9693,
+            "hash": "dd7c1e732c886ceaa8eee8a2d5d30341273d4ad362eb684fe17e9f095dc1bdf2"
+        },
+        {
+            "type": "file",
+            "name": "SECURITY_REVIEW.md",
+            "size": 6955,
+            "hash": "825a0748fe7301c91269bacadda365e1c03388ff0f386f443888f033139bdba9"
+        },
+        {
+            "type": "file",
+            "name": "TODO.md",
+            "size": 2164,
+            "hash": "2c7d7436d770ed5f9dd8e6d2871dabbb7295a8bcaed2d3bc679ca59f1961f71b"
+        },
+        {
+            "type": "folder",
+            "name": "app"
+        },
+        {
+            "type": "folder",
+            "name": "archive"
+        },
+        {
+            "type": "folder",
+            "name": "config"
+        },
+        {
+            "type": "file",
+            "name": "index.php",
+            "size": 4700,
+            "hash": "dd563b042a22637b9c4098417107680e30046ab054671ed97050a55a3b9e1d7a"
+        },
+        {
+            "type": "folder",
+            "name": "public"
+        },
+        {
+            "type": "folder",
+            "name": "vendor"
+        },
+        {
+            "type": "file",
+            "name": "app/cart_icon.php",
+            "size": 571,
+            "hash": "0ebc1c74c6695d47cfd4c90d897d64f1e4a445231e5959a63c950fb6c47f1324"
+        },
+        {
+            "type": "file",
+            "name": "app/db_connect.php",
+            "size": 660,
+            "hash": "b6815e08ec3ec5971ee0fdd27fcdb344a8360a176e6f666c0f1a369afed2a577"
+        },
+        {
+            "type": "file",
+            "name": "app/email_functions.php",
+            "size": 20157,
+            "hash": "b37199e1a72afd6bd7f4ad5c65c8eec23c03947f7179c72b0900940937b9be36"
+        },
+        {
+            "type": "file",
+            "name": "app/navbar.php",
+            "size": 3775,
+            "hash": "d58c4a65ea770be8c446cdfdf402463763fc9307f664f2caa396887aa0744875"
+        },
+        {
+            "type": "file",
+            "name": "app/security.php",
+            "size": 6811,
+            "hash": "f92d422e16aaa2266f808470e0264ae6ac9c6db5ad23fbbd356d06cd699c2d67"
+        },
+        {
+            "type": "file",
+            "name": "archive/.htaccess",
+            "size": 176,
+            "hash": "74693fe71609085ffae0471429ff095ba40301922a5b1669e38c0cf189738d40"
+        },
+        {
+            "type": "file",
+            "name": "archive/README",
+            "size": 781,
+            "hash": "f65def70069c385efe307e89f3f669f63f4d8f52bed4e4145b0230133dcf5cde"
+        },
+        {
+            "type": "file",
+            "name": "archive/add_tool.php",
+            "size": 8856,
+            "hash": "5446abf6ded2adeebd4863580ef7fcc825be4714510f2270ec0274aa6879f647"
+        },
+        {
+            "type": "file",
+            "name": "archive/android-chrome-512x512.png",
+            "size": 20283,
+            "hash": "47012056b8b44dc86a7d32193e96cc33fed69e30a2b6fb07930ff326ee31ba95"
+        },
+        {
+            "type": "file",
+            "name": "archive/android-chrome-dark-dark-192x192.png",
+            "size": 6657,
+            "hash": "4e13c49441b80a0b82cb48df09e60240981a8c4327174544d5464b102f615859"
+        },
+        {
+            "type": "file",
+            "name": "archive/apple-touch-dark-icon.png",
+            "size": 5893,
+            "hash": "f81d8a30b8a2ea2528244b067eb7f3302eb77cc9ded7db70d01b69bd4b4948e3"
+        },
+        {
+            "type": "file",
+            "name": "archive/archive_README.txt",
+            "size": 30,
+            "hash": "08872ca1a888f8125d7db397c70d12241ade5ec762e08cd4109f378f6754533f"
+        },
+        {
+            "type": "file",
+            "name": "archive/contacts.php",
+            "size": 2973,
+            "hash": "e79dbc7845194a1db81e5cea3a76bc870c459097d9b00b4b52fa1e8853ee4386"
+        },
+        {
+            "type": "file",
+            "name": "archive/db_connect.php",
+            "size": 322,
+            "hash": "8761437a07ef3e20a4429751b446943fb70d6e272d003d940763f97ffb6f0514"
+        },
+        {
+            "type": "file",
+            "name": "archive/edit_tool.php",
+            "size": 11637,
+            "hash": "2613fd1768a57a3ba0250604d4da60bfdc9069f65ca63d5a5b718b72e2df501c"
+        },
+        {
+            "type": "file",
+            "name": "archive/favicon-dark-16x16.png",
+            "size": 434,
+            "hash": "6c21dfa3eb4403d8a59fefc961eb4be10f01e4f215d2d4ecafcc90ec5c7c0aa0"
+        },
+        {
+            "type": "file",
+            "name": "archive/favicon-dark-32x32.png",
+            "size": 789,
+            "hash": "fd7433eacf87b2de3dcda1e6c83a70ee3770ba98d1a2e33078c845be65146252"
+        },
+        {
+            "type": "file",
+            "name": "archive/favicon-dark.ico",
+            "size": 15406,
+            "hash": "e6aa68844672a0890348f78499789dc496191797267601aa2b16a315f8b0bb34"
+        },
+        {
+            "type": "file",
+            "name": "archive/forgot_password.php",
+            "size": 8346,
+            "hash": "ea6b58d8d6b1f02757b32a231ee7637ee061a6047f19061fcd90133b7dd01b1e"
+        },
+        {
+            "type": "file",
+            "name": "archive/index.php",
+            "size": 5400,
+            "hash": "762a1483a2f8367c557f75595d3e99fe65fe0b1bc908edfd463c83c57aa3c479"
+        },
+        {
+            "type": "file",
+            "name": "archive/login.php",
+            "size": 9924,
+            "hash": "4d3f6eeaf017280bc6ede8a503d65d77556681b6dc15bfd171c52d40c5ba495e"
+        },
+        {
+            "type": "file",
+            "name": "archive/logout.php",
+            "size": 157,
+            "hash": "5549296f218073bf6812374cb8cbee57d6a4ab90ed5935fb3affd0a76e5400be"
+        },
+        {
+            "type": "file",
+            "name": "archive/myprofile.php",
+            "size": 13688,
+            "hash": "acd3ade1f76cdb267e9d5f4a3baf52e1c3d75029fc56a3e439ca510b05816ef3"
+        },
+        {
+            "type": "file",
+            "name": "archive/navbar.php",
+            "size": 2466,
+            "hash": "6d87551ae8ce317451197368ca9d16695baab937163898c9f931de2755ea84e1"
+        },
+        {
+            "type": "file",
+            "name": "archive/reset_password.php",
+            "size": 6664,
+            "hash": "4b9eb81ffa91e90769cfe13d590bd5112c06d8a2bb014cac6d442e244342a3fb"
+        },
+        {
+            "type": "file",
+            "name": "archive/script.js",
+            "size": 8687,
+            "hash": "5102f5a720d31cd53395035d60e4d162a85fb02ae9f59cf96d8df81367102b29"
+        },
+        {
+            "type": "file",
+            "name": "archive/styles.css",
+            "size": 22825,
+            "hash": "3fda9e9560cf87fd0784e04055ec721b6dd734559d2d7fe0d32b95910ef530b9"
+        },
+        {
+            "type": "file",
+            "name": "archive/tool_availability.php",
+            "size": 6288,
+            "hash": "c4dad69fe153ccca8c38b52fd3c17b46c9290445d61ef7d03ea33537aa3e7ac6"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools.php",
+            "size": 5894,
+            "hash": "e0acd7b82f396598e0c687384c0d4bf4a785bcf4ecf45c3884669b867febb571"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_Dark.png",
+            "size": 30679,
+            "hash": "3eb55eb969fe18e7471ca3f2820387ad80b3f9345d83f046cd203c9be05f1e20"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_dark_Banner_2000x400.png",
+            "size": 57625,
+            "hash": "67103e47c6a61a8835f7003906724d648298f8f136b4c2709a1e50d8e6c88380"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_light.png",
+            "size": 28777,
+            "hash": "6cfccada68aec1f4c17927d00cb4a2bf06afebc75b887982e81a21bee3ba4daf"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_light_100x75.png",
+            "size": 5537,
+            "hash": "0f741573551dc9fe0d6991486a8f1f2da49a7e575d7639e709eec8098b09a335"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_light_2000x650.png",
+            "size": 30009,
+            "hash": "aca35544489a1610b368c7b4c1198c11fae85e4aed666654d2ff3af723034cf1"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_light_200x150.png",
+            "size": 6573,
+            "hash": "262d32b7829aedfc5c9de25803782b2773d08bebce36e718f0068a3e6ffec0b9"
+        },
+        {
+            "type": "file",
+            "name": "archive/tools4friends_light_500.png",
+            "size": 10059,
+            "hash": "cb466224037e961adefd8b29d3a838843ef5f1e9fed075d6ccf5fa1dc0dc6ca2"
+        },
+        {
+            "type": "file",
+            "name": "config/config_credentials.php",
+            "size": 1750,
+            "hash": "75a4aa3f97371c20a3a3d9427dcc162389def54b26f66cf9f2bca81b2f200d27"
+        },
+        {
+            "type": "file",
+            "name": "config/env_loader.php",
+            "size": 984,
+            "hash": "1275716ef5ae26e858d716d910749c5b209730aa173fb3030afbe0bba3830c8d"
+        },
+        {
+            "type": "file",
+            "name": "public/add_tool.php",
+            "size": 9856,
+            "hash": "890392cbaca3fc111921eb5ed4a8d683c10704f6ed24dbc95c090f17ab5c07c7"
+        },
+        {
+            "type": "file",
+            "name": "public/admin_orders.php",
+            "size": 26985,
+            "hash": "aaaed8041a4d7358522093c226133b9a6733157dd402f7537bd90fa23e01ceda"
+        },
+        {
+            "type": "file",
+            "name": "public/admin_settings.php",
+            "size": 15616,
+            "hash": "2047be745960dd965dcb2a8458432784175b5276d41dee4238f2d8ce53e71569"
+        },
+        {
+            "type": "file",
+            "name": "public/cancel_order.php",
+            "size": 8579,
+            "hash": "cfe1fff54ab6b2cdd6c0a522c0bed6d21a04bf57d4cd1686a80ddac5a47a59ee"
+        },
+        {
+            "type": "file",
+            "name": "public/cart.php",
+            "size": 15336,
+            "hash": "a74ae0a8440067f21ad57be0d0a6376d58ce6c2072a75b21a083e02a931f8899"
+        },
+        {
+            "type": "file",
+            "name": "public/contacts.php",
+            "size": 3091,
+            "hash": "505b93aa706efbbab4a445ac76ef40601662ea691b3af21aba9accbf1eb03819"
+        },
+        {
+            "type": "file",
+            "name": "public/edit_tool.php",
+            "size": 13270,
+            "hash": "affcba08980030dee78c38123dfba01932de45fcef7825adc832896cfa3799d0"
+        },
+        {
+            "type": "folder",
+            "name": "public/favicon"
+        },
+        {
+            "type": "file",
+            "name": "public/forgot_password.php",
+            "size": 9345,
+            "hash": "26501e3f53fec8580ff6795075e734848f3215a97088ac9747a9ca7bd2d679d7"
+        },
+        {
+            "type": "file",
+            "name": "public/generate_invoice.php",
+            "size": 6913,
+            "hash": "7abdfe8fad0aa399349c2eea51151de943d96b0c3e4222f6acec3269a12b050d"
+        },
+        {
+            "type": "folder",
+            "name": "public/images"
+        },
+        {
+            "type": "file",
+            "name": "public/login.php",
+            "size": 11445,
+            "hash": "6a3a9aed91c18d876645db59a13f279d254825342c2b0f86900f819fd1a68c32"
+        },
+        {
+            "type": "file",
+            "name": "public/logout.php",
+            "size": 140,
+            "hash": "2c74827e6205a5741958b8a47617556f154ace7b6c49c7a2ed65db99a2542275"
+        },
+        {
+            "type": "file",
+            "name": "public/myorders.php",
+            "size": 19488,
+            "hash": "cc077cbfc36269582161159a4ddec4df5a9a59150fcb9aa32fe8a93370241433"
+        },
+        {
+            "type": "file",
+            "name": "public/myprofile.php",
+            "size": 13890,
+            "hash": "1e632a3a1d64f3e167d9d853359b8f96813e41b46bc4ba796ef1c23598d0e074"
+        },
+        {
+            "type": "file",
+            "name": "public/process_order_approval.php",
+            "size": 12261,
+            "hash": "559052ce5d6b4b7a784bdff5b9c77a5978f5a5d123e1477a84cdd69c34ef483b"
+        },
+        {
+            "type": "file",
+            "name": "public/reset_password.php",
+            "size": 8541,
+            "hash": "8e07a57c0e84c83dff5d1abb682b0fabcf87f9b008cc0e4e5dd6f02b9483daf0"
+        },
+        {
+            "type": "file",
+            "name": "public/script.js",
+            "size": 19551,
+            "hash": "a05ae85e2b2bbe61624288a1225d6a40cd8afb71b0739c0c7ab0f13d4f98a0ff"
+        },
+        {
+            "type": "file",
+            "name": "public/styles.css",
+            "size": 39084,
+            "hash": "152cc8381d7a93bd54b2b138efbbe810eee3267cfa800adf8610660a2c9efec7"
+        },
+        {
+            "type": "file",
+            "name": "public/tool_availability.php",
+            "size": 12063,
+            "hash": "4cd7807048d1b55be2415ebd7b8a36cf172fbce414bf30206ec0d898bb70d83d"
+        },
+        {
+            "type": "file",
+            "name": "public/tools.php",
+            "size": 6906,
+            "hash": "2d60f7aae0906574761846b69e675b19b1c067281f4af1d280b096a0ac0c9437"
+        },
+        {
+            "type": "folder",
+            "name": "public/uploads"
+        },
+        {
+            "type": "folder",
+            "name": "vendor/phpmailer"
+        },
+        {
+            "type": "file",
+            "name": "public/favicon/favicon-dark-16x16.png",
+            "size": 434,
+            "hash": "6c21dfa3eb4403d8a59fefc961eb4be10f01e4f215d2d4ecafcc90ec5c7c0aa0"
+        },
+        {
+            "type": "file",
+            "name": "public/favicon/favicon-dark-32x32.png",
+            "size": 789,
+            "hash": "fd7433eacf87b2de3dcda1e6c83a70ee3770ba98d1a2e33078c845be65146252"
+        },
+        {
+            "type": "file",
+            "name": "public/favicon/favicon-dark.ico",
+            "size": 15406,
+            "hash": "e6aa68844672a0890348f78499789dc496191797267601aa2b16a315f8b0bb34"
+        },
+        {
+            "type": "folder",
+            "name": "public/images/logos"
+        },
+        {
+            "type": "folder",
+            "name": "public/images/banners"
+        },
+        {
+            "type": "file",
+            "name": "public/uploads/.htaccess",
+            "size": 228,
+            "hash": "7827cf024b05b76f6a098466f3860957e01f9ddb8710fb5da261894d6cbf046d"
+        },
+        {
+            "type": "folder",
+            "name": "vendor/phpmailer/phpmailer"
+        },
+        {
+            "type": "file",
+            "name": "public/images/logos/android-chrome-512x512.png",
+            "size": 20283,
+            "hash": "47012056b8b44dc86a7d32193e96cc33fed69e30a2b6fb07930ff326ee31ba95"
+        },
+        {
+            "type": "file",
+            "name": "public/images/logos/android-chrome-dark-dark-192x192.png",
+            "size": 6657,
+            "hash": "4e13c49441b80a0b82cb48df09e60240981a8c4327174544d5464b102f615859"
+        },
+        {
+            "type": "file",
+            "name": "public/images/logos/apple-touch-dark-icon.png",
+            "size": 5893,
+            "hash": "f81d8a30b8a2ea2528244b067eb7f3302eb77cc9ded7db70d01b69bd4b4948e3"
+        },
+        {
+            "type": "file",
+            "name": "public/images/banners/tools4friends_dark_Banner_2000x400.png",
+            "size": 57625,
+            "hash": "67103e47c6a61a8835f7003906724d648298f8f136b4c2709a1e50d8e6c88380"
+        },
+        {
+            "type": "folder",
+            "name": "vendor/phpmailer/phpmailer/src"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/DSNConfigurator.php",
+            "size": 6883,
+            "hash": "429f5f0a962864ec7b67efd572c0f85cc0f33fd4585413d8dc80d41c8562399e"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/Exception.php",
+            "size": 1256,
+            "hash": "22ab858ae438d98f58f41f38ad2191d1b0d59570aebea0463a7948cfae1021b7"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/OAuth.php",
+            "size": 3791,
+            "hash": "44b2c9a3b6e538a65b90261251f197d700e2eb90d51d4944fb80577263210fb4"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/OAuthTokenProvider.php",
+            "size": 1538,
+            "hash": "f2318ea1b2841b2481b636e205c281a733f9de944a71ae403e0b59fa71219572"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/PHPMailer.php",
+            "size": 187910,
+            "hash": "3e26ad3ca7b566fa8da5e7ac98d2bd78b4f4a2e09547fcc595329de85ae2def0"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/POP3.php",
+            "size": 12352,
+            "hash": "42baf6cd05e05c8dba369cf7da411955b5e0b1c791828d538ca99b17335d7df9"
+        },
+        {
+            "type": "file",
+            "name": "vendor/phpmailer/phpmailer/src/SMTP.php",
+            "size": 51856,
+            "hash": "772b589ff7a467a37de03e63a84172b01046bc59d852d8a663cc4dc8f96820ae"
+        }
+    ]
+}
