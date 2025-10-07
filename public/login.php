@@ -1,12 +1,14 @@
 <?php
 require_once __DIR__ . '/../app/security.php';
 require_once __DIR__ . '/../app/db_connect.php';
+require_once __DIR__ . '/../app/language_init.php';
+require_once __DIR__ . '/../app/cookie_functions.php';
 
 startSecureSession();
 
 $error = '';
 $success = '';
-$lang = $_GET['lang'] ?? 'en';
+$lang = initializeLanguage($conn);
 
 if (isset($_GET['timeout'])) {
     $error = $lang === 'cs' ? 'Vaše relace vypršela. Přihlaste se prosím znovu.' : 'Your session has expired. Please log in again.';
@@ -53,9 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['admin'] = $admin;
                             $_SESSION['last_activity'] = time();
                             
+                            // Load user's preferred language
+                            $user_lang = initializeLanguage($conn);
+                            $_SESSION['preferred_language'] = $user_lang;
+                            
                             logSecurityEvent('Successful login', ['user_id' => $user_id]);
                             
-                            header("Location: ../index.php?lang=" . $lang);
+                            header("Location: ../index.php?lang=" . $user_lang);
                             exit();
                         } else {
                             recordFailedLogin($username);
@@ -116,9 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         $password_hash = password_hash($password, PASSWORD_DEFAULT);
                         $ownerID = generateOwnerID($firstname, $lastname);
+                        $default_lang = 'cz'; // Default language for new users
 
-                        $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash, ownerID) VALUES (?, ?, ?, ?, ?, ?)");
-                        $stmt_insert->bind_param("ssssss", $firstname, $lastname, $email, $phone, $password_hash, $ownerID);
+                        $stmt_insert = $conn->prepare("INSERT INTO Users (firstname, lastname, email, phone, password_hash, ownerID, preferred_language) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        $stmt_insert->bind_param("sssssss", $firstname, $lastname, $email, $phone, $password_hash, $ownerID, $default_lang);
 
                         if ($stmt_insert->execute()) {
                             regenerateSession();
@@ -128,10 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['lastname'] = $lastname;
                             $_SESSION['admin'] = 0; // New users are not admins by default
                             $_SESSION['last_activity'] = time();
+                            $_SESSION['preferred_language'] = $default_lang;
                             
                             logSecurityEvent('New user registration', ['user_id' => $_SESSION['user_id'], 'email' => $email]);
 
-                            header("Location: ../index.php?lang=" . $lang);
+                            header("Location: ../index.php?lang=" . $default_lang);
                             exit();
                         } else {
                             error_log("Registration failed: " . $conn->error);

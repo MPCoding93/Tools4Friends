@@ -1,13 +1,18 @@
 <?php
 require_once __DIR__ . '/../app/security.php';
+require_once __DIR__ . '/../app/language_init.php';
+require_once __DIR__ . '/../app/cookie_functions.php';
 
 startSecureSession();
 
 // Include database connection
 include __DIR__ . '/../app/db_connect.php'; // Path from public/tools.php to app/db_connect.php
 
-// Get selected language from URL or default to English
-$lang = $_GET['lang'] ?? 'en';
+// Get selected language using centralized initialization
+$lang = initializeLanguage($conn);
+
+// Determine if we're in the public folder for cookie consent
+$inPublicFolder = true;
 
 // Get selected category or default to 'All'
 $selected_category = $_GET['category'] ?? 'All';
@@ -170,6 +175,8 @@ if ($loggedIn) {
             <p>&copy; <span id="year"></span> Tools4Friends</p>
         </footer>
     </div>
+    
+    <?php include __DIR__ . '/../app/cookie_consent.php'; ?>
 </body>
 
 </html>

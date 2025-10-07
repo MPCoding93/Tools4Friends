@@ -127,11 +127,86 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
+
+function updateUrlWithLanguage(lang) {
+  const url = new URL(window.location);
+  url.searchParams.set('lang', lang);
+  window.history.replaceState({}, '', url);
+}
+
+function switchLanguage(lang, page = null) {
+  // Send AJAX request to update language preference
+  fetch('./update_language.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `lang=${lang}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Reload the page with the new language parameter
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    } else {
+      console.error('Error updating language:', data.message);
+      // Still try to reload with new language even if update failed
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Fallback: reload page with new language parameter
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  });
+}
+
+
+function switchLanguage(lang, page = null) {
+  // Send AJAX request to update language preference
+  fetch('./update_language.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `lang=${lang}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Reload the page with the new language parameter
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    } else {
+      console.error('Error updating language:', data.message);
+      // Still try to reload with new language even if update failed
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Fallback: reload page with new language parameter
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  });
+}
+
+
 function updateLanguageButtons(activeLang) {
   document.querySelectorAll('.language-toggle button').forEach(button => {
     button.classList.toggle('active', 
-      (activeLang === 'en' && button.textContent.includes('English')) ||
-      (activeLang === 'cs' && button.textContent.includes('Čeština'))
+      (activeLang === 'en' && button.textContent === 'EN') ||
+      (activeLang === 'cs' && button.textContent === 'ČS')
     );
   });
 }
@@ -174,6 +249,81 @@ function switchLanguage(lang, page = null) {
     window.location.href = url.toString();
   });
 }
+
+
+function updateUrlWithLanguage(lang) {
+  const url = new URL(window.location);
+  url.searchParams.set('lang', lang);
+  window.history.replaceState({}, '', url);
+}
+
+function switchLanguage(lang, page = null) {
+  // Send AJAX request to update language preference
+  fetch('./update_language.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `lang=${lang}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Reload the page with the new language parameter
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    } else {
+      console.error('Error updating language:', data.message);
+      // Still try to reload with new language even if update failed
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Fallback: reload page with new language parameter
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  });
+}
+
+
+function switchLanguage(lang, page = null) {
+  // Send AJAX request to update language preference
+  fetch('./update_language.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `lang=${lang}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Reload the page with the new language parameter
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    } else {
+      console.error('Error updating language:', data.message);
+      // Still try to reload with new language even if update failed
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Fallback: reload page with new language parameter
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  });
+}
+
 
 // Calendar functions
 let currentDate = new Date();

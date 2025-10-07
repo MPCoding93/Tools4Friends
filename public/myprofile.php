@@ -1,18 +1,20 @@
 <?php
 // Start session and check authentication
 require_once __DIR__ . '/../app/security.php';
-require_once __DIR__ . '/../app/db_connect.php'; // Path from public/myprofile.php to app/db_connect.php
+require_once __DIR__ . '/../app/db_connect.php';
+require_once __DIR__ . '/../app/language_init.php';
+require_once __DIR__ . '/../app/cookie_functions.php';
 
 startSecureSession();
 
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php?lang=" . ($_GET['lang'] ?? 'en'));
-    exit();
-}
+// Get selected language using centralized initialization
+$lang = initializeLanguage($conn);
 
-// Get the language from the URL or default to English
-$lang = $_GET['lang'] ?? 'en';
+// Determine if we're in the public folder for cookie consent
+$inPublicFolder = true;
+
+// Redirect if not logged in
+requireLogin($lang);
 
 $user_id = $_SESSION['user_id'];
 $error = ''; // General error message
@@ -264,5 +266,7 @@ $fullName = htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname'
             <p>&copy; <span id="year"></span> Tools4Friends</p>
         </footer>
     </div>
+    
+    <?php include __DIR__ . '/../app/cookie_consent.php'; ?>
 </body>
 </html>

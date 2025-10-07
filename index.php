@@ -1,15 +1,21 @@
 <?php
 require_once __DIR__ . '/app/security.php';
+require_once __DIR__ . '/app/db_connect.php';
+require_once __DIR__ . '/app/language_init.php';
+require_once __DIR__ . '/app/cookie_functions.php';
 
 startSecureSession();
 
-$lang = $_GET['lang'] ?? 'en';
+$lang = initializeLanguage($conn);
 
 $loggedIn = isset($_SESSION['user_id']);
 $fullName = '';
 if ($loggedIn) {
     $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
 }
+
+// Determine if we're in the public folder or root for cookie consent
+$inPublicFolder = false;
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo sanitizeOutput($lang); ?>">
@@ -113,5 +119,7 @@ if ($loggedIn) {
         <p>© <span id="year"></span> Tools4Friends</p>
       </footer>
     </div>
+    
+    <?php include 'app/cookie_consent.php'; ?>
   </body>
 </html>
