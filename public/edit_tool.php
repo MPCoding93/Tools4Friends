@@ -61,43 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model = htmlspecialchars(strip_tags(trim($_POST['model'])), ENT_QUOTES, 'UTF-8');
         $technical_data = htmlspecialchars(strip_tags(trim($_POST['technical_data'])), ENT_QUOTES, 'UTF-8');
         $technical_data_cs = htmlspecialchars(strip_tags(trim($_POST['technical_data_cs'])), ENT_QUOTES, 'UTF-8');
-        $current_picture_path = $tool['picture']; // Keep current picture path by default
-
-        // Handle secure image upload
-        if (isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
-            $validation = validateFileUpload($_FILES['picture'], 5242880); // 5MB limit
-            
-            if ($validation['valid']) {
-                $target_dir = "uploads/tools/";
-                if (!is_dir($target_dir)) {
-                    mkdir($target_dir, 0755, true); // Secure permissions
-                }
-                
-                $secure_filename = generateSecureFilename($validation['ext']);
-                $target_file = $target_dir . $secure_filename;
-                
-                if (move_uploaded_file($_FILES['picture']['tmp_name'], $target_file)) {
-                    $current_picture_path = $target_file;
-                    
-                    // Delete old image if it's not the default
-                    if ($tool['picture'] && $tool['picture'] !== 'uploads/tools/default_tool.png' && file_exists($tool['picture'])) {
-                        unlink($tool['picture']);
-                    }
-                    
-                    logSecurityEvent('Tool image updated', [
-                        'user_id' => $user_id,
-                        'tool_id' => $tool_id,
-                        'filename' => $secure_filename
-                    ]);
-                } else {
-                    $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Error uploading image.');
-                }
-            } else {
-                $error = ($lang === 'cs' ? 'Chyba nahrávání: ' : 'Upload error: ') . $validation['error'];
-            }
-        } else if (isset($_FILES['picture']) && $_FILES['picture']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Image upload error.');
-        }
+        $current_picture_path = trim($_POST['picture'] ?? $tool['picture']); // Use provided path or keep current
 
         if (empty($name) || empty($description) || empty($brand) || empty($model)) {
             $error = ($lang === 'cs' ? 'Vyplňte prosím všechna povinná pole (Název, Popis, Značka, Model).' : 'Please fill in all required fields (Name, Description, Brand, Model).');
@@ -182,7 +146,7 @@ $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname'])
                 <div class="success-message"><?php echo sanitizeOutput($success); ?></div>
             <?php endif; ?>
 
-            <form method="POST" enctype="multipart/form-data" class="form-card">
+            <form method="POST" class="form-card">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <input type="hidden" name="tool_id" value="<?php echo sanitizeOutput($tool_id); ?>">
 
@@ -231,8 +195,8 @@ $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname'])
                         <p><?php echo ($lang === 'cs' ? 'Žádný obrázek.' : 'No picture available.'); ?></p>
                     <?php endif; ?>
                     <label for="picture" style="margin-top: 15px;"><?php echo ($lang === 'cs' ? 'Změnit Obrázek:' : 'Change Picture:'); ?></label>
-                    <input type="file" id="picture" name="picture" accept="image/jpeg,image/png,image/gif">
-                    <small><?php echo ($lang === 'cs' ? 'Max 5MB. Pouze JPG, PNG, GIF. Pokud není nahrán nový obrázek, zůstane stávající.' : 'Max 5MB. Only JPG, PNG, GIF. If no new image is uploaded, the current one will be kept.'); ?></small>
+                    <input type="text" id="picture" name="picture" value="<?php echo sanitizeOutput($tool['picture'] ?? ''); ?>" placeholder="e.g., images/categories/nail guns/Parkside_PDT40F4.jpeg">
+                    <small><?php echo ($lang === 'cs' ? 'Zadejte cestu k obrázku v public/images/categories/... Pokud není zadáno, zůstane stávající.' : 'Enter the path to the image in public/images/categories/... If not provided, the current one will be kept.'); ?></small>
                 </div>
 
                 <button type="submit" class="submit-button">

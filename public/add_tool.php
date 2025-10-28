@@ -35,42 +35,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model = trim($_POST['model']);
         $technical_data = trim($_POST['technical_data']);
         $technical_data_cs = trim($_POST['technical_data_cs']);
-        $picture_path = '';
+        $picture_path = trim($_POST['picture'] ?? '');
 
         // Validate required fields
         if (empty($name) || empty($description) || empty($brand) || empty($model)) {
             $error = ($lang === 'cs' ? 'Vyplňte prosím všechna povinná pole (Název, Popis, Značka, Model).' : 'Please fill in all required fields (Name, Description, Brand, Model).');
         }
 
-        // Handle secure image upload
-        if (empty($error) && isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
-            $validation = validateFileUpload($_FILES['picture']);
-            
-            if ($validation['valid']) {
-                $target_dir = "uploads/tools/";
-                if (!is_dir($target_dir)) {
-                    mkdir($target_dir, 0755, true);
-                }
-
-                $secure_filename = generateSecureFilename($validation['ext']);
-                $target_file = $target_dir . $secure_filename;
-
-                if (move_uploaded_file($_FILES['picture']['tmp_name'], $target_file)) {
-                    $picture_path = $target_file;
-                    logSecurityEvent('File uploaded', ['user_id' => $user_id, 'filename' => $secure_filename]);
-                } else {
-                    $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Error uploading image.');
-                }
-            } else {
-                $error = ($lang === 'cs' ? 'Chyba nahrávání: ' : 'Upload error: ') . $validation['error'];
-            }
-        } else if (isset($_FILES['picture']) && $_FILES['picture']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $error = ($lang === 'cs' ? 'Chyba při nahrávání obrázku.' : 'Image upload error.');
-        }
-
-        // Set default picture if none uploaded
+        // Set default picture if none provided
         if (empty($picture_path) && empty($error)) {
-            $picture_path = 'uploads/tools/default_tool.png';
+            $picture_path = 'images/categories/default_tool.png';
         }
 
         if (empty($error)) {
@@ -146,7 +120,7 @@ $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname'])
                 <div class="success-message"><?php echo sanitizeOutput($success); ?></div>
             <?php endif; ?>
 
-            <form method="POST" enctype="multipart/form-data" class="form-card">
+            <form method="POST" class="form-card">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <div class="form-group">
                     <label for="name"><?php echo ($lang === 'cs' ? 'Název (Anglicky):' : 'Name (English):'); ?></label>
@@ -187,8 +161,8 @@ $fullName = sanitizeOutput($_SESSION['firstname'] . ' ' . $_SESSION['lastname'])
 
                 <div class="form-group">
                     <label for="picture"><?php echo ($lang === 'cs' ? 'Obrázek Nářadí:' : 'Tool Picture:'); ?></label>
-                    <input type="file" id="picture" name="picture" accept="image/jpeg,image/png,image/gif">
-                    <small><?php echo ($lang === 'cs' ? 'Max 5MB. Pouze JPG, PNG, GIF. Pokud není nahrán, použije se výchozí.' : 'Max 5MB. Only JPG, PNG, GIF. If not uploaded, default will be used.'); ?></small>
+                    <input type="text" id="picture" name="picture" placeholder="e.g., images/categories/nail guns/Parkside_PDT40F4.jpeg">
+                    <small><?php echo ($lang === 'cs' ? 'Zadejte cestu k obrázku v public/images/categories/... Pokud není zadáno, použije se výchozí.' : 'Enter the path to the image in public/images/categories/... If not provided, default will be used.'); ?></small>
                 </div>
 
                 <button type="submit" class="submit-button">
