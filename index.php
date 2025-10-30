@@ -56,65 +56,59 @@ $inPublicFolder = false;
       <?php include 'app/navbar.php'; // Updated path ?>
 
       <main>
-        <h1
-          data-en="Welcome to Tools 4 Friends"
-          data-cs="Vítejte na Tools 4 Friends"
-        >
-          Welcome to Tools 4 Friends
-        </h1>
+  <h1
+    data-en="Welcome to Tools 4 Friends"
+    data-cs="Vítejte na Tools 4 Friends"
+  >
+    Welcome to Tools 4 Friends
+  </h1>
 
-        <p
-          data-en="Tools 4 Friends is a website where friends can display their tools for lending them to their friends."
-          data-cs="Tools 4 Friends je webová stránka, kde si přátelé mohou půjčovat nářadí."
-        >
-          Tools 4 Friends is a website where friends can display their tools
-          for lending them to their friends.
-        </p>
+  <p
+    data-en="Tools 4 Friends is a community-driven platform where friends can share and lend tools with one another. Whether you're tackling a home improvement project, fixing up your bike, or just need a tool for a quick job, this is the place to find what you need—without having to buy it."
+    data-cs="Tools 4 Friends je komunitní platforma, kde si přátelé mohou navzájem půjčovat nářadí. Ať už pracujete na domácím projektu, opravujete kolo nebo potřebujete nářadí na jednorázovou práci, zde najdete, co potřebujete – bez nutnosti nákupu."
+  >
+    Tools 4 Friends is a community-driven platform where friends can share and lend tools with one another. Whether you're tackling a home improvement project, fixing up your bike, or just need a tool for a quick job, this is the place to find what you need—without having to buy it.
+  </p>
 
-        <h2 data-en="How does it work?" data-cs="Jak to funguje?">
-          How does it work?
-        </h2>
+  <h2 data-en="How It Works" data-cs="Jak to funguje?">
+    How It Works
+  </h2>
 
-        <p
-          data-en="It is possible for each of you to sign up to lend tools."
-          data-cs="Každý z vás se může zaregistrovat a půjčovat nářadí."
-        >
-          It is possible for each of you to sign up to lend tools.
-        </p>
+  <p
+    data-en="Sign up to join the community and list the tools you're happy to lend. Need a tool? Browse what's available and request to borrow from your friends."
+    data-cs="Zaregistrujte se do komunity a nabídněte nářadí, které můžete půjčit. Potřebujete nářadí? Prohlédněte si dostupné položky a požádejte o zapůjčení od přátel."
+  >
+    Sign up to join the community and list the tools you're happy to lend. Need a tool? Browse what's available and request to borrow from your friends.
+  </p>
 
-        <p
-          data-en="This page is not to make any money, however the owner of his tool may ask for a manipulation fee and deposit for his/her tool."
-          data-cs="Tato stránka není určena k výdělku, ale majitel nářadí může požadovat manipulační poplatek a zálohu."
-        >
-          This page is not to make any money, however the owner of his tool may
-          ask for a manipulation fee and deposit for his/her tool.
-        </p>
+  <p
+    data-en="This site is not for making money. However, tool owners may request a small handling fee and a refundable deposit to ensure tools are returned in good condition."
+    data-cs="Tato stránka není určena k výdělku. Majitelé nářadí však mohou požadovat malý manipulační poplatek a vratnou zálohu, aby bylo zajištěno vrácení nářadí v dobrém stavu."
+  >
+    This site is not for making money. However, tool owners may request a small handling fee and a refundable deposit to ensure tools are returned in good condition.
+  </p>
 
-        <p
-          data-en="The deposit will be returned once the tool is back and in the same condition it was lend."
-          data-cs="Záloha bude vrácena, jakmile bude nářadí vráceno ve stejném stavu, v jakém bylo půjčeno."
-        >
-          The deposit will be returned once the tool is back and in the same
-          condition it was lend.
-        </p>
+  <p
+    data-en="The deposit will be fully refunded once the tool is returned in the same condition it was lent."
+    data-cs="Záloha bude plně vrácena, jakmile bude nářadí vráceno ve stejném stavu, v jakém bylo půjčeno."
+  >
+    The deposit will be fully refunded once the tool is returned in the same condition it was lent.
+  </p>
 
-        <p
-          data-en="The manipulation fee is calculated on the estimated lifetime of the tool, the estimated times the tool will be used and should cover any repairs or buying of new tool if it broke down."
-          data-cs="Manipulační poplatek je vypočítán na základě odhadované životnosti nářadí, počtu jeho použití a měl by pokrýt opravy nebo nákup nového nářadí v případě poruchy."
-        >
-          The manipulation fee is calculated on the estimated lifetime of the
-          tool, the estimated times the tool will be used and should cover any
-          repairs or buying of new tool if it broke down.
-        </p>
+  <p
+    data-en="The handling fee is based on the tool’s estimated lifespan and usage, helping to cover maintenance or replacement if needed."
+    data-cs="Manipulační poplatek je založen na odhadované životnosti a využití nářadí a pomáhá pokrýt údržbu nebo případnou výměnu."
+  >
+    The handling fee is based on the tool’s estimated lifespan and usage, helping to cover maintenance or replacement if needed.
+  </p>
 
-        <p
-          data-en='For more information please contact us <a href="public/contacts.php?lang=<?php echo $lang; ?>">here</a>'
-          data-cs='Pro více informací nás prosím kontaktujte <a href="public/contacts.php?lang=<?php echo $lang; ?>">zde</a>'
-        >
-          For more information please contact us
-          <a href="public/contacts.php?lang=<?php echo sanitizeOutput($lang); ?>">here</a>
-        </p>
-      </main>
+  <p
+    data-en='We’re here to help! For more information, please contact us <a href="public/contacts.php?lang=<?php echo sanitizeOutput($lang); ?>">here</a>.'
+  >
+    We’re here to help! For more information, please contact us
+    <a href="public/contacts.php?lang=<?php echo sanitizeOutput($lang); ?>">here</a>.
+  </p>
+</main>
       <footer>
         <p>© <span id="year"></span> Tools4Friends</p>
       </footer>
