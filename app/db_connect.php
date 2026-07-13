@@ -5,10 +5,10 @@
 
 require_once __DIR__ . '/../config/env_loader.php';
 
-$servername = DB_HOST;
-$username = DB_USER;
-$password = DB_PASS;
-$dbname = DB_NAME;
+$servername = T4F_DB_HOST;
+$username = T4F_DB_USER;
+$password = T4F_DB_PASS;
+$dbname = T4F_DB_NAME;
 
 try {
     $conn = new mysqli($servername, $username, $password, $dbname);
